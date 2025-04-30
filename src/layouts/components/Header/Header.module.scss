@@ -1,10 +1,8 @@
-.header-top {
+.header {
     background-color: #f3f3f3;
-    padding: 10px 0;
-    width: 100vw; /* vw = viewport width */
+    width: 100vw;
 }
-
-.container {
+.header-container {
     max-width: 1300px;
     margin: 0 auto;
     display: flex;
@@ -14,9 +12,21 @@
 }
 
 .logo-title {
+    padding: 15px 0px;
     display: flex;
     align-items: center;
     gap: 15px;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+
+    h1,
+    h2,
+    .slogan {
+        text-decoration: none;
+    }
 }
 
 .logo-title img {
@@ -37,20 +47,6 @@
     font-size: 22px;
     color: #0a314d;
     font-weight: 700;
-}
-.logo-title {
-    text-decoration: none;
-
-    &:hover {
-        text-decoration: none;
-    }
-
-    /* Nếu bạn muốn toàn bộ chữ bên trong cũng không bị gạch dưới: */
-    h1,
-    h2,
-    .slogan {
-        text-decoration: none;
-    }
 }
 
 .slogan {
@@ -106,12 +102,15 @@
 .menu-left {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .menu-right {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .menu-item {
@@ -135,7 +134,7 @@
 }
 
 .time-date {
-    font-size: 12px;
+    font-size: 13px;
     text-align: center;
     font-weight: 500;
     line-height: 1.3;

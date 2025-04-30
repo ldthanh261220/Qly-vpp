@@ -1,5 +1,41 @@
-function Sidebar() {
-    return <h2>Sidebar</h2>;
-}
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Home, FileText, UserCircle } from 'lucide-react';
+import styles from './Sidebar.module.scss';
+import classNames from 'classnames/bind';
+import config from '~/config';
 
-export default Sidebar;
+const cx = classNames.bind(styles);
+
+export default function Sidebar() {
+    const navigate = useNavigate();
+
+    const menu = [
+        { name: 'Tổng quan', icon: <Home size={18} />, to: config.routes.home },
+        { name: 'Gửi yêu cầu', icon: <FileText size={18} />, to: config.routes.sendrequest },
+        { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
+    ];
+
+    const handleLogout = () => {
+        console.log('User logged out');
+        // navigate("/login");
+    };
+
+    return (
+        <div className={cx('sidebar')}>
+            <div className={cx('sidebar-content')}>
+                <nav className={cx('sidebar-nav')}>
+                    {menu.map((item, i) => (
+                        <NavLink
+                            key={i}
+                            to={item.to}
+                            className={({ isActive }) => cx('sidebar-item', { active: isActive })}
+                        >
+                            <span className={cx('sidebar-icon')}>{item.icon}</span>
+                            <span className={cx('sidebar-text')}>{item.name}</span>
+                        </NavLink>
+                    ))}
+                </nav>
+            </div>
+        </div>
+    );
+}
