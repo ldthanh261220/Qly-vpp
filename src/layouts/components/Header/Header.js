@@ -3,6 +3,7 @@ import styles from './Header.module.scss';
 import config from '~/config';
 import { Link } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
+import TimeDate from '~/components/TimeDate';
 
 const cx = classNames.bind(styles);
 
@@ -108,9 +109,7 @@ function Header() {
                             <span>🔔</span>
                         </div>
                         <div className={cx('time-date')}>
-                            09:21:48 PM
-                            <br />
-                            Thứ 7, 15/03/2025
+                            <TimeDate />
                         </div>
                         <div className={cx('user-info')}>
                             <div className={cx('user-text')}>
