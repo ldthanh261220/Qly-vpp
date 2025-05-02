@@ -1,0 +1,208 @@
+.form-container {
+    max-width: 800px;
+    margin: 32px auto;
+    padding: 24px 32px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', sans-serif;
+  
+    h2 {
+      margin-bottom: 24px;
+      color: #333;
+      text-align: center;
+    }
+  
+    .form-table {
+      width: 100%;
+      border-spacing: 12px;
+      margin-bottom: 24px;
+  
+      td {
+        vertical-align: top;
+  
+        label {
+          font-weight: 600;
+          color: #333;
+          display: block;
+          margin-bottom: 6px;
+          white-space: nowrap;
+        }
+      }
+    }
+  
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+  
+      &:focus {
+        border-color: #4CAF50;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        outline: none;
+      }
+    }
+    .btn-submit_thietbi {
+      padding: 12px 20px;
+      background-color: #4caf50; // Xanh lá
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-right: 12px;
+    
+      &:hover {
+        background-color: #116e4a; // Xanh lá đậm hơn khi hover
+      }
+    }
+    
+    .btn-submit {
+      padding: 12px 20px;
+      background-color: #1c75d3; 
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+     right: 0;
+  
+      &:hover {
+        background-color: #6785ad;
+      }
+    }
+  
+    .btn-cancel {
+      padding: 12px 20px;
+      background-color: #f44336;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+  
+      &:hover {
+        background-color: #e53935;
+      }
+    }
+  
+    .plan-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 24px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      overflow: hidden;
+  
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+      }
+  
+      th {
+        background-color: #f0f0f0;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+  
+  .button_wrapper {
+    padding: 20px;
+    text-align: right;
+  }
+
+  select {
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease;
+  
+    &:focus {
+      border-color: #4caf50;
+      outline: none;
+      background-color: #fff;
+    }
+  }
+  .textarea-large {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical;
+  
+    &:focus {
+      border-color: #4caf50;
+      outline: none;
+    }
+  }
+    
+
+  .form-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  
+    td {
+      padding: 10px;
+      vertical-align: middle;
+    }
+  
+    select,
+    input[type="number"],
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+  
+      &:focus {
+        border-color: #4caf50;
+        outline: none;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+      }
+    }
+  
+    select {
+      background-color: #f9f9f9;
+    }
+  
+    label {
+      font-weight: 600;
+    }
+  }
+  .btn-back {
+    background-color: #bdc3c7;
+    color: #2c3e50;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: background-color 0.3s;
+  
+    &:hover {
+      background-color: #95a5a6;
+    }
+  }

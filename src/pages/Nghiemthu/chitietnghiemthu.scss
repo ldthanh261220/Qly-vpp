@@ -1,0 +1,53 @@
+.contract-container {
+    padding: 20px;
+    h2, h3 { margin-bottom: 10px; }
+    .contract-info p {
+      margin: 5px 0;
+    }
+    .product-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+      img {
+        margin-top: 5px;
+        border-radius: 4px;
+      }
+    }
+    .pagination {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      button {
+        padding: 5px 10px;
+      }
+      .active {
+        background-color: #4c4cff;
+        color: white;
+      }
+    }
+    .button-wrapper {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      .btn-danger {
+        background-color: red;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+      }
+      .btn-primary {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+      }
+    }
+  }
+  

@@ -1,7 +1,17 @@
-import '../css/content.css'; // Sửa lại đường dẫn import CSS
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import './kehoach.scss';
+import React, { useState } from 'react';
+
 
 export default function Kehoach() {
+ const navgate=useNavigate();
+
+ const handdetail=(id)=>{
+    navgate(`/kehoach/${id}`)
+ }
+ const handadd=()=>{
+  navgate(`/themkehoach`)
+}
   const data = [
     { id: "20462", date: "13/05/2022", type: "Mua sắm", status: "Đã xác nhận" },
     { id: "19833", date: "22/05/2022", type: "Sửa chữa", status: "Đang chờ duyệt" },
@@ -15,49 +25,55 @@ export default function Kehoach() {
     "Không duyệt": "status-rejected",
   };
 
+  // Xử lý UI theo từng trạng thái
   return (
     <div className="main-content">
-      <div className="main-content-header">
-        <h1 className="main-content-title">Danh sách kế hoạch mua sắm</h1>
-      <Link to='/themkehoach'> <button className="add-plan-button">Thêm kế hoạch</button></Link>
-      </div>
+      
+        <>
+          <div className="main-content-header">
+            <h1 className="main-content-title">Danh sách kế hoạch mua sắm</h1>
+            <button className="add-plan-button" onClick={()=>handadd()} >
+              Thêm kế hoạch
+            </button>
+          </div>
 
-      <div className="table-container">
-        <table className="data-table">
-          <thead className="table-header">
-            <tr>
-              <th className="table-cell">Mã kế hoạch</th>
-              <th className="table-cell">Ngày thực hiện</th>
-              <th className="table-cell">Loại</th>
-              <th className="table-cell">Trạng thái</th>
-              <th className="table-cell">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, i) => (
-              <tr key={i} className="table-row">
-                
-                <td className="table-cell"><Link to={`/chitietkehoach/${item.id}`}>{item.id}</Link></td>
-                <td className="table-cell">{item.date}</td>
-                <td className="table-cell">{item.type}</td>
-                <td className="table-cell">
-                  <span className={`status-label ${statusColor[item.status]}`}>
-                    {item.status}
-                  </span>
-                </td>
-
-                <td className="table-cell actions">
-                 
-                  <button className="edit-button">Sửa</button>
-              
-                  
-                  <button className="delete-button">Xoá</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          <div className="table-container">
+            <table className="data-table">
+              <thead className="table-header">
+                <tr>
+                  <th className="table-cell">Mã kế hoạch</th>
+                  <th className="table-cell">Ngày thực hiện</th>
+                  <th className="table-cell">Loại</th>
+                  <th className="table-cell">Trạng thái</th>
+                  <th className="table-cell">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item, i) => (
+                  <tr key={i} className="table-row">
+                    <td className="table-cell">
+                      <button onClick={() =>handdetail(item.id)} className="link-button">
+                        {item.id}
+                      </button>
+                    </td>
+                    <td className="table-cell">{item.date}</td>
+                    <td className="table-cell">{item.type}</td>
+                    <td className="table-cell">
+                      <span className={`status-label ${statusColor[item.status]}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="table-cell actions">
+                      <button className="edit-button">Sửa</button>
+                      <button className="delete-button">Xoá</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+  
     </div>
   );
 }

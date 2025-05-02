@@ -1,0 +1,131 @@
+.main-content {
+    padding: 20px;
+    background-color: #f8f9fd;
+  
+    .main-content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+  
+      .main-content-title {
+        font-size: 24px;
+        font-weight: 600;
+      }
+    }
+  
+    .table-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+      padding: 16px;
+  
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+  
+        th, td {
+          padding: 12px 16px;
+          text-align: left;
+          border-bottom: 1px solid #eaeaea;
+        }
+  
+        thead {
+          background-color: #f1f4f9;
+  
+          th {
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+          }
+        }
+  
+        tbody {
+          tr {
+            &:nth-child(even) {
+              background-color: #fafafa;
+            }
+  
+            &:hover {
+              background-color: #f0f8ff;
+              cursor: pointer;
+            }
+          }
+  
+          .status-label {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+  
+            &.status-success {
+              background-color: #e6f4ea;
+              color: #1c8c48;
+            }
+  
+            &.status-warning {
+              background-color: #fff4e5;
+              color: #c77a00;
+            }
+  
+            &.status-error {
+              background-color: #ffe5e5;
+              color: #d93025;
+            }
+          }
+  
+          .actions {
+            display: flex;
+            gap: 10px;
+  
+            .icon-button {
+              background: none;
+              border: none;
+              cursor: pointer;
+              color: #4a4a4a;
+              padding: 4px;
+  
+              &:hover {
+                color: #007bff;
+              }
+  
+              &.delete:hover {
+                color: #e74c3c;
+              }
+            }
+          }
+        }
+      }
+  
+      .pagination {
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+  
+        button {
+          padding: 6px 12px;
+          font-size: 13px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          background-color: #fff;
+          cursor: pointer;
+  
+          &.active {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+          }
+  
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+  

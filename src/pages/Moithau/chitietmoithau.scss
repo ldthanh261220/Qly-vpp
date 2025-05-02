@@ -1,0 +1,88 @@
+.goi-thau-detail {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+
+  h2, h3 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+  }
+
+  .top-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    .goi-thau, .Thongtin {
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+  
+
+
+  }
+
+  .Thietbi {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ 
+
+    .device-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f7f7f7;
+      }
+
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+    }
+  }
+
+  .nhathau {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ 
+    margin-bottom: 16px;
+  }
+
+  .trang-thai {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 4px;
+
+    &.hoan-thanh {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    &.dang-cho {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    &.khac {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  }
+}

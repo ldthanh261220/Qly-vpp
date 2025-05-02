@@ -13,6 +13,9 @@ export default function Sidebar() {
         { name: 'Tổng quan', icon: <Home size={18} />, to: config.routes.home },
         { name: 'Gửi yêu cầu', icon: <FileText size={18} />, to: config.routes.sendrequest },
         { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
+        { name: 'Kế hoạch', icon: <UserCircle size={18} />, to: config.routes.Kehoach },
+        { name: 'Nghiệm thu', icon: <UserCircle size={18} />, to: config.routes.Nghiemthu},
+        { name: 'Mời thầu', icon: <UserCircle size={18} />, to: config.routes.Moithau}
     ];
 
     const handleLogout = () => {
