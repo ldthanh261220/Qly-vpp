@@ -232,7 +232,7 @@ $font-montserrat: 'Montserrat', sans-serif;
     }
 }
 
-button {
+.btn-submit {
     padding: 10px 25px;
     border: none;
     border-radius: $border-radius;
@@ -245,9 +245,6 @@ button {
     margin-right: 16px;
     margin-bottom: 30px;
     display: block; // Đảm bảo button là block để margin-left có hiệu lực
-}
-
-.btn-submit {
     background-color: #3056d3;
     color: white;
 

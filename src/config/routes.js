@@ -2,7 +2,8 @@ const routes = {
     home: '/',
     profile: '/@:nickname',
     sendrequest: '/sendrequest',
-    sendrequestDetail: '/sendrequest/chitietyeucau',
+    Qlytaikhoan: '/qlytaikhoan',
+    Phanquyen: '/phanquyen',
 };
 
 export default routes;

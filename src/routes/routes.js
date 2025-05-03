@@ -4,14 +4,15 @@ import config from '~/config';
 import Home from '~/pages/Home';
 import Profile from '~/pages/Profile';
 import SendRequest from '~/pages/SendRequest';
-import ChiTietYeuCau from '~/pages/ChiTietYeuCau';
-
+import Qly from '~/pages/Qlytaikhoan';
+import Phanquyen from '~/pages/Phanquyen';
 // Public routes
 const publicRoutes = [
     { path: config.routes.home, component: Home },
     { path: config.routes.profile, component: Profile },
     { path: config.routes.sendrequest, component: SendRequest },
-    { path: config.routes.sendrequestDetail, component: ChiTietYeuCau }, // thêm dòng này
+    { path: config.routes.Qlytaikhoan, component: Qly },
+    { path: config.routes.Phanquyen, component: Phanquyen },
 ];
 
 const privateRoutes = [];
