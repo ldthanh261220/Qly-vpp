@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import styles from './Header.module.scss';
 import config from '~/config';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
 import TimeDate from '~/components/TimeDate';
 
@@ -19,9 +19,14 @@ const LANGUAGE_ITEMS = [
 ];
 const SEARCH_ITEMS = [
     {
+        title: 'Danh sách thiết bị',
+        to: config.routes.Dsthietbi,
+    },
+    {
         title: 'Văn bản pháp quy',
     },
     {
+        id: 'approved_contractors',
         title: 'Nhà thầu được phê duyệt',
     },
 ];
@@ -48,6 +53,12 @@ const HDSD_ITEMS = [
 function Header() {
     const currentUser = true;
 
+    const navigate = useNavigate();
+    const handleTracuuClick = (item) => {
+        if (item.to) {
+            navigate(item.to);
+        }
+    };
     // Handle logic
     const handleLanguageChange = (item) => {
         console.log('Selected language:', item);
@@ -92,7 +103,7 @@ function Header() {
                     <div className={cx('header-container')}>
                         <div className={cx('menu-left')}>
                             <div className={cx('menu-item')}>Trang chủ</div>
-                            <Menu items={SEARCH_ITEMS} onChange={handleLanguageChange} V2>
+                            <Menu items={SEARCH_ITEMS} onChange={handleTracuuClick} V2>
                                 <div className={cx('menu-item')}>Tra cứu</div>
                             </Menu>
                             <div className={cx('menu-item')}>Câu hỏi thường gặp</div>
