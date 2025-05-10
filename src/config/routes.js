@@ -5,6 +5,11 @@ const routes = {
     Qlytaikhoan: '/qlytaikhoan',
     Phanquyen: '/phanquyen',
     Dsthietbi: '/dsthietbi',
+    // Thịnh
+    Duyetkehoach: '/Duyetkehoachmuasam',
+    Duyetnhathau: '/Duyetnhathau',
+    Duyetngansach: '/Duyetngansach',
+    Thanhtoanhopdong: '/Thanhtoanhopdong',
 };
 
 export default routes;
