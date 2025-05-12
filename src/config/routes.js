@@ -7,6 +7,8 @@ const routes = {
 
     nhathau: '/nhathau',
     chitietnhathau: '/nhathau/:id',
+    hopdong: '/hopdong',
+    chitiethopdong: 'hopdong/:id',
 };
 
 export default routes;
