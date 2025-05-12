@@ -4,6 +4,9 @@ const routes = {
     sendrequest: '/sendrequest',
     Qlytaikhoan: '/qlytaikhoan',
     Phanquyen: '/phanquyen',
+
+    nhathau: '/nhathau',
+    chitietnhathau: '/nhathau/:id',
 };
 
 export default routes;

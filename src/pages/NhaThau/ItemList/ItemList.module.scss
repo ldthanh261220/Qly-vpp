@@ -1,0 +1,45 @@
+.item{
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .content{
+        display: flex;
+        align-items: center;
+        gap: 30px;
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+    }
+
+    .handle-event{
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+
+        button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-del {
+            color: #ffffff;
+            background-color: #11588B;
+        }
+
+        .btn-details {
+            color: #11588B;
+            background-color: #ffffff;
+            border: 2px solid #11588B;
+        }
+    }
+}
