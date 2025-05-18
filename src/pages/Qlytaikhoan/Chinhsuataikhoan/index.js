@@ -5,12 +5,12 @@ const cx = classNames.bind(styles);
 
 function Chinhsuataikhoan({ onClose, accountData }) {
     // Default account data if none is provided
-    const account = accountData || {
-        name: 'Hồ Văn Quân',
-        position: 'Trưởng phòng',
-        department: 'Phòng cơ sở vật chất',
-        email: 'hvquan@ute.udn.vn',
-        status: 'Hoạt động',
+    const account = {
+        name: accountData.hoTen,
+        position: accountData.chucVu,
+        department: accountData.donViCongTac,
+        email: accountData.email,
+        status: accountData.trangThai,
     };
 
     return (

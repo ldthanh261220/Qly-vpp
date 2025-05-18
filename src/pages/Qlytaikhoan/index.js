@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Qlytaikhoan.module.scss';
 import Themtaikhoan from './Themtaikhoan';
 import Chinhsuataikhoan from './Chinhsuataikhoan';
 import Xemchitiettaikhoan from './Xemchitiettaikhoan';
 import Xacnhanxoa from './Xacnhanxoa';
+import userService from '~/services/userService';
 
 const cx = classNames.bind(styles);
 
 function Qlytaikhoan() {
+    const [listUser, setListUser] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
@@ -47,6 +49,22 @@ function Qlytaikhoan() {
         setShowViewModal(false);
         setShowDeleteModal(false);
     };
+
+    const Didmount = async () => {
+        try {
+            let response = await userService.getAllUsers('ALL');
+            if (response && response.errCode === 0) {
+                setListUser(response.users);
+            }
+            console.log('get user from nodejs: ', response);
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách người dùng:', error);
+        }
+    };
+    useEffect(() => {
+        Didmount();
+    }, []);
+    console.log(listUser);
 
     return (
         <div className={cx('container')}>
@@ -105,324 +123,34 @@ function Qlytaikhoan() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>1</td>
-                        <td className={cx('cell')}>Lê Văn Hoài</td>
-                        <td className={cx('cell')}>Phó Trưởng phòng</td>
-                        <td className={cx('cell')}>P.CSVC</td>
-                        <td className={cx('cell')}>lvhoai@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Lê Văn Hoài',
-                                            position: 'Phó Trưởng phòng',
-                                            department: 'P.CSVC',
-                                            email: 'lvhoai@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Lê Văn Hoài',
-                                            position: 'Phó Trưởng phòng',
-                                            department: 'P.CSVC',
-                                            email: 'lvhoai@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Lê Văn Hoài',
-                                            position: 'Phó Trưởng phòng',
-                                            department: 'P.CSVC',
-                                            email: 'lvhoai@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>2</td>
-                        <td className={cx('cell')}>Hồ Văn Quân</td>
-                        <td className={cx('cell')}>Trưởng phòng</td>
-                        <td className={cx('cell')}>P.CSVC</td>
-                        <td className={cx('cell')}>hvquan@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Hồ Văn Quân',
-                                            position: 'Trưởng phòng',
-                                            department: 'Phòng cơ sở vật chất',
-                                            email: 'hvquan@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Hồ Văn Quân',
-                                            position: 'Trưởng phòng',
-                                            department: 'Phòng cơ sở vật chất',
-                                            email: 'hvquan@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Hồ Văn Quân',
-                                            position: 'Trưởng phòng',
-                                            department: 'Phòng cơ sở vật chất',
-                                            email: 'hvquan@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>3</td>
-                        <td className={cx('cell')}>Nguyễn Văn A</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell')}>a@congty.abc.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Nguyễn Văn A',
-                                            position: '',
-                                            department: '',
-                                            email: 'a@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Nguyễn Văn A',
-                                            position: '',
-                                            department: '',
-                                            email: 'a@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Nguyễn Văn A',
-                                            position: '',
-                                            department: '',
-                                            email: 'a@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>4</td>
-                        <td className={cx('cell')}>Phạm Thị D</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell')}>d@congty.abc.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Phạm Thị D',
-                                            position: '',
-                                            department: '',
-                                            email: 'd@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Phạm Thị D',
-                                            position: '',
-                                            department: '',
-                                            email: 'd@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Phạm Thị D',
-                                            position: '',
-                                            department: '',
-                                            email: 'd@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>5</td>
-                        <td className={cx('cell')}>Võ Trung Hùng</td>
-                        <td className={cx('cell')}>Ban giám hiệu</td>
-                        <td className={cx('cell')}>Đh.Spkt</td>
-                        <td className={cx('cell')}>vthung@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Võ Trung Hùng',
-                                            position: 'Ban giám hiệu',
-                                            department: 'Đh.Spkt',
-                                            email: 'vthung@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Võ Trung Hùng',
-                                            position: 'Ban giám hiệu',
-                                            department: 'Đh.Spkt',
-                                            email: 'vthung@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Võ Trung Hùng',
-                                            position: 'Ban giám hiệu',
-                                            department: 'Đh.Spkt',
-                                            email: 'vthung@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>6</td>
-                        <td className={cx('cell')}>Nguyễn Thị Ngọc Linh</td>
-                        <td className={cx('cell')}>Trưởng phòng</td>
-                        <td className={cx('cell')}>P.KH-TC</td>
-                        <td className={cx('cell')}>ntnlinh@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Nguyễn Thị Ngọc Linh',
-                                            position: 'Trưởng phòng',
-                                            department: 'P.KH-TC',
-                                            email: 'ntnlinh@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Nguyễn Thị Ngọc Linh',
-                                            position: 'Trưởng phòng',
-                                            department: 'P.KH-TC',
-                                            email: 'ntnlinh@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Nguyễn Thị Ngọc Linh',
-                                            position: 'Trưởng phòng',
-                                            department: 'P.KH-TC',
-                                            email: 'ntnlinh@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    {listUser &&
+                        listUser.map((item, index) => {
+                            return (
+                                <tr className={cx('table-row')}>
+                                    <td className={cx('cell')}>{item.id}</td>
+                                    <td className={cx('cell')}>{item.hoTen}</td>
+                                    <td className={cx('cell')}>{item.chucVu}</td>
+                                    <td className={cx('cell')}>{item.donViCongTac}</td>
+                                    <td className={cx('cell')}>{item.email}</td>
+                                    <td className={cx('cell')}>
+                                        <div className={cx('action-buttons')}>
+                                            <button className={cx('btn-edit')} onClick={() => handleEditAccount(item)}>
+                                                Sửa
+                                            </button>
+                                            <button
+                                                className={cx('btn-delete')}
+                                                onClick={() => handleDeleteAccount(item)}
+                                            >
+                                                Xóa
+                                            </button>
+                                            <button className={cx('btn-view')} onClick={() => handleViewAccount(item)}>
+                                                Xem chi tiết
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                 </tbody>
             </table>
 

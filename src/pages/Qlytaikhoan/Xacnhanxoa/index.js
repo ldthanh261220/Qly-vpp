@@ -5,8 +5,12 @@ const cx = classNames.bind(styles);
 
 function Xacnhanxoa({ onClose, onConfirm, accountData }) {
     // Default account data if none is provided
-    const account = accountData || {
-        name: '',
+    const account = {
+        name: accountData.hoTen,
+        position: accountData.chucVu,
+        department: accountData.donViCongTac,
+        email: accountData.email,
+        status: accountData.trangThai,
     };
 
     return (

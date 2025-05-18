@@ -4,6 +4,9 @@ import config from '~/config';
 import { Link, useNavigate } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
 import TimeDate from '~/components/TimeDate';
+import { useState } from 'react';
+import Login from './Login';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
@@ -51,7 +54,8 @@ const HDSD_ITEMS = [
     },
 ];
 function Header() {
-    const currentUser = true;
+    const user = useSelector((state) => state.user.currentUser);
+    const [showLoginModal, setshowLoginModal] = useState(false);
 
     const navigate = useNavigate();
     const handleTracuuClick = (item) => {
@@ -64,7 +68,12 @@ function Header() {
         console.log('Selected language:', item);
         // TODO: Thay đổi ngôn ngữ trong app tại đây (ví dụ: i18n.changeLanguage(item.code))
     };
-
+    const handleShowLogin = () => {
+        setshowLoginModal(true);
+    };
+    const handleCloseLoginModals = () => {
+        setshowLoginModal(false);
+    };
     return (
         <header>
             {/* -- HEADER TOP-- */}
@@ -123,19 +132,32 @@ function Header() {
                             <div className={cx('time-date')}>
                                 <TimeDate />
                             </div>
+
                             <div className={cx('user-info')}>
-                                <div className={cx('user-text')}>
-                                    <div className={cx('user-name')}>
-                                        <strong>Thành Lê</strong>
-                                    </div>
-                                    <div className={cx('user-role')}>Nhà thầu</div>
-                                </div>
-                                <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="Avatar" />
+                                {user ? (
+                                    <>
+                                        <div className={cx('user-text')}>
+                                            <div className={cx('user-name')}>
+                                                <strong>{user.hoTen}</strong>
+                                            </div>
+                                            <div className={cx('user-role')}>Nhà thầu</div>
+                                        </div>
+                                        <img
+                                            src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+                                            alt="Avatar"
+                                        />
+                                    </>
+                                ) : (
+                                    <button className={cx('btn-login')} onClick={handleShowLogin}>
+                                        Đăng nhập
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {showLoginModal && <Login onClose={handleCloseLoginModals} />}
         </header>
     );
 }
