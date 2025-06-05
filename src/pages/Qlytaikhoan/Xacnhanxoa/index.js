@@ -6,13 +6,16 @@ const cx = classNames.bind(styles);
 function Xacnhanxoa({ onClose, onConfirm, accountData }) {
     // Default account data if none is provided
     const account = {
+        id: accountData.id,
         name: accountData.hoTen,
         position: accountData.chucVu,
         department: accountData.donViCongTac,
         email: accountData.email,
         status: accountData.trangThai,
     };
-
+    const handleConfirm = async () => {
+        onConfirm(account);
+    };
     return (
         <div
             className={cx('modal-overlay')}
@@ -42,7 +45,7 @@ function Xacnhanxoa({ onClose, onConfirm, accountData }) {
                     <button className={cx('btn-cancel')} onClick={onClose}>
                         Huỷ bỏ
                     </button>
-                    <button className={cx('btn-confirm')} onClick={onConfirm}>
+                    <button className={cx('btn-confirm')} onClick={handleConfirm}>
                         Xác nhận xoá
                     </button>
                 </div>

@@ -1,15 +1,33 @@
 import axios from '../axios';
 
 const handleLogin = (email, password) => {
-    return axios.post('/api/login', {
+    return axios.post('/login', {
         email,
         password,
     });
 };
-const getAllUsers = (inputId) => {
-    return axios.get(`/api/get-all-users?id=${inputId}`);
+const getAllUsersService = (inputId) => {
+    return axios.get(`/get-all-users?id=${inputId}`);
+};
+const createNewUserService = (data) => {
+    console.log('check data from service: ', data);
+    return axios.post('/create-new-user', data);
+};
+const editUserService = (data) => {
+    console.log('check data from service: ', data);
+    return axios.put('/edit-user', data);
+};
+const deleteUserService = (userId) => {
+    return axios.delete('/delete-user', {
+        data: {
+            id: userId,
+        },
+    });
 };
 export default {
     handleLogin,
-    getAllUsers,
+    getAllUsersService,
+    createNewUserService,
+    editUserService,
+    deleteUserService,
 };
