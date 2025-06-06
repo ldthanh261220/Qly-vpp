@@ -3,34 +3,37 @@ import { Home, FileText, UserCircle, Users, Key, ShoppingCart, Book, ChartColumn
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
 import config from '~/config';
+import { useSelector } from 'react-redux';
 
 const cx = classNames.bind(styles);
 
 export default function Sidebar() {
+    const user = useSelector((state) => state.user.currentUser);
+
     const navigate = useNavigate();
 
-    const menu = [
-        { name: 'Tổng quan', icon: <Home size={18} />, to: config.routes.home },
-        { name: 'Gửi yêu cầu', icon: <FileText size={18} />, to: config.routes.sendrequest },
-        { name: 'Quản lý tài khoản', icon: <Users size={18} />, to: config.routes.Qlytaikhoan },
-        { name: 'Phân quyền tài khoản', icon: <Key size={18} />, to: config.routes.Phanquyen },
-        { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
-        { name: 'Duyệt kế hoạch mua sắm', icon: <ShoppingCart size={18} />, to: config.routes.Duyetkehoach },
-        { name: 'Duyệt KH chọn nhà thầu', icon: <Book size={18} />, to: config.routes.Duyetnhathau },
-        { name: 'Duyệt ngân sách ', icon: <ChartColumnBig size={18} />, to: config.routes.Duyetngansach },
-        { name: 'Thanh toán hợp đồng', icon: <Layers size={18} />, to: config.routes.Thanhtoanhopdong },
+    const commonMenu = [{ name: 'Tổng quan', icon: <Home size={18} />, to: config.routes.home }];
+
+    const privateMenu = [
+        { name: 'Gửi yêu cầu', icon: <FileText size={18} />, to: config.routes.sendrequest, quyen: 7 },
+        { name: 'Quản lý tài khoản', icon: <Users size={18} />, to: config.routes.Qlytaikhoan, quyen: 1 },
+        { name: 'Phân quyền tài khoản', icon: <Key size={18} />, to: config.routes.Phanquyen, quyen: 1 },
+        { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile, quyen: 1 },
+        { name: 'Duyệt kế hoạch mua sắm', icon: <ShoppingCart size={18} />, to: config.routes.Duyetkehoach, quyen: 1 },
+        { name: 'Duyệt KH chọn nhà thầu', icon: <Book size={18} />, to: config.routes.Duyetnhathau, quyen: 1 },
+        { name: 'Duyệt ngân sách ', icon: <ChartColumnBig size={18} />, to: config.routes.Duyetngansach, quyen: 1 },
+        { name: 'Thanh toán hợp đồng', icon: <Layers size={18} />, to: config.routes.Thanhtoanhopdong, quyen: 1 },
     ];
 
-    const handleLogout = () => {
-        console.log('User logged out');
-        // navigate("/login");
-    };
+    const filteredMenu = user ? privateMenu.filter((item) => item.quyen === user.maVaiTro) : [];
+
+    const finalMenu = [...commonMenu, ...filteredMenu];
 
     return (
         <div className={cx('sidebar')}>
             <div className={cx('sidebar-content')}>
                 <nav className={cx('sidebar-nav')}>
-                    {menu.map((item, i) => (
+                    {finalMenu.map((item, i) => (
                         <NavLink
                             key={i}
                             to={item.to}
