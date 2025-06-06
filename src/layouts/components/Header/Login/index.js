@@ -30,14 +30,14 @@ function Login({ onClose }) {
         try {
             const data = await userService.handleLogin(email, password);
 
-            if (data && data.errCode !== 0) {
-                throw new Error(data.message || 'Đăng nhập thất bại');
+            if (data && data.EC !== 0) {
+                throw new Error(data.EM || 'Đăng nhập thất bại');
             }
 
             dispatch(loginSuccess(data.user));
             onClose();
         } catch (error) {
-            const message = error?.response?.data?.message || error.message || 'Có lỗi xảy ra!';
+            const message = error?.response?.data?.EM || error.EM || 'Có lỗi xảy ra!';
             setErrMessage(message);
         }
     };

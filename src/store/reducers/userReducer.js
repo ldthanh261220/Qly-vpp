@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 const userSlice = createSlice({
     name: 'user',
     initialState: {
@@ -10,10 +9,12 @@ const userSlice = createSlice({
         loginSuccess: (state, action) => {
             state.currentUser = action.payload;
             state.isLoggedIn = true;
+            localStorage.setItem('user', JSON.stringify(action.payload)); // Lưu vào localStorage
         },
         logout: (state) => {
             state.currentUser = null;
             state.isLoggedIn = false;
+            localStorage.removeItem('user'); // Xoá khi logout
         },
     },
 });

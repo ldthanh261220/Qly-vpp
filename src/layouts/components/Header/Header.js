@@ -7,6 +7,9 @@ import TimeDate from '~/components/TimeDate';
 import { useState } from 'react';
 import Login from './Login';
 import { useSelector } from 'react-redux';
+import { LayoutDashboard, LogOut } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { logout } from '~/store/reducers/userReducer';
 
 const cx = classNames.bind(styles);
 
@@ -31,6 +34,17 @@ const SEARCH_ITEMS = [
     {
         id: 'approved_contractors',
         title: 'Nhà thầu được phê duyệt',
+    },
+];
+const USER_ITEMS = [
+    {
+        icon: <LayoutDashboard size={18} />,
+        title: 'Trang tổng quan',
+        to: config.routes.home,
+    },
+    {
+        icon: <LogOut size={18} />,
+        title: 'Đăng xuất',
     },
 ];
 const HDSD_ITEMS = [
@@ -67,6 +81,15 @@ function Header() {
     const handleLanguageChange = (item) => {
         console.log('Selected language:', item);
         // TODO: Thay đổi ngôn ngữ trong app tại đây (ví dụ: i18n.changeLanguage(item.code))
+    };
+    const dispatch = useDispatch();
+    const handleUserClick = (item) => {
+        if (item.title === 'Đăng xuất') {
+            dispatch(logout());
+            navigate(config.routes.home); // Chuyển hướng sau khi đăng xuất (tùy chọn)
+        } else if (item.to) {
+            navigate(item.to);
+        }
     };
     const handleShowLogin = () => {
         setshowLoginModal(true);
@@ -135,18 +158,20 @@ function Header() {
 
                             <div className={cx('user-info')}>
                                 {user ? (
-                                    <>
-                                        <div className={cx('user-text')}>
-                                            <div className={cx('user-name')}>
-                                                <strong>{user.hoTen}</strong>
+                                    <Menu items={USER_ITEMS} onChange={handleUserClick} V3>
+                                        <div className={cx('info-container')}>
+                                            <div className={cx('user-text')}>
+                                                <div className={cx('user-name')}>
+                                                    <strong>{user.hoTen}</strong>
+                                                </div>
+                                                <div className={cx('user-role')}>Nhà thầu</div>
                                             </div>
-                                            <div className={cx('user-role')}>Nhà thầu</div>
+                                            <img
+                                                src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+                                                alt="Avatar"
+                                            />
                                         </div>
-                                        <img
-                                            src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
-                                            alt="Avatar"
-                                        />
-                                    </>
+                                    </Menu>
                                 ) : (
                                     <button className={cx('btn-login')} onClick={handleShowLogin}>
                                         Đăng nhập
