@@ -4,7 +4,7 @@ import styles from './Phanquyen.module.scss';
 import DoiVaiTro from './DoiVaiTro';
 import userService from '~/services/userService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleXmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faCircleXmark, faSpinner, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 
@@ -32,6 +32,12 @@ function Phanquyen() {
     const [filteredData, setFilteredData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [currentAccount, setCurrentAccount] = useState(null);
+
+    // Thêm state cho hiệu ứng UX
+    const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+    const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+    const [updatedUserName, setUpdatedUserName] = useState('');
+
     const itemsPerPage = 2;
 
     const getAllUser = async () => {
@@ -45,6 +51,7 @@ function Phanquyen() {
             }
         } catch (error) {
             console.error('Lỗi khi tải danh sách người dùng:', error);
+            setIsSearching(false);
         }
     };
 
@@ -106,18 +113,53 @@ function Phanquyen() {
         setShowRoleDialog(true);
     };
 
-    const handleSaveRoleChange = async (userid, maVaiTro) => {
+    // Cải tiến hàm xử lý đổi role với hiệu ứng UX
+    const handleSaveRoleChange = async (userId, maVaiTro) => {
         try {
-            const response = await userService.changeRoleService(userid, maVaiTro);
+            setIsUpdatingRole(true);
+            setUpdatedUserName(currentAccount?.hoTen || '');
+
+            const response = await userService.changeRoleService(userId, maVaiTro);
+
             if (response?.errCode !== 0) {
                 alert(response.errMessage);
-            } else {
-                await getAllUser();
-                setShowRoleDialog(false);
+                setIsUpdatingRole(false);
+                return;
             }
+
+            // Delay để hiển thị hiệu ứng loading
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            setIsUpdatingRole(false);
+            setShowRoleDialog(false);
+
+            // Hiển thị hiệu ứng thành công
+            setShowSuccessOverlay(true);
+
+            // Cập nhật dữ liệu ngầm
+            await getAllUser();
+
+            // Ẩn hiệu ứng thành công sau 2.5 giây
+            setTimeout(() => {
+                setShowSuccessOverlay(false);
+                setUpdatedUserName('');
+            }, 2500);
         } catch (error) {
-            console.log('Lỗi khi đổi quyền người dùng:', error);
+            console.log('Lỗi khi đổi vai trò:', error);
+            setIsUpdatingRole(false);
+            alert('Có lỗi xảy ra khi cập nhật vai trò. Vui lòng thử lại!');
         }
+    };
+
+    const handleRefresh = async () => {
+        setIsSearching(true);
+        setSearchTerm('');
+        setFilters({
+            role: '-- Tất cả --',
+            sort: 'Số thứ tự',
+        });
+        setCurrentPage(1);
+        await getAllUser();
     };
 
     // Pagination calculations
@@ -135,6 +177,7 @@ function Phanquyen() {
             ))}
         </select>
     );
+
     return (
         <div className={cx('container')}>
             <h1 className={cx('title')}>Phân quyền tài khoản</h1>
@@ -152,13 +195,18 @@ function Phanquyen() {
                     )}
                     <input
                         type="text"
-                        placeholder="Tìm kiếm"
+                        placeholder="Tìm kiếm theo tên, vai trò, quyền..."
                         value={searchTerm}
                         onChange={handleSearchChange}
                         className={cx('input')}
+                        disabled={isUpdatingRole}
                     />
                 </div>
-                <button className={cx('btn', 'btn-refresh')}>
+                <button
+                    className={cx('btn', 'btn-refresh')}
+                    onClick={handleRefresh}
+                    disabled={isSearching || isUpdatingRole}
+                >
                     <span>🔄</span> Làm mới
                 </button>
             </div>
@@ -201,7 +249,7 @@ function Phanquyen() {
                     <tbody>
                         {isSearching ? (
                             <tr>
-                                <td colSpan="6" className={cx('loading-row')}>
+                                <td colSpan="5" className={cx('loading-row')}>
                                     <div className={cx('loading-container')}>
                                         <FontAwesomeIcon className={cx('loading-icon')} icon={faSpinner} />
                                         <span>Đang tải dữ liệu...</span>
@@ -210,7 +258,7 @@ function Phanquyen() {
                             </tr>
                         ) : currentUsers?.length > 0 ? (
                             currentUsers.map((item, index) => (
-                                <tr key={index} className={cx('table-row')}>
+                                <tr key={item.id || index} className={cx('table-row')}>
                                     <td className={cx('cell', 'stt')}>{indexOfFirstItem + index + 1}</td>
                                     <td className={cx('cell', 'name')}>{item.hoTen}</td>
                                     <td className={cx('cell', 'role')}>{item.tenVaiTro}</td>
@@ -219,18 +267,23 @@ function Phanquyen() {
                                             <li>- {item.Quyen}</li>
                                         </ul>
                                     </td>
-
                                     <td className={cx('cell', 'actions')}>
-                                        <button className={cx('btn-action')} onClick={() => handleOpenRoleDialog(item)}>
-                                            Đổi vai trò
+                                        <button
+                                            className={cx('btn-action', {
+                                                'btn-disabled': isUpdatingRole,
+                                            })}
+                                            onClick={() => handleOpenRoleDialog(item)}
+                                            disabled={isUpdatingRole}
+                                        >
+                                            {isUpdatingRole ? 'Đang xử lý...' : 'Đổi vai trò'}
                                         </button>
                                     </td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="6" className={cx('no-data')}>
-                                    Không có dữ liệu
+                                <td colSpan="5" className={cx('no-data')}>
+                                    {searchTerm ? 'Không tìm thấy kết quả phù hợp' : 'Không có dữ liệu'}
                                 </td>
                             </tr>
                         )}
@@ -243,8 +296,11 @@ function Phanquyen() {
                     {[...Array(totalPages)].map((_, index) => (
                         <div
                             key={index}
-                            className={cx('pagination-btn', { active: currentPage === index + 1 })}
-                            onClick={() => setCurrentPage(index + 1)}
+                            className={cx('pagination-btn', {
+                                active: currentPage === index + 1,
+                                disabled: isUpdatingRole,
+                            })}
+                            onClick={() => !isUpdatingRole && setCurrentPage(index + 1)}
                         >
                             {index + 1}
                         </div>
@@ -252,11 +308,47 @@ function Phanquyen() {
                 </div>
             )}
 
+            {/* Loading Overlay khi đang cập nhật role */}
+            {isUpdatingRole && (
+                <div className={cx('overlay')}>
+                    <div className={cx('loading-modal')}>
+                        <div className={cx('spinner-container')}>
+                            <FontAwesomeIcon className={cx('spinner-large')} icon={faSpinner} />
+                        </div>
+                        <p className={cx('loading-text')}>Đang cập nhật vai trò...</p>
+                        <p className={cx('loading-subtext')}>Vui lòng đợi trong giây lát</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Overlay với hiệu ứng đẹp */}
+            {showSuccessOverlay && (
+                <div className={cx('overlay', 'success-overlay')}>
+                    <div className={cx('success-modal')}>
+                        <div className={cx('success-animation')}>
+                            <div className={cx('success-circle')}>
+                                <FontAwesomeIcon className={cx('success-icon')} icon={faCheck} />
+                            </div>
+                            <div className={cx('success-ripple')}></div>
+                            <div className={cx('success-ripple', 'delay-1')}></div>
+                            <div className={cx('success-ripple', 'delay-2')}></div>
+                        </div>
+                        <div className={cx('success-content')}>
+                            <h3 className={cx('success-title')}>Cập nhật thành công!</h3>
+                            <p className={cx('success-message')}>
+                                Vai trò của <strong>{updatedUserName}</strong> đã được cập nhật
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {showRoleDialog && (
                 <DoiVaiTro
-                    onClose={() => setShowRoleDialog(false)}
+                    onClose={() => !isUpdatingRole && setShowRoleDialog(false)}
                     onSave={handleSaveRoleChange}
                     accountData={currentAccount}
+                    isLoading={isUpdatingRole}
                 />
             )}
         </div>

@@ -12,6 +12,14 @@ const getAllUsersService = (inputId) => {
 const getAllRoleUsersService = (inputId) => {
     return axios.get(`/get-role-users?id=${inputId}`);
 };
+const changeRoleService = (userId, maVaiTro) => {
+    console.log('check data from service: ', userId, maVaiTro);
+    return axios.put('/change-role-user', {
+        userId,
+        maVaiTro,
+    });
+};
+
 const createNewUserService = (data) => {
     console.log('check data from service: ', data);
     return axios.post('/create-new-user', data);
@@ -34,4 +42,5 @@ export default {
     editUserService,
     deleteUserService,
     getAllRoleUsersService,
+    changeRoleService,
 };
