@@ -4,20 +4,29 @@ import styles from './DoiVaiTro.module.scss';
 
 const cx = classNames.bind(styles);
 
-function DoiVaiTro({ onClose, onSave, userData }) {
-    // Default user data if none is provided
-    const defaultUser = {
-        email: 'htmle@ute.udn.vn',
-        role: 'Đơn vị sử dụng',
+const roleOptions = [
+    { label: 'Admin', value: '1' },
+    { label: 'Trưởng phòng', value: '2' },
+    { label: 'Phó trưởng phòng', value: '3' },
+    { label: 'Chuyên viên', value: '4' },
+    { label: 'Nhân viên kỹ thuật', value: '5' },
+    { label: 'Ban giám hiệu', value: '6' },
+    { label: 'Đơn vị sử dụng', value: '7' },
+    { label: 'Phòng kế hoạch - tài chính', value: '8' },
+];
+
+function DoiVaiTro({ onClose, onSave, accountData }) {
+    const defaultAccount = {
+        id: '',
+        email: '',
+        maVaiTro: '7', // mặc định "Đơn vị sử dụng"
     };
 
-    const user = userData || defaultUser;
-    const [selectedRole, setSelectedRole] = useState(user.role);
-
-    const roles = ['Đơn vị sử dụng', 'Trưởng phòng', 'Quản trị viên', 'Kế toán', 'Nhân viên kỹ thuật'];
+    const user = accountData || defaultAccount;
+    const [selectedRole, setSelectedRole] = useState(user.maVaiTro);
 
     const handleSave = () => {
-        onSave && onSave({ ...user, role: selectedRole });
+        onSave && onSave(user.id, selectedRole); // Gọi hàm với (userId, maVaiTro)
         onClose();
     };
 
@@ -25,7 +34,6 @@ function DoiVaiTro({ onClose, onSave, userData }) {
         <div
             className={cx('modal-overlay')}
             onClick={(e) => {
-                // Close only if clicking on the overlay, not the modal content
                 if (e.target === e.currentTarget) onClose();
             }}
         >
@@ -55,9 +63,9 @@ function DoiVaiTro({ onClose, onSave, userData }) {
                                 value={selectedRole}
                                 onChange={(e) => setSelectedRole(e.target.value)}
                             >
-                                {roles.map((role) => (
-                                    <option key={role} value={role}>
-                                        {role}
+                                {roleOptions.map((role) => (
+                                    <option key={role.value} value={role.value}>
+                                        {role.label}
                                     </option>
                                 ))}
                             </select>

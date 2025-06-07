@@ -9,6 +9,9 @@ const handleLogin = (email, password) => {
 const getAllUsersService = (inputId) => {
     return axios.get(`/get-all-users?id=${inputId}`);
 };
+const getAllRoleUsersService = (inputId) => {
+    return axios.get(`/get-role-users?id=${inputId}`);
+};
 const createNewUserService = (data) => {
     console.log('check data from service: ', data);
     return axios.post('/create-new-user', data);
@@ -30,4 +33,5 @@ export default {
     createNewUserService,
     editUserService,
     deleteUserService,
+    getAllRoleUsersService,
 };
