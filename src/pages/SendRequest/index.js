@@ -1,253 +1,350 @@
 import { useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SendRequest.module.scss';
+import guiyeucauService from '~/services/guiyeucauService';
 
 const cx = classNames.bind(styles);
 
 function SendRequest() {
-    const [requestType, setRequestType] = useState('');
-    const [status, setStatus] = useState('damaged');
-    const [fileName, setFileName] = useState('Hinhban.png');
+    const [loaiYeuCau, setloaiYeuCau] = useState('');
+    const [tinhTrangThietBi, settinhTrangThietBi] = useState('damaged');
+    const [hinhAnhSuaChua, sethinhAnhSuaChua] = useState('');
+    const [formData, setFormData] = useState({
+        lyDoDeXuat: '',
+        maTaiKhoan: '1',
+        ngayDuyet: '20/05/2025', // ngày duyệt, có thể bỏ trống hoặc để null lúc tạo
+        loaiYeuCau: '', // tương ứng với "requestType"
+        moTaChiTiet: '',
+        tenVatDung: '',
+        soLuong: '',
+        maSanPham: '1',
+        tinhTrangThietBi: '', // tương ứng với "status" hoặc "tình trạng thiết bị"
+        trangThai: 'Đang chờ duyệt', // tương ứng với "status"
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
 
     const handleRequestTypeChange = (e) => {
-        setRequestType(e.target.value);
+        setloaiYeuCau(e.target.value);
     };
 
     const handleStatusChange = (e) => {
-        setStatus(e.target.value);
+        settinhTrangThietBi(e.target.value);
     };
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
-            setFileName(e.target.files[0].name);
+            sethinhAnhSuaChua(e.target.files[0].name);
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission
-        console.log('Form submitted');
+
+        const dataToSend = {
+            ...formData,
+            loaiYeuCau,
+            tinhTrangThietBi,
+            hinhAnhSuaChua,
+            createdAt: new Date(),
+        };
+
+        console.log('Form submitted:', dataToSend);
+
+        await createNewRequest(dataToSend);
+    };
+    const createNewRequest = async (data) => {
+        try {
+            const response = await guiyeucauService.createNewRequestService(data);
+            console.log('API Response:', response); // <-- In toàn bộ response ra
+
+            if (response?.errCode !== 0) {
+                alert(response?.message || 'Lỗi không xác định');
+            } else {
+                alert('Gửi yêu cầu thành công!');
+            }
+        } catch (error) {
+            console.error('Lỗi khi tạo yêu cầu mới:', error);
+            alert('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.');
+        }
     };
 
     return (
-        <>
-            <div className={cx('container')}>
-                <h1 className={cx('form-title')}>Gửi yêu cầu mua sắm hoặc sửa chữa</h1>
+        <div className={cx('container')}>
+            <div className={cx('formHeader')}>
+                <h1 className={cx('formTitle')}>Gửi yêu cầu mua sắm hoặc sửa chữa</h1>
+                <p className={cx('formSubtitle')}>Vui lòng điền đầy đủ thông tin để xử lý yêu cầu của bạn</p>
+            </div>
 
-                <form id="requestForm" className={cx('request-form')} onSubmit={handleSubmit}>
-                    {/* Department Information Section */}
-                    <div className={cx('section-header')}>
-                        <h2>Thông tin khoa/phòng ban</h2>
+            <div className={cx('requestForm')}>
+                {/* Department Information Section */}
+                <div className={cx('section')}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Thông tin khoa/phòng ban</h2>
                     </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group')}>
-                            <label htmlFor="department">Tên khoa/phòng ban:</label>
-                            <input type="text" id="department" name="department" />
+                    <div className={cx('formRow')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="khoa">Tên khoa/phòng ban</label>
+                            <input
+                                type="text"
+                                id="khoa"
+                                name="khoa"
+                                onChange={handleInputChange}
+                                placeholder="Nhập tên khoa/phòng ban"
+                            />
                         </div>
 
-                        <div className={cx('form-group')}>
-                            <label htmlFor="phone">Số điện thoại liên hệ:</label>
-                            <input type="tel" id="phone" name="phone" />
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="sdt">Số điện thoại liên hệ</label>
+                            <input
+                                type="tel"
+                                id="sdt"
+                                name="sdt"
+                                onChange={handleInputChange}
+                                placeholder="Nhập số điện thoại"
+                            />
                         </div>
                     </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group')}>
-                            <label htmlFor="requester">Người gửi yêu cầu:</label>
-                            <input type="text" id="requester" name="requester" />
+                    <div className={cx('formRow')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="nguoiGui">Người gửi yêu cầu</label>
+                            <input
+                                type="text"
+                                id="nguoiGui"
+                                name="nguoiGui"
+                                onChange={handleInputChange}
+                                placeholder="Nhập tên người gửi"
+                            />
                         </div>
 
-                        <div className={cx('form-group')}>
-                            <label htmlFor="email">Email liên hệ:</label>
-                            <input type="email" id="email" name="email" />
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="email">Email liên hệ</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                onChange={handleInputChange}
+                                placeholder="Nhập địa chỉ email"
+                            />
                         </div>
                     </div>
+                </div>
 
-                    {/* Request Type Section */}
-                    <div className={cx('section-header')}>
-                        <h2>Loại yêu cầu</h2>
+                {/* Request Type Section */}
+                <div className={cx('section')}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Loại yêu cầu</h2>
                     </div>
 
-                    <div className={cx('form-row2', 'radio-options')}>
-                        <div className={cx('radio-option')}>
+                    <div className={cx('radioGroup')}>
+                        <div className={cx('radioOption')}>
                             <input
                                 type="radio"
                                 id="purchase"
                                 name="requestType"
-                                value="purchase"
-                                checked={requestType === 'purchase'}
+                                value="mua sắm"
+                                checked={loaiYeuCau === 'mua sắm'}
                                 onChange={handleRequestTypeChange}
                             />
                             <label htmlFor="purchase">Mua sắm</label>
                         </div>
 
-                        <div className={cx('radio-option')}>
+                        <div className={cx('radioOption')}>
                             <input
                                 type="radio"
                                 id="repair"
                                 name="requestType"
-                                value="repair"
-                                checked={requestType === 'repair'}
+                                value="sửa chữa"
+                                checked={loaiYeuCau === 'sửa chữa'}
                                 onChange={handleRequestTypeChange}
                             />
                             <label htmlFor="repair">Sửa chữa</label>
                         </div>
                     </div>
+                </div>
 
-                    {/* Equipment Information Section (Only for Repair) */}
-                    <div className={cx('section-header')}>
-                        <h2>Thông tin thiết bị (Chỉ nhập nếu chọn "Sửa chữa")</h2>
+                {/* Equipment Information Section */}
+                <div className={cx('section', 'conditionalSection', { active: loaiYeuCau === 'sửa chữa' })}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Thông tin thiết bị</h2>
                     </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group')}>
-                            <label htmlFor="equipment">Tên thiết bị:</label>
-                            <input type="text" id="equipment" name="equipment" />
+                    <div className={cx('formRow')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="tenVatDung">Tên thiết bị</label>
+                            <input
+                                type="text"
+                                id="tenVatDung"
+                                name="tenVatDung"
+                                value={formData.tenVatDung}
+                                onChange={handleInputChange}
+                                placeholder="Nhập tên thiết bị cần sửa chữa"
+                                disabled={loaiYeuCau !== 'sửa chữa'}
+                            />
                         </div>
 
-                        <div className={cx('form-group', 'status-group')}>
+                        <div className={cx('formGroup')}>
                             <label>Tình trạng hiện tại</label>
-                            <div className={cx('radio-options', 'status-options')}>
-                                <div className={cx('radio-option')}>
+                            <div className={cx('statusGrid')}>
+                                <div className={cx('radioOption')}>
                                     <input
                                         type="radio"
                                         id="working"
                                         name="status"
                                         value="working"
-                                        checked={status === 'working'}
+                                        checked={tinhTrangThietBi === 'working'}
                                         onChange={handleStatusChange}
+                                        disabled={loaiYeuCau !== 'sửa chữa'}
                                     />
                                     <label htmlFor="working">Hoạt động</label>
                                 </div>
 
-                                <div className={cx('radio-option')}>
+                                <div className={cx('radioOption')}>
                                     <input
                                         type="radio"
                                         id="damaged"
                                         name="status"
                                         value="damaged"
-                                        checked={status === 'damaged'}
+                                        checked={tinhTrangThietBi === 'damaged'}
                                         onChange={handleStatusChange}
+                                        disabled={loaiYeuCau !== 'sửa chữa'}
                                     />
                                     <label htmlFor="damaged">Hư hỏng</label>
                                 </div>
 
-                                <div className={cx('radio-option')}>
+                                <div className={cx('radioOption')}>
                                     <input
                                         type="radio"
                                         id="unusable"
                                         name="status"
                                         value="unusable"
-                                        checked={status === 'unusable'}
+                                        checked={tinhTrangThietBi === 'unusable'}
                                         onChange={handleStatusChange}
+                                        disabled={loaiYeuCau !== 'sửa chữa'}
                                     />
                                     <label htmlFor="unusable">Không sử dụng được</label>
                                 </div>
 
-                                <div className={cx('radio-option')}>
+                                <div className={cx('radioOption')}>
                                     <input
                                         type="radio"
                                         id="other"
                                         name="status"
                                         value="other"
-                                        checked={status === 'other'}
+                                        checked={tinhTrangThietBi === 'other'}
                                         onChange={handleStatusChange}
+                                        disabled={loaiYeuCau !== 'sửa chữa'}
                                     />
-                                    <label htmlFor="other">Khác: (Nhập chi tiết)</label>
+                                    <label htmlFor="other">Khác</label>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group', 'attachment-group')}>
+                    <div className={cx('formRow', 'single')}>
+                        <div className={cx('formGroup')}>
                             <label>Hình ảnh/Tài liệu đính kèm</label>
-                            <div className={cx('file-upload')}>
+                            <div className={cx('fileUploadArea')}>
                                 <input
                                     type="file"
                                     id="attachment"
                                     name="attachment"
-                                    className={cx('file-input')}
                                     onChange={handleFileChange}
+                                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
                                 />
-                                <label htmlFor="attachment" className={cx('file-label')}>
-                                    <svg
-                                        width="17"
-                                        height="30"
-                                        viewBox="0 0 17 30"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M8.5 1v28M1 8.5L8.5 1l7.5 7.5"
-                                            stroke="#000"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </label>
+                                <div className={cx('uploadIcon')}>📎</div>
+                                <div className={cx('uploadText')}>Kéo thả file hoặc click để chọn</div>
+                                <div className={cx('uploadHint')}>Hỗ trợ: JPG, PNG, PDF, DOC (tối đa 10MB)</div>
                             </div>
-                            {fileName && (
-                                <div className={cx('file-preview')}>
-                                    <svg
-                                        width="34"
-                                        height="29"
-                                        viewBox="0 0 34 29"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path d="M1 5l8-4h24v24l-8 4H1V5z" stroke="#000" strokeWidth="1.5" />
-                                        <path
-                                            d="M25 5v24M9 9h12M9 13h8M9 17h12M9 21h6"
-                                            stroke="#000"
-                                            strokeWidth="1.5"
-                                        />
-                                    </svg>
-                                    <span className={cx('file-name')}>{fileName}</span>
+                            {hinhAnhSuaChua && (
+                                <div className={cx('filePreview')}>
+                                    <div className={cx('fileIcon')}>📄</div>
+                                    <span className={cx('fileName')}>{hinhAnhSuaChua}</span>
                                 </div>
                             )}
                         </div>
                     </div>
+                </div>
 
-                    {/* Request Information Section */}
-                    <div className={cx('section-header')}>
-                        <h2>Thông tin yêu cầu</h2>
+                {/* Request Information Section */}
+                <div className={cx('section')}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Thông tin yêu cầu</h2>
                     </div>
-                    <div className={cx('form-row2')}>
-                        <div className={cx('form-group', 'ver2')}>
-                            <label htmlFor="description">Mô tả chi tiết yêu cầu:</label>
-                            <input type="text" id="description" name="description" />
+
+                    <div className={cx('formRow', 'single')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="moTaChiTiet">Mô tả chi tiết yêu cầu</label>
+                            <textarea
+                                id="moTaChiTiet"
+                                name="moTaChiTiet"
+                                value={formData.moTaChiTiet}
+                                onChange={handleInputChange}
+                                placeholder="Mô tả chi tiết về yêu cầu của bạn..."
+                            />
                         </div>
+                    </div>
 
-                        <div className={cx('purchase-info')}>
-                            <label>Tên vật dụng & số lượng (Chỉ nhập nếu chọn "Mua sắm")</label>
+                    <div className={cx('conditionalSection', { active: loaiYeuCau === 'mua sắm' })}>
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="tenVatDung">Tên vật dụng</label>
+                                <input
+                                    type="text"
+                                    id="tenVatDung"
+                                    name="tenVatDung"
+                                    value={formData.tenVatDung}
+                                    onChange={handleInputChange}
+                                    placeholder="Nhập tên vật dụng cần mua"
+                                    disabled={loaiYeuCau !== 'mua sắm'}
+                                />
+                            </div>
 
-                            <div className={cx('form-row', 'ver3')}>
-                                <div className={cx('form-group')}>
-                                    <label htmlFor="itemName">Tên vật dụng:</label>
-                                    <input type="text" id="itemName" name="itemName" />
-                                </div>
-
-                                <div className={cx('form-group')}>
-                                    <label htmlFor="quantity">Số lượng:</label>
-                                    <input type="number" id="quantity" name="quantity" />
-                                </div>
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="soLuong">Số lượng</label>
+                                <input
+                                    type="number"
+                                    id="soLuong"
+                                    name="soLuong"
+                                    value={formData.soLuong}
+                                    onChange={handleInputChange}
+                                    placeholder="Nhập số lượng"
+                                    min="1"
+                                    disabled={loaiYeuCau !== 'mua sắm'}
+                                />
                             </div>
                         </div>
+                    </div>
 
-                        <div className={cx('form-group', 'ver2')}>
-                            <label htmlFor="reason">Lý do đề xuất:</label>
-                            <textarea id="reason" name="reason" rows="5"></textarea>
+                    <div className={cx('formRow', 'single')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="lyDoDeXuat">Lý do đề xuất</label>
+                            <textarea
+                                id="lyDoDeXuat"
+                                name="lyDoDeXuat"
+                                value={formData.lyDoDeXuat}
+                                onChange={handleInputChange}
+                                placeholder="Nhập lý do và tính cấp thiết của yêu cầu..."
+                            />
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
-            <button type="submit" className={cx('btn-submit')}>
-                Gửi yêu cầu
-            </button>
-        </>
+
+            <div className={cx('submitContainer')}>
+                <button type="submit" className={cx('btnSubmit')} onClick={handleSubmit}>
+                    Gửi yêu cầu
+                </button>
+            </div>
+        </div>
     );
 }
 
