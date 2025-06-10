@@ -1,253 +1,529 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SendRequest.module.scss';
+import guiyeucauService from '~/services/guiyeucauService';
+import { useSelector } from 'react-redux';
+import thietbiService from '~/services/thietbiService';
 
 const cx = classNames.bind(styles);
 
 function SendRequest() {
-    const [requestType, setRequestType] = useState('');
-    const [status, setStatus] = useState('damaged');
-    const [fileName, setFileName] = useState('Hinhban.png');
+    const user = useSelector((state) => state.user.currentUser);
+    const [loaiYeuCau, setloaiYeuCau] = useState('');
+    const [tinhTrangThietBi, settinhTrangThietBi] = useState('');
+    const [hinhAnhSuaChua, sethinhAnhSuaChua] = useState('');
+    const [selectedPhong, setSelectedPhong] = useState('');
+    const [danhSachPhong, setDanhSachPhong] = useState([]);
+    const [danhSachThietBi, setDanhSachThietBi] = useState([]);
+    const [selectedViTri, setSelectedViTri] = useState(''); // Thêm state cho vị trí
+    const [selectedThietBi, setSelectedThietBi] = useState('');
+    const [formData, setFormData] = useState({
+        lyDoDeXuat: '',
+        maTaiKhoan: user.id,
+        ngayDuyet: '',
+        loaiYeuCau: '',
+        moTaChiTiet: '',
+        tenVatDung: '',
+        soLuong: '',
+        maThietBi: '1',
+        tinhTrangThietBi: '',
+        trangThai: 'Đang chờ duyệt',
+    });
+
+    const getAllPhong = async () => {
+        try {
+            const response = await thietbiService.getAllPhongService();
+            if (response?.errCode === 0) {
+                setDanhSachPhong(response.danhsachphong);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách phòng:', error);
+        }
+    };
+
+    const getAllThietbi = async () => {
+        try {
+            const response = await thietbiService.getAllThietbiService();
+            if (response?.errCode === 0) {
+                setDanhSachThietBi(response.danhsachthietbi);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách thiết bị:', error);
+        }
+    };
+
+    useEffect(() => {
+        getAllPhong();
+        getAllThietbi();
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
 
     const handleRequestTypeChange = (e) => {
-        setRequestType(e.target.value);
+        const newRequestType = e.target.value;
+        setloaiYeuCau(newRequestType);
+
+        // Reset tất cả các trường khi chuyển đổi loại yêu cầu
+        if (newRequestType === 'mua sắm') {
+            // Reset các trường của sửa chữa
+            settinhTrangThietBi('');
+            sethinhAnhSuaChua('');
+            setSelectedPhong('');
+            setSelectedViTri(''); // Reset vị trí
+            setSelectedThietBi('');
+            setFormData((prev) => ({
+                ...prev,
+                maThietBi: '',
+                tinhTrangThietBi: '',
+                // Giữ lại các trường của mua sắm
+                moTaChiTiet: prev.moTaChiTiet,
+                tenVatDung: prev.tenVatDung,
+                soLuong: prev.soLuong,
+                lyDoDeXuat: prev.lyDoDeXuat,
+            }));
+            // Reset file input
+            const fileInput = document.getElementById('attachment');
+            if (fileInput) fileInput.value = '';
+        } else if (newRequestType === 'sửa chữa') {
+            // Reset các trường của mua sắm
+            setFormData((prev) => ({
+                ...prev,
+                moTaChiTiet: '',
+                tenVatDung: '',
+                soLuong: '',
+                // Giữ lại các trường chung
+                lyDoDeXuat: prev.lyDoDeXuat,
+            }));
+            // Set tình trạng mặc định cho sửa chữa
+            settinhTrangThietBi('Hư hỏng');
+        }
     };
 
     const handleStatusChange = (e) => {
-        setStatus(e.target.value);
+        settinhTrangThietBi(e.target.value);
+    };
+
+    const handlePhongChange = (e) => {
+        const tenPhong = e.target.value;
+        setSelectedPhong(tenPhong);
+        setSelectedViTri(''); // Reset vị trí khi đổi phòng
+        setSelectedThietBi(''); // Reset thiết bị khi đổi phòng
+        setFormData((prev) => ({
+            ...prev,
+            maThietBi: '',
+        }));
+    };
+
+    // Thêm handler cho vị trí
+    const handleViTriChange = (e) => {
+        const viTri = e.target.value;
+        setSelectedViTri(viTri);
+        setSelectedThietBi(''); // Reset thiết bị khi đổi vị trí
+        setFormData((prev) => ({
+            ...prev,
+            maThietBi: '',
+        }));
+    };
+
+    const handleThietBiChange = (e) => {
+        const maThietBi = e.target.value;
+        setSelectedThietBi(maThietBi);
+        setFormData((prev) => ({
+            ...prev,
+            maThietBi: maThietBi,
+        }));
+    };
+
+    // Hàm lấy danh sách vị trí duy nhất trong phòng
+    const getViTriByPhong = (tenPhong) => {
+        const thietBiTrongPhong = danhSachThietBi.filter((thietBi) => thietBi.tenPhong === tenPhong);
+        const viTriList = thietBiTrongPhong
+            .filter((thietBi) => thietBi.viTriTrongPhong && thietBi.viTriTrongPhong !== null)
+            .map((thietBi) => thietBi.viTriTrongPhong);
+
+        // Loại bỏ các vị trí trùng lặp
+        return [...new Set(viTriList)];
+    };
+
+    // Hàm lấy thiết bị theo phòng và vị trí
+    const getThietBiByPhongAndViTri = (tenPhong, viTri = null) => {
+        const thietBiTrongPhong = danhSachThietBi.filter((thietBi) => thietBi.tenPhong === tenPhong);
+
+        if (viTri) {
+            // Nếu có chọn vị trí, lọc theo vị trí
+            return thietBiTrongPhong.filter((thietBi) => thietBi.viTriTrongPhong === viTri);
+        } else {
+            // Nếu không chọn vị trí, chỉ lấy những thiết bị không có vị trí (viTriTrongPhong là null)
+            return thietBiTrongPhong.filter((thietBi) => !thietBi.viTriTrongPhong || thietBi.viTriTrongPhong === null);
+        }
+    };
+
+    // Kiểm tra xem phòng có thiết bị được nhóm theo vị trí không
+    const hasViTriInPhong = (tenPhong) => {
+        const viTriList = getViTriByPhong(tenPhong);
+        return viTriList.length > 0;
     };
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
-            setFileName(e.target.files[0].name);
+            sethinhAnhSuaChua(e.target.files[0].name);
+        } else {
+            sethinhAnhSuaChua('');
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission
-        console.log('Form submitted');
+
+        const dataToSend = {
+            ...formData,
+            loaiYeuCau,
+            tinhTrangThietBi,
+            hinhAnhSuaChua,
+            createdAt: new Date(),
+        };
+        console.log('User:', user);
+        console.log('Form submitted:', dataToSend);
+
+        await createNewRequest(dataToSend);
+    };
+
+    const createNewRequest = async (data) => {
+        try {
+            const response = await guiyeucauService.createNewRequestService(data);
+            console.log('API Response:', response);
+
+            if (response?.errCode !== 0) {
+                alert(response?.message || 'Lỗi không xác định');
+            } else {
+                alert('Gửi yêu cầu thành công!');
+            }
+        } catch (error) {
+            console.error('Lỗi khi tạo yêu cầu mới:', error);
+            alert('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.');
+        }
     };
 
     return (
-        <>
-            <div className={cx('container')}>
-                <h1 className={cx('form-title')}>Gửi yêu cầu mua sắm hoặc sửa chữa</h1>
+        <div className={cx('container')}>
+            <div className={cx('formHeader')}>
+                <h1 className={cx('formTitle')}>Gửi yêu cầu mua sắm hoặc sửa chữa</h1>
+                <p className={cx('formSubtitle')}>Vui lòng điền đầy đủ thông tin để xử lý yêu cầu của bạn</p>
+            </div>
 
-                <form id="requestForm" className={cx('request-form')} onSubmit={handleSubmit}>
-                    {/* Department Information Section */}
-                    <div className={cx('section-header')}>
-                        <h2>Thông tin khoa/phòng ban</h2>
+            <div className={cx('requestForm')}>
+                {/* Department Information Section */}
+                <div className={cx('section')}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Thông tin khoa/phòng ban</h2>
                     </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group')}>
-                            <label htmlFor="department">Tên khoa/phòng ban:</label>
-                            <input type="text" id="department" name="department" />
+                    <div className={cx('formRow')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="nguoiGui">Người gửi yêu cầu</label>
+                            <input
+                                type="text"
+                                id="nguoiGui"
+                                name="nguoiGui"
+                                value={user?.hoTen || ''}
+                                onChange={handleInputChange}
+                                placeholder="Nhập tên người gửi"
+                                readOnly
+                            />
                         </div>
-
-                        <div className={cx('form-group')}>
-                            <label htmlFor="phone">Số điện thoại liên hệ:</label>
-                            <input type="tel" id="phone" name="phone" />
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="email">Email liên hệ</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={user?.email || ''}
+                                onChange={handleInputChange}
+                                placeholder="Nhập địa chỉ email"
+                                readOnly
+                            />
                         </div>
                     </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group')}>
-                            <label htmlFor="requester">Người gửi yêu cầu:</label>
-                            <input type="text" id="requester" name="requester" />
+                    <div className={cx('formRow')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="khoa">Tên khoa/phòng ban</label>
+                            <input
+                                type="text"
+                                id="khoa"
+                                name="khoa"
+                                value={user?.donViCongTac || ''}
+                                onChange={handleInputChange}
+                                placeholder="Nhập tên khoa/phòng ban"
+                                readOnly
+                            />
                         </div>
-
-                        <div className={cx('form-group')}>
-                            <label htmlFor="email">Email liên hệ:</label>
-                            <input type="email" id="email" name="email" />
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="chucvu">Chức vụ</label>
+                            <input
+                                type="text"
+                                id="chucvu"
+                                name="chucvu"
+                                value={user?.chucVu || ''}
+                                onChange={handleInputChange}
+                                placeholder="Nhập chức vụ"
+                                readOnly
+                            />
                         </div>
                     </div>
+                </div>
 
-                    {/* Request Type Section */}
-                    <div className={cx('section-header')}>
-                        <h2>Loại yêu cầu</h2>
+                {/* Request Type Section */}
+                <div className={cx('section')}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Loại yêu cầu</h2>
                     </div>
 
-                    <div className={cx('form-row2', 'radio-options')}>
-                        <div className={cx('radio-option')}>
+                    <div className={cx('radioGroup')}>
+                        <div className={cx('radioOption')}>
                             <input
                                 type="radio"
                                 id="purchase"
                                 name="requestType"
-                                value="purchase"
-                                checked={requestType === 'purchase'}
+                                value="mua sắm"
+                                checked={loaiYeuCau === 'mua sắm'}
                                 onChange={handleRequestTypeChange}
                             />
                             <label htmlFor="purchase">Mua sắm</label>
                         </div>
 
-                        <div className={cx('radio-option')}>
+                        <div className={cx('radioOption')}>
                             <input
                                 type="radio"
                                 id="repair"
                                 name="requestType"
-                                value="repair"
-                                checked={requestType === 'repair'}
+                                value="sửa chữa"
+                                checked={loaiYeuCau === 'sửa chữa'}
                                 onChange={handleRequestTypeChange}
                             />
                             <label htmlFor="repair">Sửa chữa</label>
                         </div>
                     </div>
+                </div>
 
-                    {/* Equipment Information Section (Only for Repair) */}
-                    <div className={cx('section-header')}>
-                        <h2>Thông tin thiết bị (Chỉ nhập nếu chọn "Sửa chữa")</h2>
-                    </div>
-
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group')}>
-                            <label htmlFor="equipment">Tên thiết bị:</label>
-                            <input type="text" id="equipment" name="equipment" />
+                {/* Equipment Information Section - Chỉ hiển thị khi chọn sửa chữa */}
+                {loaiYeuCau === 'sửa chữa' && (
+                    <div className={cx('section')}>
+                        <div className={cx('sectionHeader')}>
+                            <h2 className={cx('sectionTitle')}>Thông tin thiết bị</h2>
                         </div>
 
-                        <div className={cx('form-group', 'status-group')}>
-                            <label>Tình trạng hiện tại</label>
-                            <div className={cx('radio-options', 'status-options')}>
-                                <div className={cx('radio-option')}>
-                                    <input
-                                        type="radio"
-                                        id="working"
-                                        name="status"
-                                        value="working"
-                                        checked={status === 'working'}
-                                        onChange={handleStatusChange}
-                                    />
-                                    <label htmlFor="working">Hoạt động</label>
-                                </div>
-
-                                <div className={cx('radio-option')}>
-                                    <input
-                                        type="radio"
-                                        id="damaged"
-                                        name="status"
-                                        value="damaged"
-                                        checked={status === 'damaged'}
-                                        onChange={handleStatusChange}
-                                    />
-                                    <label htmlFor="damaged">Hư hỏng</label>
-                                </div>
-
-                                <div className={cx('radio-option')}>
-                                    <input
-                                        type="radio"
-                                        id="unusable"
-                                        name="status"
-                                        value="unusable"
-                                        checked={status === 'unusable'}
-                                        onChange={handleStatusChange}
-                                    />
-                                    <label htmlFor="unusable">Không sử dụng được</label>
-                                </div>
-
-                                <div className={cx('radio-option')}>
-                                    <input
-                                        type="radio"
-                                        id="other"
-                                        name="status"
-                                        value="other"
-                                        checked={status === 'other'}
-                                        onChange={handleStatusChange}
-                                    />
-                                    <label htmlFor="other">Khác: (Nhập chi tiết)</label>
-                                </div>
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="phong">Chọn phòng</label>
+                                <select id="phong" name="phong" value={selectedPhong} onChange={handlePhongChange}>
+                                    <option value="">-- Chọn phòng --</option>
+                                    {danhSachPhong.map((phong, index) => (
+                                        <option key={index} value={phong.tenPhong}>
+                                            {phong.tenPhong}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                        </div>
-                    </div>
 
-                    <div className={cx('form-row')}>
-                        <div className={cx('form-group', 'attachment-group')}>
-                            <label>Hình ảnh/Tài liệu đính kèm</label>
-                            <div className={cx('file-upload')}>
-                                <input
-                                    type="file"
-                                    id="attachment"
-                                    name="attachment"
-                                    className={cx('file-input')}
-                                    onChange={handleFileChange}
-                                />
-                                <label htmlFor="attachment" className={cx('file-label')}>
-                                    <svg
-                                        width="17"
-                                        height="30"
-                                        viewBox="0 0 17 30"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            d="M8.5 1v28M1 8.5L8.5 1l7.5 7.5"
-                                            stroke="#000"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </label>
-                            </div>
-                            {fileName && (
-                                <div className={cx('file-preview')}>
-                                    <svg
-                                        width="34"
-                                        height="29"
-                                        viewBox="0 0 34 29"
-                                        fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path d="M1 5l8-4h24v24l-8 4H1V5z" stroke="#000" strokeWidth="1.5" />
-                                        <path
-                                            d="M25 5v24M9 9h12M9 13h8M9 17h12M9 21h6"
-                                            stroke="#000"
-                                            strokeWidth="1.5"
-                                        />
-                                    </svg>
-                                    <span className={cx('file-name')}>{fileName}</span>
+                            {/* Dropdown vị trí - chỉ hiển thị khi phòng có thiết bị được nhóm theo vị trí */}
+                            {selectedPhong && hasViTriInPhong(selectedPhong) && (
+                                <div className={cx('formGroup')}>
+                                    <label htmlFor="viTri">Chọn vị trí</label>
+                                    <select id="viTri" name="viTri" value={selectedViTri} onChange={handleViTriChange}>
+                                        <option value="">-- Chọn vị trí --</option>
+                                        {getViTriByPhong(selectedPhong).map((viTri, index) => (
+                                            <option key={index} value={viTri}>
+                                                {viTri}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             )}
                         </div>
-                    </div>
 
-                    {/* Request Information Section */}
-                    <div className={cx('section-header')}>
-                        <h2>Thông tin yêu cầu</h2>
-                    </div>
-                    <div className={cx('form-row2')}>
-                        <div className={cx('form-group', 'ver2')}>
-                            <label htmlFor="description">Mô tả chi tiết yêu cầu:</label>
-                            <input type="text" id="description" name="description" />
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="thietBi">Chọn thiết bị</label>
+                                <select
+                                    id="thietBi"
+                                    name="thietBi"
+                                    value={selectedThietBi}
+                                    onChange={handleThietBiChange}
+                                    disabled={!selectedPhong || (hasViTriInPhong(selectedPhong) && !selectedViTri)}
+                                >
+                                    <option value="">-- Chọn thiết bị --</option>
+                                    {selectedPhong &&
+                                        (!hasViTriInPhong(selectedPhong) || selectedViTri) &&
+                                        getThietBiByPhongAndViTri(selectedPhong, selectedViTri).map((thietBi) => (
+                                            <option key={thietBi.maThietBi} value={thietBi.maThietBi}>
+                                                {thietBi.tenThietBi}
+                                            </option>
+                                        ))}
+                                </select>
+                            </div>
                         </div>
 
-                        <div className={cx('purchase-info')}>
-                            <label>Tên vật dụng & số lượng (Chỉ nhập nếu chọn "Mua sắm")</label>
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label>Tình trạng hiện tại</label>
+                                <div className={cx('statusGrid')}>
+                                    <div className={cx('radioOption')}>
+                                        <input
+                                            type="radio"
+                                            id="working"
+                                            name="status"
+                                            value="Hoạt động"
+                                            checked={tinhTrangThietBi === 'Hoạt động'}
+                                            onChange={handleStatusChange}
+                                        />
+                                        <label htmlFor="working">Hoạt động</label>
+                                    </div>
 
-                            <div className={cx('form-row', 'ver3')}>
-                                <div className={cx('form-group')}>
-                                    <label htmlFor="itemName">Tên vật dụng:</label>
-                                    <input type="text" id="itemName" name="itemName" />
-                                </div>
+                                    <div className={cx('radioOption')}>
+                                        <input
+                                            type="radio"
+                                            id="damaged"
+                                            name="status"
+                                            value="Hư hỏng"
+                                            checked={tinhTrangThietBi === 'Hư hỏng'}
+                                            onChange={handleStatusChange}
+                                        />
+                                        <label htmlFor="damaged">Hư hỏng</label>
+                                    </div>
 
-                                <div className={cx('form-group')}>
-                                    <label htmlFor="quantity">Số lượng:</label>
-                                    <input type="number" id="quantity" name="quantity" />
+                                    <div className={cx('radioOption')}>
+                                        <input
+                                            type="radio"
+                                            id="unusable"
+                                            name="status"
+                                            value="Không sử dụng được"
+                                            checked={tinhTrangThietBi === 'Không sử dụng được'}
+                                            onChange={handleStatusChange}
+                                        />
+                                        <label htmlFor="unusable">Không sử dụng được</label>
+                                    </div>
+
+                                    <div className={cx('radioOption')}>
+                                        <input
+                                            type="radio"
+                                            id="other"
+                                            name="status"
+                                            value="Khác"
+                                            checked={tinhTrangThietBi === 'Khác'}
+                                            onChange={handleStatusChange}
+                                        />
+                                        <label htmlFor="other">Khác</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className={cx('form-group', 'ver2')}>
-                            <label htmlFor="reason">Lý do đề xuất:</label>
-                            <textarea id="reason" name="reason" rows="5"></textarea>
+                        <div className={cx('formRow', 'single')}>
+                            <div className={cx('formGroup')}>
+                                <label>Hình ảnh/Tài liệu đính kèm</label>
+                                <div className={cx('fileUploadArea')}>
+                                    <input
+                                        type="file"
+                                        id="attachment"
+                                        name="attachment"
+                                        onChange={handleFileChange}
+                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                    />
+                                    <div className={cx('uploadIcon')}>📎</div>
+                                    <div className={cx('uploadText')}>Kéo thả file hoặc click để chọn</div>
+                                    <div className={cx('uploadHint')}>Hỗ trợ: JPG, PNG, PDF, DOC (tối đa 10MB)</div>
+                                </div>
+                                {hinhAnhSuaChua && (
+                                    <div className={cx('filePreview')}>
+                                        <div className={cx('fileIcon')}>📄</div>
+                                        <span className={cx('fileName')}>{hinhAnhSuaChua}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </form>
+                )}
+
+                {/* Request Information Section */}
+                <div className={cx('section')}>
+                    <div className={cx('sectionHeader')}>
+                        <h2 className={cx('sectionTitle')}>Thông tin yêu cầu</h2>
+                    </div>
+
+                    {/* Mô tả chi tiết - Chỉ hiển thị cho mua sắm */}
+                    {loaiYeuCau === 'mua sắm' && (
+                        <div className={cx('formRow', 'single')}>
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="moTaChiTiet">Mô tả chi tiết yêu cầu</label>
+                                <textarea
+                                    id="moTaChiTiet"
+                                    name="moTaChiTiet"
+                                    value={formData.moTaChiTiet}
+                                    onChange={handleInputChange}
+                                    placeholder="Mô tả chi tiết về yêu cầu của bạn..."
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Thông tin mua sắm - Chỉ hiển thị khi chọn mua sắm */}
+                    {loaiYeuCau === 'mua sắm' && (
+                        <div className={cx('formRow')}>
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="tenVatDung">Tên vật dụng</label>
+                                <input
+                                    type="text"
+                                    id="tenVatDung"
+                                    name="tenVatDung"
+                                    value={formData.tenVatDung}
+                                    onChange={handleInputChange}
+                                    placeholder="Nhập tên vật dụng cần mua"
+                                />
+                            </div>
+
+                            <div className={cx('formGroup')}>
+                                <label htmlFor="soLuong">Số lượng</label>
+                                <input
+                                    type="number"
+                                    id="soLuong"
+                                    name="soLuong"
+                                    value={formData.soLuong}
+                                    onChange={handleInputChange}
+                                    placeholder="Nhập số lượng"
+                                    min="1"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className={cx('formRow', 'single')}>
+                        <div className={cx('formGroup')}>
+                            <label htmlFor="lyDoDeXuat">Lý do đề xuất</label>
+                            <textarea
+                                id="lyDoDeXuat"
+                                name="lyDoDeXuat"
+                                value={formData.lyDoDeXuat}
+                                onChange={handleInputChange}
+                                placeholder="Nhập lý do và tính cấp thiết của yêu cầu..."
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button type="submit" className={cx('btn-submit')}>
-                Gửi yêu cầu
-            </button>
-        </>
+
+            <div className={cx('submitContainer')}>
+                <button type="submit" className={cx('btnSubmit')} onClick={handleSubmit}>
+                    Gửi yêu cầu
+                </button>
+            </div>
+        </div>
     );
 }
 

@@ -38,6 +38,15 @@
         font-size: 14px;
     }
 
+    .icon-wrapper {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        z-index: 1;
+    }
+
     .search-icon {
         position: absolute;
         left: 12px;
@@ -225,6 +234,15 @@
     &:hover {
         background-color: #2980b9;
     }
+
+    &.btn-disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+
+        &:hover {
+            background-color: #bdc3c7;
+        }
+    }
 }
 
 .pagination {
@@ -242,16 +260,288 @@
         border-radius: 4px;
         background-color: #fff;
         cursor: pointer;
+        transition: all 0.3s ease;
 
         &.active {
             background-color: #3498db;
             color: white;
             border-color: #3498db;
         }
+
+        &.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
     }
 }
 
-/* Responsive styles */
+.clear,
+.loading {
+    color: rgba(22, 24, 35, 0.34);
+}
+
+.loading {
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-row {
+    text-align: center;
+    padding: 20px !important;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-icon {
+    animation: spinner 0.8s linear infinite;
+    font-size: 20px;
+    color: #3498db;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px !important;
+    color: #999;
+    font-style: italic;
+}
+
+// ========== LOADING & SUCCESS OVERLAY STYLES ==========
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(3px);
+}
+
+// Loading Modal
+.loading-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.spinner-container {
+    margin-bottom: 20px;
+}
+
+.spinner-large {
+    font-size: 48px;
+    color: #3498db;
+    animation: spinnerRotate 1s linear infinite;
+}
+
+.loading-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+
+.loading-subtext {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin: 0;
+}
+
+// Success Modal
+.success-overlay {
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+.success-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 50px 40px;
+    text-align: center;
+    box-shadow: 0 25px 70px rgba(46, 204, 113, 0.3);
+    min-width: 350px;
+    position: relative;
+    animation: successModalIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.success-animation {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+.success-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    animation: successCircleScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+}
+
+.success-icon {
+    font-size: 36px;
+    color: white;
+    animation: successIconPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
+}
+
+.success-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #2ecc71;
+    opacity: 0;
+    animation: successRipple 2s ease-out infinite;
+
+    &.delay-1 {
+        animation-delay: 0.3s;
+    }
+
+    &.delay-2 {
+        animation-delay: 0.6s;
+    }
+}
+
+.success-content {
+    .success-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #27ae60;
+        margin-bottom: 15px;
+        margin-top: 0;
+        animation: fadeInUp 0.6s ease-out 0.3s both;
+    }
+
+    .success-message {
+        font-size: 16px;
+        color: #2c3e50;
+        line-height: 1.5;
+        margin: 0;
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+
+        strong {
+            color: #27ae60;
+            font-weight: 600;
+        }
+    }
+}
+
+// ========== ANIMATIONS ==========
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes successModalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.7) translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes spinnerRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes successCircleScale {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes successIconPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes successRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ========== RESPONSIVE STYLES ==========
+
 @media (max-width: 768px) {
     .filter-section {
         flex-direction: column;
@@ -271,5 +561,35 @@
             padding: 8px 10px;
             font-size: 14px;
         }
+    }
+
+    .loading-modal,
+    .success-modal {
+        margin: 20px;
+        min-width: auto;
+        width: calc(100% - 40px);
+        max-width: 400px;
+    }
+
+    .success-circle {
+        width: 60px;
+        height: 60px;
+    }
+
+    .success-icon {
+        font-size: 28px;
+    }
+
+    .success-ripple {
+        width: 60px;
+        height: 60px;
+    }
+
+    .success-title {
+        font-size: 18px !important;
+    }
+
+    .success-message {
+        font-size: 14px !important;
     }
 }

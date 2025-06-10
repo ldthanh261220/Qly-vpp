@@ -9,6 +9,30 @@
     flex-direction: column;
     margin: 20px;
     overflow: hidden;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #be8a4b, #d4a574, #be8a4b);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+        opacity: 0.7;
+    }
+}
+
+@keyframes shimmer {
+    0%,
+    100% {
+        background-position: 200% 0%;
+    }
+    50% {
+        background-position: -200% 0%;
+    }
 }
 
 .sidebar-header {
@@ -16,7 +40,25 @@
     align-items: center;
     padding: 16px;
     border-bottom: 1px solid #e5e7eb;
-    background-color: #f9e3b6; // vàng nhạt để đồng bộ theme
+    background-color: #f9e3b6;
+}
+
+/* Container cho logo + username để zoom cùng nhau */
+.logo-group {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.logo-group:hover {
+    transform: scale(1.05);
+}
+
+.logo-group:active {
+    transform: scale(0.98);
 }
 
 .avatar {
@@ -24,6 +66,7 @@
     height: 40px;
     background-color: #e5e7eb;
     border-radius: 50%;
+    transition: none; /* Bỏ transition riêng lẻ */
 }
 
 .username {
@@ -31,6 +74,7 @@
     font-weight: 500;
     font-size: 16px;
     color: #0a314d;
+    transition: none; /* Bỏ transition riêng lẻ */
 }
 
 .sidebar-content {

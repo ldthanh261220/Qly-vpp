@@ -15,6 +15,7 @@ function MenuItem({ data, onClick }) {
 
     return (
         <Component className={classes} to={data.to} onClick={onClick}>
+            <span>{data.icon}</span>
             {data.title}
         </Component>
     );

@@ -1,52 +1,205 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Qlytaikhoan.module.scss';
 import Themtaikhoan from './Themtaikhoan';
 import Chinhsuataikhoan from './Chinhsuataikhoan';
 import Xemchitiettaikhoan from './Xemchitiettaikhoan';
 import Xacnhanxoa from './Xacnhanxoa';
+import userService from '~/services/userService';
+import { faCircleXmark, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const cx = classNames.bind(styles);
 
+const UNITS = [
+    '-- Tất cả --',
+    'Ban Giám Hiệu',
+    'Hội Đồng Trường',
+    'Phòng Tổ Chức - Hành Chính',
+    'Phòng Đào Tạo',
+    'Phòng Công Tác Sinh Viên',
+    'Phòng QLKH Và HTQT',
+    'Phòng Kế Hoạch - Tài Chính',
+    'Phòng Khảo Thí Và ĐBCLGD',
+    'Phòng Cơ Sở Vật Chất',
+    'Khoa Cơ Khí',
+    'Khoa Điện - Điện Tử',
+    'Khoa Kỹ Thuật Xây Dựng',
+    'Khoa CN Hóa - Môi Trường',
+    'Khoa Sư Phạm CN',
+    'Khoa Công Nghệ Số',
+    'Tổ Thanh Tra - Pháp Chế',
+    'Trung Tâm Học Liệu Và Truyền Thông',
+    'Đảng Ủy',
+    'Công Đoàn',
+    'Tổ CNTT',
+    'Đoàn TN - Hội SV',
+    'Trung Tâm NC & TK TBN',
+    'Trung Tâm ĐT, BD Và TVKTCN',
+    'Trung Tâm HTSV & QH DN',
+    'Hội Cựu Chiến Binh',
+    'Hội Cựu Giáo Chức',
+    'Hội Cựu Sinh Viên',
+    'Hội Ái Hữu Cựu GV Và HS KT DN',
+];
+
+const STATES = ['-- Tất cả trạng thái --', 'Hoạt động', 'Khóa'];
+const SORT_OPTIONS = ['Số thứ tự', 'Họ và tên', 'Chức vụ', 'Đơn vị công tác'];
+
 function Qlytaikhoan() {
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [listUser, setListUser] = useState([]);
+    const [modals, setModals] = useState({
+        add: false,
+        edit: false,
+        view: false,
+        delete: false,
+    });
     const [currentAccount, setCurrentAccount] = useState(null);
+    const [filters, setFilters] = useState({
+        unit: '-- Tất cả --',
+        state: '-- Tất cả trạng thái --',
+        sort: 'Số thứ tự',
+    });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [filteredData, setFilteredData] = useState([]);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-    const handleAddAccount = () => {
-        setShowAddModal(true);
+    const itemsPerPage = 5;
+
+    const getAllUser = async () => {
+        try {
+            const response = await userService.getAllUsersService('ALL');
+            if (response?.errCode === 0) {
+                setListUser(response.users);
+                setFilteredData(response.users);
+                setIsSearching(false);
+                setIsInitialLoad(false);
+            }
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách người dùng:', error);
+        }
     };
 
-    const handleEditAccount = (account) => {
+    const handleFilterData = () => {
+        const filtered = listUser
+            .filter((user) => {
+                const matchUnit = filters.unit === '-- Tất cả --' || user.donViCongTac === filters.unit;
+                const matchState = filters.state === '-- Tất cả trạng thái --' || user.trangThai === filters.state;
+                const keyword = searchTerm.toLowerCase();
+                const matchSearch = ['hoTen', 'chucVu', 'donViCongTac', 'email'].some((field) =>
+                    user[field]?.toLowerCase().includes(keyword),
+                );
+                return matchUnit && matchState && matchSearch;
+            })
+            .sort((a, b) => {
+                const sortMap = {
+                    'Họ và tên': 'hoTen',
+                    'Chức vụ': 'chucVu',
+                    'Đơn vị công tác': 'donViCongTac',
+                };
+                const field = sortMap[filters.sort];
+                return field ? a[field].localeCompare(b[field]) : 0;
+            });
+
+        setFilteredData(filtered);
+        setIsSearching(false);
+    };
+
+    useEffect(() => {
+        if (isInitialLoad) return;
+        const delayDebounce = setTimeout(handleFilterData, 800);
+        return () => clearTimeout(delayDebounce);
+    }, [searchTerm, filters.unit, filters.state, filters.sort]);
+
+    useEffect(() => {
+        setIsSearching(true);
+        getAllUser();
+    }, []);
+
+    const handleModalAction = (type, account = null) => {
         setCurrentAccount(account);
-        setShowEditModal(true);
+        setModals((prev) => ({ ...prev, [type]: !prev[type] }));
     };
 
-    const handleViewAccount = (account) => {
-        setCurrentAccount(account);
-        setShowViewModal(true);
+    const handleFilterChange = (key, value) => {
+        setFilters((prev) => ({ ...prev, [key]: value }));
+        setIsSearching(true);
+        setCurrentPage(1);
     };
 
-    const handleDeleteAccount = (account) => {
-        setCurrentAccount(account);
-        setShowDeleteModal(true);
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setIsSearching(true);
+        setCurrentPage(1);
     };
 
-    const confirmDeleteAccount = () => {
-        // Xử lý logic xóa tài khoản ở đây
-        console.log(`Đã xóa tài khoản: ${currentAccount.name}`);
-        // Sau khi xóa, đóng modal
-        setShowDeleteModal(false);
+    const handleClearSearch = () => {
+        if (searchTerm) {
+            setSearchTerm('');
+            setIsSearching(true);
+            setCurrentPage(1);
+        }
     };
 
-    const handleCloseModals = () => {
-        setShowAddModal(false);
-        setShowEditModal(false);
-        setShowViewModal(false);
-        setShowDeleteModal(false);
+    const createNewUser = async (data) => {
+        try {
+            const response = await userService.createNewUserService(data);
+            if (response?.errCode !== 0) {
+                alert(response.errMessage);
+            } else {
+                await getAllUser();
+                handleModalAction('add');
+            }
+        } catch (error) {
+            console.log('Lỗi khi tạo tài khoản mới:', error);
+        }
     };
+
+    const editUser = async (data) => {
+        try {
+            const response = await userService.editUserService(data);
+            if (response?.errCode !== 0) {
+                alert(response.errMessage);
+            } else {
+                await getAllUser();
+                handleModalAction('edit');
+            }
+        } catch (error) {
+            console.log('Lỗi khi sửa tài khoản:', error);
+        }
+    };
+
+    const confirmDeleteAccount = async (user) => {
+        try {
+            const res = await userService.deleteUserService(user.id);
+            if (res?.errCode === 0) {
+                await getAllUser();
+                handleModalAction('delete');
+            } else {
+                alert(res.errMessage);
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa người dùng:', error);
+        }
+    };
+
+    // Pagination calculations
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentUsers = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+    const renderSelect = (options, value, onChange, placeholder) => (
+        <select className={cx('filter-select')} value={value} onChange={onChange}>
+            {options.map((option, idx) => (
+                <option key={idx} value={option}>
+                    {option}
+                </option>
+            ))}
+        </select>
+    );
 
     return (
         <div className={cx('container')}>
@@ -55,391 +208,138 @@ function Qlytaikhoan() {
             <div className={cx('search-bar')}>
                 <div className={cx('search-input')}>
                     <i className={cx('search-icon')}>🔍</i>
-                    <input type="text" placeholder="Tìm kiếm" className={cx('input')} />
+                    {searchTerm && (
+                        <div className={cx('icon-wrapper')} onClick={handleClearSearch}>
+                            <FontAwesomeIcon
+                                className={cx(isSearching ? 'loading' : 'clear')}
+                                icon={isSearching ? faSpinner : faCircleXmark}
+                            />
+                        </div>
+                    )}
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className={cx('input')}
+                    />
                 </div>
                 <button className={cx('btn', 'btn-filter')}>
                     <span>🔍</span> Bộ lọc nâng cao
                 </button>
-                <button className={cx('btn', 'btn-add')} onClick={handleAddAccount}>
+                <button className={cx('btn', 'btn-add')} onClick={() => handleModalAction('add')}>
                     <span>➕</span> Thêm tài khoản mới
-                </button>
-                <button className={cx('btn', 'btn-refresh')}>
-                    <span>🔄</span> Làm mới
                 </button>
             </div>
 
             <div className={cx('filter-section')}>
                 <div className={cx('filter-group')}>
-                    <label className={cx('filter-label')}>Lọc theo chức vụ:</label>
-                    <select className={cx('filter-select')}>
-                        <option>-- Tất cả --</option>
-                        <option>Trưởng phòng</option>
-                        <option>Phó Trưởng phòng</option>
-                        <option>Ban giám hiệu</option>
-                    </select>
+                    <label className={cx('filter-label')}>Lọc theo đơn vị công tác:</label>
+                    {renderSelect(UNITS, filters.unit, (e) => handleFilterChange('unit', e.target.value))}
                 </div>
                 <div className={cx('filter-group')}>
-                    <label className={cx('filter-label')}>Lọc theo ngày vào làm:</label>
-                    <input type="date" placeholder="mm/dd/yyyy" className={cx('filter-date')} />
+                    <label className={cx('filter-label')}>Lọc theo trạng thái</label>
+                    {renderSelect(STATES, filters.state, (e) => handleFilterChange('state', e.target.value))}
                 </div>
             </div>
 
             <div className={cx('sort-section')}>
-                <select className={cx('sort-dropdown')}>
-                    <option>Sắp xếp theo: Số thứ tự</option>
-                    <option>Sắp xếp theo: Họ và tên</option>
-                    <option>Sắp xếp theo: Chức vụ</option>
-                    <option>Sắp xếp theo: Đơn vị công tác</option>
-                </select>
+                {renderSelect(SORT_OPTIONS, filters.sort, (e) => handleFilterChange('sort', e.target.value))}
             </div>
 
             <table className={cx('table')}>
                 <thead className={cx('table-header')}>
                     <tr>
-                        <th className={cx('header-cell')}>STT</th>
-                        <th className={cx('header-cell')}>Họ và tên</th>
-                        <th className={cx('header-cell')}>Chức vụ</th>
-                        <th className={cx('header-cell')}>Đơn vị công tác</th>
-                        <th className={cx('header-cell')}>Email</th>
-                        <th className={cx('header-cell')}>Hành động</th>
+                        {['STT', 'Họ và tên', 'Chức vụ', 'Đơn vị công tác', 'Email', 'Hành động'].map((header) => (
+                            <th key={header} className={cx('header-cell')}>
+                                {header}
+                            </th>
+                        ))}
                     </tr>
                 </thead>
                 <tbody>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>1</td>
-                        <td className={cx('cell')}>Lê Văn Hoài</td>
-                        <td className={cx('cell')}>Phó Trưởng phòng</td>
-                        <td className={cx('cell')}>P.CSVC</td>
-                        <td className={cx('cell')}>lvhoai@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Lê Văn Hoài',
-                                            position: 'Phó Trưởng phòng',
-                                            department: 'P.CSVC',
-                                            email: 'lvhoai@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Lê Văn Hoài',
-                                            position: 'Phó Trưởng phòng',
-                                            department: 'P.CSVC',
-                                            email: 'lvhoai@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Lê Văn Hoài',
-                                            position: 'Phó Trưởng phòng',
-                                            department: 'P.CSVC',
-                                            email: 'lvhoai@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>2</td>
-                        <td className={cx('cell')}>Hồ Văn Quân</td>
-                        <td className={cx('cell')}>Trưởng phòng</td>
-                        <td className={cx('cell')}>P.CSVC</td>
-                        <td className={cx('cell')}>hvquan@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Hồ Văn Quân',
-                                            position: 'Trưởng phòng',
-                                            department: 'Phòng cơ sở vật chất',
-                                            email: 'hvquan@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Hồ Văn Quân',
-                                            position: 'Trưởng phòng',
-                                            department: 'Phòng cơ sở vật chất',
-                                            email: 'hvquan@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Hồ Văn Quân',
-                                            position: 'Trưởng phòng',
-                                            department: 'Phòng cơ sở vật chất',
-                                            email: 'hvquan@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>3</td>
-                        <td className={cx('cell')}>Nguyễn Văn A</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell')}>a@congty.abc.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Nguyễn Văn A',
-                                            position: '',
-                                            department: '',
-                                            email: 'a@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Nguyễn Văn A',
-                                            position: '',
-                                            department: '',
-                                            email: 'a@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Nguyễn Văn A',
-                                            position: '',
-                                            department: '',
-                                            email: 'a@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>4</td>
-                        <td className={cx('cell')}>Phạm Thị D</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell', 'null-value')}>null</td>
-                        <td className={cx('cell')}>d@congty.abc.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Phạm Thị D',
-                                            position: '',
-                                            department: '',
-                                            email: 'd@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Phạm Thị D',
-                                            position: '',
-                                            department: '',
-                                            email: 'd@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Phạm Thị D',
-                                            position: '',
-                                            department: '',
-                                            email: 'd@congty.abc.vn',
-                                            status: 'Không hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>5</td>
-                        <td className={cx('cell')}>Võ Trung Hùng</td>
-                        <td className={cx('cell')}>Ban giám hiệu</td>
-                        <td className={cx('cell')}>Đh.Spkt</td>
-                        <td className={cx('cell')}>vthung@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Võ Trung Hùng',
-                                            position: 'Ban giám hiệu',
-                                            department: 'Đh.Spkt',
-                                            email: 'vthung@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Võ Trung Hùng',
-                                            position: 'Ban giám hiệu',
-                                            department: 'Đh.Spkt',
-                                            email: 'vthung@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Võ Trung Hùng',
-                                            position: 'Ban giám hiệu',
-                                            department: 'Đh.Spkt',
-                                            email: 'vthung@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className={cx('table-row')}>
-                        <td className={cx('cell')}>6</td>
-                        <td className={cx('cell')}>Nguyễn Thị Ngọc Linh</td>
-                        <td className={cx('cell')}>Trưởng phòng</td>
-                        <td className={cx('cell')}>P.KH-TC</td>
-                        <td className={cx('cell')}>ntnlinh@ute.udn.vn</td>
-                        <td className={cx('cell')}>
-                            <div className={cx('action-buttons')}>
-                                <button
-                                    className={cx('btn-edit')}
-                                    onClick={() =>
-                                        handleEditAccount({
-                                            name: 'Nguyễn Thị Ngọc Linh',
-                                            position: 'Trưởng phòng',
-                                            department: 'P.KH-TC',
-                                            email: 'ntnlinh@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Sửa
-                                </button>
-                                <button
-                                    className={cx('btn-delete')}
-                                    onClick={() =>
-                                        handleDeleteAccount({
-                                            name: 'Nguyễn Thị Ngọc Linh',
-                                            position: 'Trưởng phòng',
-                                            department: 'P.KH-TC',
-                                            email: 'ntnlinh@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xóa
-                                </button>
-                                <button
-                                    className={cx('btn-view')}
-                                    onClick={() =>
-                                        handleViewAccount({
-                                            name: 'Nguyễn Thị Ngọc Linh',
-                                            position: 'Trưởng phòng',
-                                            department: 'P.KH-TC',
-                                            email: 'ntnlinh@ute.udn.vn',
-                                            status: 'Hoạt động',
-                                        })
-                                    }
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    {isSearching ? (
+                        <tr>
+                            <td colSpan="6" className={cx('loading-row')}>
+                                <div className={cx('loading-container')}>
+                                    <FontAwesomeIcon className={cx('loading-icon')} icon={faSpinner} />
+                                    <span>Đang tải dữ liệu...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    ) : currentUsers?.length > 0 ? (
+                        currentUsers.map((item, index) => (
+                            <tr key={index} className={cx('table-row')}>
+                                <td className={cx('cell')}>{indexOfFirstItem + index + 1}</td>
+                                <td className={cx('cell')}>{item.hoTen}</td>
+                                <td className={cx('cell')}>{item.chucVu}</td>
+                                <td className={cx('cell')}>{item.donViCongTac}</td>
+                                <td className={cx('cell')}>{item.email}</td>
+                                <td className={cx('cell')}>
+                                    <div className={cx('action-buttons')}>
+                                        <button
+                                            className={cx('btn-edit')}
+                                            onClick={() => handleModalAction('edit', item)}
+                                        >
+                                            Sửa
+                                        </button>
+                                        <button
+                                            className={cx('btn-delete')}
+                                            onClick={() => handleModalAction('delete', item)}
+                                        >
+                                            Xóa
+                                        </button>
+                                        <button
+                                            className={cx('btn-view')}
+                                            onClick={() => handleModalAction('view', item)}
+                                        >
+                                            Xem chi tiết
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="6" className={cx('no-data')}>
+                                Không có dữ liệu
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
 
-            <div className={cx('pagination')}>
-                <div className={cx('pagination-btn', 'active')}>1</div>
-                <div className={cx('pagination-btn')}>2</div>
-                <div className={cx('pagination-btn')}>3</div>
-            </div>
+            {!isSearching && totalPages > 0 && (
+                <div className={cx('pagination')}>
+                    {[...Array(totalPages)].map((_, index) => (
+                        <div
+                            key={index}
+                            className={cx('pagination-btn', { active: currentPage === index + 1 })}
+                            onClick={() => setCurrentPage(index + 1)}
+                        >
+                            {index + 1}
+                        </div>
+                    ))}
+                </div>
+            )}
 
-            {showAddModal && <Themtaikhoan onClose={handleCloseModals} />}
-
-            {showEditModal && <Chinhsuataikhoan onClose={handleCloseModals} accountData={currentAccount} />}
-
-            {showViewModal && <Xemchitiettaikhoan onClose={handleCloseModals} accountData={currentAccount} />}
-
-            {showDeleteModal && (
-                <Xacnhanxoa onClose={handleCloseModals} onConfirm={confirmDeleteAccount} accountData={currentAccount} />
+            {modals.add && <Themtaikhoan onClose={() => handleModalAction('add')} createNewUser={createNewUser} />}
+            {modals.edit && (
+                <Chinhsuataikhoan
+                    onClose={() => handleModalAction('edit')}
+                    editUser={editUser}
+                    accountData={currentAccount}
+                />
+            )}
+            {modals.view && (
+                <Xemchitiettaikhoan onClose={() => handleModalAction('view')} accountData={currentAccount} />
+            )}
+            {modals.delete && (
+                <Xacnhanxoa
+                    onClose={() => handleModalAction('delete')}
+                    onConfirm={confirmDeleteAccount}
+                    accountData={currentAccount}
+                />
             )}
         </div>
     );

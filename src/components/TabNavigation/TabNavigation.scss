@@ -1,0 +1,40 @@
+.tab-navigation {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+  
+    &__tabs {
+      display: flex;
+      gap: 2rem;
+    }
+  
+    &__tab {
+      padding: 1rem 0.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #6b7280;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      position: relative;
+  
+      &:hover {
+        color: #374151;
+      }
+  
+      &.active {
+        color: #1d4ed8;
+        font-weight: 500;
+  
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background-color: #1d4ed8;
+        }
+      }
+    }
+  }

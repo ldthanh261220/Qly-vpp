@@ -9,6 +9,12 @@ const routes = {
     chitietnhathau: '/nhathau/:id',
     hopdong: '/hopdong',
     chitiethopdong: 'hopdong/:id',
+    Dsthietbi: '/dsthietbi',
+    // Thịnh
+    Duyetkehoach: '/Duyetkehoachmuasam',
+    Duyetnhathau: '/Duyetnhathau',
+    Duyetngansach: '/Duyetngansach',
+    Thanhtoanhopdong: '/Thanhtoanhopdong',
 };
 
 export default routes;

@@ -37,6 +37,15 @@
         font-size: 14px;
     }
 
+    .icon-wrapper {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        z-index: 1;
+    }
+
     .search-icon {
         position: absolute;
         left: 12px;
@@ -204,6 +213,49 @@
     }
 }
 
+.clear,
+.loading {
+    color: rgba(22, 24, 35, 0.34);
+}
+
+.loading {
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-row {
+    text-align: center;
+    padding: 20px !important;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-icon {
+    animation: spinner 0.8s linear infinite;
+    font-size: 20px;
+    color: #3498db;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px !important;
+    color: #999;
+    font-style: italic;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .filter-section {
@@ -226,4 +278,3 @@
         flex-direction: column;
     }
 }
-/* Add these styles to your Qlytaikhoan.module.scss file */

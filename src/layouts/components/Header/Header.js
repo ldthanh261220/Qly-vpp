@@ -1,9 +1,15 @@
 import classNames from 'classnames/bind';
 import styles from './Header.module.scss';
 import config from '~/config';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
 import TimeDate from '~/components/TimeDate';
+import { useState } from 'react';
+import Login from './Login';
+import { useSelector } from 'react-redux';
+import { LayoutDashboard, LogOut } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { logout } from '~/store/reducers/userReducer';
 
 const cx = classNames.bind(styles);
 
@@ -19,10 +25,26 @@ const LANGUAGE_ITEMS = [
 ];
 const SEARCH_ITEMS = [
     {
+        title: 'Danh sách thiết bị',
+        to: config.routes.Dsthietbi,
+    },
+    {
         title: 'Văn bản pháp quy',
     },
     {
+        id: 'approved_contractors',
         title: 'Nhà thầu được phê duyệt',
+    },
+];
+const USER_ITEMS = [
+    {
+        icon: <LayoutDashboard size={18} />,
+        title: 'Trang tổng quan',
+        to: config.routes.home,
+    },
+    {
+        icon: <LogOut size={18} />,
+        title: 'Đăng xuất',
     },
 ];
 const HDSD_ITEMS = [
@@ -46,14 +68,35 @@ const HDSD_ITEMS = [
     },
 ];
 function Header() {
-    const currentUser = true;
+    const user = useSelector((state) => state.user.currentUser);
+    const [showLoginModal, setshowLoginModal] = useState(false);
 
+    const navigate = useNavigate();
+    const handleTracuuClick = (item) => {
+        if (item.to) {
+            navigate(item.to);
+        }
+    };
     // Handle logic
     const handleLanguageChange = (item) => {
         console.log('Selected language:', item);
         // TODO: Thay đổi ngôn ngữ trong app tại đây (ví dụ: i18n.changeLanguage(item.code))
     };
-
+    const dispatch = useDispatch();
+    const handleUserClick = (item) => {
+        if (item.title === 'Đăng xuất') {
+            dispatch(logout());
+            navigate(config.routes.home); // Chuyển hướng sau khi đăng xuất (tùy chọn)
+        } else if (item.to) {
+            navigate(item.to);
+        }
+    };
+    const handleShowLogin = () => {
+        setshowLoginModal(true);
+    };
+    const handleCloseLoginModals = () => {
+        setshowLoginModal(false);
+    };
     return (
         <header>
             {/* -- HEADER TOP-- */}
@@ -92,7 +135,7 @@ function Header() {
                     <div className={cx('header-container')}>
                         <div className={cx('menu-left')}>
                             <div className={cx('menu-item')}>Trang chủ</div>
-                            <Menu items={SEARCH_ITEMS} onChange={handleLanguageChange} V2>
+                            <Menu items={SEARCH_ITEMS} onChange={handleTracuuClick} V2>
                                 <div className={cx('menu-item')}>Tra cứu</div>
                             </Menu>
                             <div className={cx('menu-item')}>Câu hỏi thường gặp</div>
@@ -112,19 +155,34 @@ function Header() {
                             <div className={cx('time-date')}>
                                 <TimeDate />
                             </div>
+
                             <div className={cx('user-info')}>
-                                <div className={cx('user-text')}>
-                                    <div className={cx('user-name')}>
-                                        <strong>Thành Lê</strong>
-                                    </div>
-                                    <div className={cx('user-role')}>Nhà thầu</div>
-                                </div>
-                                <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="Avatar" />
+                                {user ? (
+                                    <Menu items={USER_ITEMS} onChange={handleUserClick} V3>
+                                        <div className={cx('info-container')}>
+                                            <div className={cx('user-text')}>
+                                                <div className={cx('user-name')}>
+                                                    <strong>{user.hoTen}</strong>
+                                                </div>
+                                                <div className={cx('user-role')}>Nhà thầu</div>
+                                            </div>
+                                            <img
+                                                src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+                                                alt="Avatar"
+                                            />
+                                        </div>
+                                    </Menu>
+                                ) : (
+                                    <button className={cx('btn-login')} onClick={handleShowLogin}>
+                                        Đăng nhập
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {showLoginModal && <Login onClose={handleCloseLoginModals} />}
         </header>
     );
 }
