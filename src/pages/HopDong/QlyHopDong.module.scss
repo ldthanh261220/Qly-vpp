@@ -2,13 +2,21 @@
     padding: 20px 0;
 
     & > h3 {
-        color: #254A93;
-        font-size: 20px;
-        font-weight: bold;
+        color: #254a93; // màu xanh dương đậm, thể hiện sự tin cậy
+        font-size: 24px; // to hơn chút để dễ nhìn
+        font-weight: 700;
+        margin-bottom: 16px;
+        border-left: 5px solid #254a93;
+        padding-left: 12px;
+        line-height: 1.4;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        letter-spacing: 0.5px;
     }
 }
 
-select, button, input {
+select,
+button,
+input {
     border: none;
     outline: none;
 }

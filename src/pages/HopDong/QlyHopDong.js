@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 import styles from './QlyHopDong.module.scss';
 import classNames from 'classnames/bind';
@@ -10,6 +10,9 @@ import Filter from './filter/Filter';
 import TableComponent from './table/TableComponent';
 import ModalDelete from './modalDelete/ModalDelete';
 import Pagination from './pagination/Pagination';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileContract } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 
@@ -30,9 +33,9 @@ const QlyHopDong = () => {
         setShowDelete(null);
     };
 
-    const HandleViewDetails=(id)=>{
-        navigate(`/hopdong/${id}`); 
-    }
+    const HandleViewDetails = (id) => {
+        navigate(`/hopdong/${id}`);
+    };
 
     const filteredContracts = contracts.filter((contract) => {
         const matchesSearch = contract.tenNhaThau.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,21 +45,20 @@ const QlyHopDong = () => {
         const contractDate = new Date(contract.ngayKy);
         const start = dateStart ? new Date(dateStart) : null;
         const end = dateEnd ? new Date(dateEnd) : null;
-        const matchesDate =
-            (!start || contractDate >= start) && (!end || contractDate <= end);
+        const matchesDate = (!start || contractDate >= start) && (!end || contractDate <= end);
 
         return matchesSearch && matchesStatus && matchesField && matchesDate;
     });
-
+    console.log('dateEnd: ' + dateEnd, 'dateStart: ' + dateStart);
+    console.log(filteredContracts);
     const totalPages = Math.ceil(filteredContracts.length / itemsPerPage);
-    const paginatedContracts = filteredContracts.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const paginatedContracts = filteredContracts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className={cx('manage-contract')}>
-            <h3>Danh sách hợp đồng</h3>
+            <h3>
+                <FontAwesomeIcon icon={faFileContract} /> Danh sách hợp đồng
+            </h3>
 
             {/* Bộ lọc */}
             <Filter
@@ -84,11 +86,11 @@ const QlyHopDong = () => {
                 />
 
                 {/* Phân trang */}
-                <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages}/>
+                <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
             </div>
 
             {/* Modal xác nhận xóa */}
-            <ModalDelete showDelete={showDelete} setShowDelete={setShowDelete} HandleDeleteRow={HandleDeleteRow}/>
+            <ModalDelete showDelete={showDelete} setShowDelete={setShowDelete} HandleDeleteRow={HandleDeleteRow} />
         </div>
     );
 };
