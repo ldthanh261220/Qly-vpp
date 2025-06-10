@@ -6,6 +6,7 @@ const getAllThietbiService = () => {
 const getAllPhongService = () => {
     return axios.get(`/get_phong`);
 };
+
 export default {
     getAllThietbiService,
     getAllPhongService,
