@@ -4,16 +4,20 @@ import Header from '~/layouts/components/Header';
 import Sidebar from '~/layouts/components/Sidebar';
 import styles from './DefaultLayout.module.scss';
 import Footer from '~/layouts/components/Footer';
+import { useLocation } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function DefaultLayout({ children }) {
+    const location = useLocation();
+    const hideSidebar = location.pathname === '/dsthietbi';
+
     return (
         <div className={cx('wrapper')}>
             <Header />
             <div className={cx('container')}>
-                <Sidebar />
-                <div className={cx('content')}>{children}</div>
+                {!hideSidebar && <Sidebar />}
+                <div className={cx('content', { 'full-width': hideSidebar })}>{children}</div>
             </div>
             <Footer />
         </div>
