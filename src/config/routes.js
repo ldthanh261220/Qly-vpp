@@ -11,6 +11,8 @@ const routes = {
     chitiethopdong: 'hopdong/:id',
     Dsthietbi: '/dsthietbi',
     dashboard: '/dashboard',
+
+    Locthietbi: '/Locthietbi',
     // Thịnh
     Duyetkehoach: '/Duyetkehoachmuasam',
     Duyetnhathau: '/Duyetnhathau',

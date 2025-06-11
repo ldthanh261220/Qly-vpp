@@ -1,8 +1,12 @@
 import axios from '../axios';
 
-const createNewRequestService = (data) => {
-    console.log('check data from service: ', data);
-    return axios.post('/create-yeucau', data);
+const createNewRequestService = (formData) => {
+    console.log('check data from service: ', formData);
+    return axios.post('/create-yeucau', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 };
 
 export default {

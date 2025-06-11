@@ -30,6 +30,7 @@ const SEARCH_ITEMS = [
     },
     {
         title: 'Văn bản pháp quy',
+        to: config.routes.Locthietbi,
     },
     {
         id: 'approved_contractors',
@@ -134,7 +135,9 @@ function Header() {
                 <div className={cx('header-menu')}>
                     <div className={cx('header-container')}>
                         <div className={cx('menu-left')}>
-                            <div className={cx('menu-item')}>Trang chủ</div>
+                            <Link to={config.routes.home} className={cx('menu-item')}>
+                                Trang chủ
+                            </Link>
                             <Menu items={SEARCH_ITEMS} onChange={handleTracuuClick} V2>
                                 <div className={cx('menu-item')}>Tra cứu</div>
                             </Menu>

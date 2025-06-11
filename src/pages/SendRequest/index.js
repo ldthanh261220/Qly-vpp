@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SendRequest.module.scss';
 import guiyeucauService from '~/services/guiyeucauService';
@@ -9,17 +9,20 @@ const cx = classNames.bind(styles);
 
 function SendRequest() {
     const user = useSelector((state) => state.user.currentUser);
+    const isMountedRef = useRef(true); // Thêm ref để track component mount status
+
     const [loaiYeuCau, setloaiYeuCau] = useState('');
     const [tinhTrangThietBi, settinhTrangThietBi] = useState('');
-    const [hinhAnhSuaChua, sethinhAnhSuaChua] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [selectedPhong, setSelectedPhong] = useState('');
     const [danhSachPhong, setDanhSachPhong] = useState([]);
     const [danhSachThietBi, setDanhSachThietBi] = useState([]);
-    const [selectedViTri, setSelectedViTri] = useState(''); // Thêm state cho vị trí
+    const [selectedViTri, setSelectedViTri] = useState('');
     const [selectedThietBi, setSelectedThietBi] = useState('');
     const [formData, setFormData] = useState({
         lyDoDeXuat: '',
-        maTaiKhoan: user.id,
+        maTaiKhoan: user?.id || '',
         ngayDuyet: '',
         loaiYeuCau: '',
         moTaChiTiet: '',
@@ -30,34 +33,62 @@ function SendRequest() {
         trangThai: 'Đang chờ duyệt',
     });
 
+    // Cleanup function khi component unmount
+    useEffect(() => {
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
+
     const getAllPhong = async () => {
         try {
             const response = await thietbiService.getAllPhongService();
-            if (response?.errCode === 0) {
+            // Kiểm tra component còn mounted không trước khi setState
+            if (response?.errCode === 0 && isMountedRef.current) {
                 setDanhSachPhong(response.danhsachphong);
             }
         } catch (error) {
-            console.error('Lỗi khi tải danh sách phòng:', error);
+            if (isMountedRef.current) {
+                console.error('Lỗi khi tải danh sách phòng:', error);
+            }
         }
     };
 
     const getAllThietbi = async () => {
         try {
             const response = await thietbiService.getAllThietbiService();
-            if (response?.errCode === 0) {
+            // Kiểm tra component còn mounted không trước khi setState
+            if (response?.errCode === 0 && isMountedRef.current) {
                 setDanhSachThietBi(response.danhsachthietbi);
             }
         } catch (error) {
-            console.error('Lỗi khi tải danh sách thiết bị:', error);
+            if (isMountedRef.current) {
+                console.error('Lỗi khi tải danh sách thiết bị:', error);
+            }
         }
     };
 
     useEffect(() => {
-        getAllPhong();
-        getAllThietbi();
-    }, []);
+        // Chỉ fetch data khi component mounted và user có dữ liệu
+        if (user?.id) {
+            getAllPhong();
+            getAllThietbi();
+        }
+    }, [user?.id]);
+
+    // Update formData khi user thay đổi
+    useEffect(() => {
+        if (user?.id && isMountedRef.current) {
+            setFormData((prev) => ({
+                ...prev,
+                maTaiKhoan: user.id,
+            }));
+        }
+    }, [user?.id]);
 
     const handleInputChange = (e) => {
+        if (!isMountedRef.current) return;
+
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -66,22 +97,22 @@ function SendRequest() {
     };
 
     const handleRequestTypeChange = (e) => {
+        if (!isMountedRef.current) return;
+
         const newRequestType = e.target.value;
         setloaiYeuCau(newRequestType);
 
         // Reset tất cả các trường khi chuyển đổi loại yêu cầu
         if (newRequestType === 'mua sắm') {
-            // Reset các trường của sửa chữa
             settinhTrangThietBi('');
-            sethinhAnhSuaChua('');
+            setSelectedFile(null);
             setSelectedPhong('');
-            setSelectedViTri(''); // Reset vị trí
+            setSelectedViTri('');
             setSelectedThietBi('');
             setFormData((prev) => ({
                 ...prev,
                 maThietBi: '',
                 tinhTrangThietBi: '',
-                // Giữ lại các trường của mua sắm
                 moTaChiTiet: prev.moTaChiTiet,
                 tenVatDung: prev.tenVatDung,
                 soLuong: prev.soLuong,
@@ -91,40 +122,41 @@ function SendRequest() {
             const fileInput = document.getElementById('attachment');
             if (fileInput) fileInput.value = '';
         } else if (newRequestType === 'sửa chữa') {
-            // Reset các trường của mua sắm
             setFormData((prev) => ({
                 ...prev,
                 moTaChiTiet: '',
                 tenVatDung: '',
                 soLuong: '',
-                // Giữ lại các trường chung
                 lyDoDeXuat: prev.lyDoDeXuat,
             }));
-            // Set tình trạng mặc định cho sửa chữa
             settinhTrangThietBi('Hư hỏng');
         }
     };
 
     const handleStatusChange = (e) => {
+        if (!isMountedRef.current) return;
         settinhTrangThietBi(e.target.value);
     };
 
     const handlePhongChange = (e) => {
+        if (!isMountedRef.current) return;
+
         const tenPhong = e.target.value;
         setSelectedPhong(tenPhong);
-        setSelectedViTri(''); // Reset vị trí khi đổi phòng
-        setSelectedThietBi(''); // Reset thiết bị khi đổi phòng
+        setSelectedViTri('');
+        setSelectedThietBi('');
         setFormData((prev) => ({
             ...prev,
             maThietBi: '',
         }));
     };
 
-    // Thêm handler cho vị trí
     const handleViTriChange = (e) => {
+        if (!isMountedRef.current) return;
+
         const viTri = e.target.value;
         setSelectedViTri(viTri);
-        setSelectedThietBi(''); // Reset thiết bị khi đổi vị trí
+        setSelectedThietBi('');
         setFormData((prev) => ({
             ...prev,
             maThietBi: '',
@@ -132,6 +164,8 @@ function SendRequest() {
     };
 
     const handleThietBiChange = (e) => {
+        if (!isMountedRef.current) return;
+
         const maThietBi = e.target.value;
         setSelectedThietBi(maThietBi);
         setFormData((prev) => ({
@@ -140,54 +174,111 @@ function SendRequest() {
         }));
     };
 
-    // Hàm lấy danh sách vị trí duy nhất trong phòng
     const getViTriByPhong = (tenPhong) => {
         const thietBiTrongPhong = danhSachThietBi.filter((thietBi) => thietBi.tenPhong === tenPhong);
         const viTriList = thietBiTrongPhong
             .filter((thietBi) => thietBi.viTriTrongPhong && thietBi.viTriTrongPhong !== null)
             .map((thietBi) => thietBi.viTriTrongPhong);
 
-        // Loại bỏ các vị trí trùng lặp
         return [...new Set(viTriList)];
     };
 
-    // Hàm lấy thiết bị theo phòng và vị trí
     const getThietBiByPhongAndViTri = (tenPhong, viTri = null) => {
         const thietBiTrongPhong = danhSachThietBi.filter((thietBi) => thietBi.tenPhong === tenPhong);
 
         if (viTri) {
-            // Nếu có chọn vị trí, lọc theo vị trí
             return thietBiTrongPhong.filter((thietBi) => thietBi.viTriTrongPhong === viTri);
         } else {
-            // Nếu không chọn vị trí, chỉ lấy những thiết bị không có vị trí (viTriTrongPhong là null)
             return thietBiTrongPhong.filter((thietBi) => !thietBi.viTriTrongPhong || thietBi.viTriTrongPhong === null);
         }
     };
 
-    // Kiểm tra xem phòng có thiết bị được nhóm theo vị trí không
     const hasViTriInPhong = (tenPhong) => {
         const viTriList = getViTriByPhong(tenPhong);
         return viTriList.length > 0;
     };
 
     const handleFileChange = (e) => {
+        if (!isMountedRef.current) return;
+
         if (e.target.files && e.target.files[0]) {
-            sethinhAnhSuaChua(e.target.files[0].name);
+            const file = e.target.files[0];
+
+            const maxSize = 10 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('File quá lớn! Vui lòng chọn file nhỏ hơn 10MB');
+                e.target.value = '';
+                return;
+            }
+
+            const allowedTypes = [
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Định dạng file không được hỗ trợ! Vui lòng chọn file JPG, PNG, PDF hoặc DOC');
+                e.target.value = '';
+                return;
+            }
+
+            setSelectedFile(file);
         } else {
-            sethinhAnhSuaChua('');
+            setSelectedFile(null);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!isMountedRef.current) return;
+
+        // Validate form trước khi submit
+        if (!loaiYeuCau) {
+            alert('Vui lòng chọn loại yêu cầu');
+            return;
+        }
+
+        if (loaiYeuCau === 'sửa chữa') {
+            if (!selectedPhong) {
+                alert('Vui lòng chọn phòng');
+                return;
+            }
+            if (!selectedThietBi) {
+                alert('Vui lòng chọn thiết bị');
+                return;
+            }
+            if (!tinhTrangThietBi) {
+                alert('Vui lòng chọn tình trạng thiết bị');
+                return;
+            }
+        }
+
+        if (loaiYeuCau === 'mua sắm') {
+            if (!formData.tenVatDung) {
+                alert('Vui lòng nhập tên vật dụng');
+                return;
+            }
+            if (!formData.soLuong) {
+                alert('Vui lòng nhập số lượng');
+                return;
+            }
+        }
+
+        if (!formData.lyDoDeXuat) {
+            alert('Vui lòng nhập lý do đề xuất');
+            return;
+        }
+
         const dataToSend = {
             ...formData,
             loaiYeuCau,
             tinhTrangThietBi,
-            hinhAnhSuaChua,
-            createdAt: new Date(),
         };
+
         console.log('User:', user);
         console.log('Form submitted:', dataToSend);
 
@@ -195,20 +286,78 @@ function SendRequest() {
     };
 
     const createNewRequest = async (data) => {
+        if (!isMountedRef.current) return;
+
         try {
-            const response = await guiyeucauService.createNewRequestService(data);
+            setIsUploading(true);
+
+            const formDataToSend = new FormData();
+
+            Object.keys(data).forEach((key) => {
+                if (data[key] !== null && data[key] !== undefined) {
+                    formDataToSend.append(key, data[key]);
+                }
+            });
+
+            if (selectedFile && loaiYeuCau === 'sửa chữa') {
+                formDataToSend.append('file', selectedFile);
+            }
+
+            const response = await guiyeucauService.createNewRequestService(formDataToSend);
+
             console.log('API Response:', response);
+
+            // Kiểm tra component còn mounted trước khi update UI
+            if (!isMountedRef.current) return;
 
             if (response?.errCode !== 0) {
                 alert(response?.message || 'Lỗi không xác định');
             } else {
                 alert('Gửi yêu cầu thành công!');
+                resetForm();
             }
         } catch (error) {
             console.error('Lỗi khi tạo yêu cầu mới:', error);
-            alert('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.');
+            if (isMountedRef.current) {
+                alert('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.');
+            }
+        } finally {
+            if (isMountedRef.current) {
+                setIsUploading(false);
+            }
         }
     };
+
+    const resetForm = () => {
+        if (!isMountedRef.current) return;
+
+        setFormData({
+            lyDoDeXuat: '',
+            maTaiKhoan: user?.id || '',
+            ngayDuyet: '',
+            loaiYeuCau: '',
+            moTaChiTiet: '',
+            tenVatDung: '',
+            soLuong: '',
+            maThietBi: '1',
+            tinhTrangThietBi: '',
+            trangThai: 'Đang chờ duyệt',
+        });
+        setloaiYeuCau('');
+        settinhTrangThietBi('');
+        setSelectedFile(null);
+        setSelectedPhong('');
+        setSelectedViTri('');
+        setSelectedThietBi('');
+
+        const fileInput = document.getElementById('attachment');
+        if (fileInput) fileInput.value = '';
+    };
+
+    // Early return nếu user chưa load
+    if (!user) {
+        return <div>Đang tải...</div>;
+    }
 
     return (
         <div className={cx('container')}>
@@ -435,15 +584,18 @@ function SendRequest() {
                                         name="attachment"
                                         onChange={handleFileChange}
                                         accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                        disabled={isUploading}
                                     />
                                     <div className={cx('uploadIcon')}>📎</div>
-                                    <div className={cx('uploadText')}>Kéo thả file hoặc click để chọn</div>
+                                    <div className={cx('uploadText')}>
+                                        {isUploading ? 'Đang xử lý...' : 'Kéo thả file hoặc click để chọn'}
+                                    </div>
                                     <div className={cx('uploadHint')}>Hỗ trợ: JPG, PNG, PDF, DOC (tối đa 10MB)</div>
                                 </div>
-                                {hinhAnhSuaChua && (
+                                {selectedFile && (
                                     <div className={cx('filePreview')}>
                                         <div className={cx('fileIcon')}>📄</div>
-                                        <span className={cx('fileName')}>{hinhAnhSuaChua}</span>
+                                        <span className={cx('fileName')}>{selectedFile.name}</span>
                                     </div>
                                 )}
                             </div>
@@ -519,8 +671,8 @@ function SendRequest() {
             </div>
 
             <div className={cx('submitContainer')}>
-                <button type="submit" className={cx('btnSubmit')} onClick={handleSubmit}>
-                    Gửi yêu cầu
+                <button type="submit" className={cx('btnSubmit')} onClick={handleSubmit} disabled={isUploading}>
+                    {isUploading ? 'Đang gửi...' : 'Gửi yêu cầu'}
                 </button>
             </div>
         </div>
