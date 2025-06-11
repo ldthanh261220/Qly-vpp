@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styles from './ChiTietHopDong.module.scss';
 import classNames from 'classnames/bind';
 import { useNavigate, useParams } from 'react-router-dom';
-import { contracts } from '../data'; // Đường dẫn đúng đến file contracts
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { ClipLoader } from 'react-spinners';
 
+import contractService from '~/services/hopdongService'; // Cập nhật đúng path
 const cx = classNames.bind(styles);
 
 const ChiTietHopDong = () => {
@@ -13,17 +14,29 @@ const ChiTietHopDong = () => {
   const navigate = useNavigate();
 
   const [contract, setContract] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [updatedMoTa, setUpdatedMoTa] = useState('');
   const [updatedTrangThai, setUpdatedTrangThai] = useState('');
 
   useEffect(() => {
-    const found = contracts.find((c) => String(c.ma) === id);
-    if (found) {
-      setContract(found);
-      setUpdatedMoTa(found.moTa);
-      setUpdatedTrangThai(found.trangThai);
-    }
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await contractService.getDetailHopDongService(id);
+        console.log(res)
+        if(res.errCode === 0){
+          setContract(res.chitiethopdong);
+          setUpdatedMoTa(res.chitiethopdong.moTa);
+          setUpdatedTrangThai(res.chitiethopdong.trangThai);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy chi tiết hợp đồng:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, [id]);
 
   const handleUpdate = () => {
@@ -35,16 +48,27 @@ const ChiTietHopDong = () => {
     setShowModal(false);
   };
 
+  if (loading) {
+    return (
+      <div className={cx('loading')}>
+        <ClipLoader size={50} color="#007bff" loading={true} />
+      </div>
+    );
+  }
+
   if (!contract) return <div>Không tìm thấy hợp đồng</div>;
 
   return (
     <div className={cx('wrapper')}>
-      <h3>Chi tiết hợp đồng: {contract.ten}</h3>
+      <h3>Chi tiết hợp đồng: {contract.tenHopDong}</h3>
       <div className={cx('info')}>
-        <p><strong>Mã:</strong> {contract.ma}</p>
+        <p><strong>Mã:</strong> {contract.maHopDong}</p>
         <p><strong>Tên nhà thầu:</strong> {contract.tenNhaThau}</p>
-        <p><strong>Ngày ký:</strong> {contract.ngayKy}</p>
-        <p><strong>Ngày hết hạn:</strong> {contract.ngayHetHan}</p>
+        <p><strong>Ngày ký:</strong> {new Date(contract.ngayKy).toLocaleDateString('vi-VN')}</p>
+        <p><strong>Ngày thuc hien:</strong> {new Date(contract.thoiGianThucHien).toLocaleDateString('vi-VN')}</p>
+        <p><strong>Ngày hoan thanh:</strong> {new Date(contract.thoiGianHoanThanh).toLocaleDateString('vi-VN')}</p>
+        <p><strong>Hình thức thanh toán:</strong> {contract.hinhThucThanhToan}</p>
+        <p><strong>Nội dung hợp đồng:</strong> {contract.noiDungHopDong}</p>
         <p><strong>Trạng thái:</strong> {contract.trangThai}</p>
         <p><strong>Mô tả:</strong> {contract.moTa}</p>
         <button className={cx('btn-update')} onClick={() => setShowModal(true)}>
@@ -52,7 +76,7 @@ const ChiTietHopDong = () => {
         </button>
       </div>
 
-      <h3>Danh sách sản phẩm</h3>
+      {/* <h3>Danh sách sản phẩm</h3>
       <table className={cx('table')}>
         <thead>
           <tr>
@@ -65,7 +89,7 @@ const ChiTietHopDong = () => {
           </tr>
         </thead>
         <tbody>
-          {contract.sanPham.map((sp, idx) => (
+          {contract.sanPham?.map((sp, idx) => (
             <tr key={idx}>
               <td>{sp.ten}</td>
               <td>{sp.soLuongMua}</td>
@@ -76,11 +100,13 @@ const ChiTietHopDong = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> */}
 
       <div className={cx('div-icons')}>
         <button className={cx('btn-back')} onClick={() => navigate(-1)}>← Quay lại danh sách</button>
-        <button className={cx('btn-up')} onClick={()=>setShowModal(true)}><FontAwesomeIcon icon={faPenToSquare} /> Cập nhật</button>
+        <button className={cx('btn-up')} onClick={() => setShowModal(true)}>
+          <FontAwesomeIcon icon={faPenToSquare} /> Cập nhật
+        </button>
       </div>
 
       {/* Modal cập nhật */}

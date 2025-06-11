@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import styles from './QlyHopDong.module.scss';
 import classNames from 'classnames/bind';
 
-import { contracts } from './data';
 import { contractStatus } from '~/constants/contractStatus';
 import { useNavigate } from 'react-router-dom';
 import Filter from './filter/Filter';
@@ -13,10 +11,14 @@ import Pagination from './pagination/Pagination';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileContract } from '@fortawesome/free-solid-svg-icons';
+import { ClipLoader } from 'react-spinners';
+
+import hopDongService from '~/services/hopdongService';
 
 const cx = classNames.bind(styles);
 
 const QlyHopDong = () => {
+    const [contracts, setContracts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [fieldFilter, setFieldFilter] = useState('');
@@ -24,19 +26,37 @@ const QlyHopDong = () => {
     const [dateEnd, setDateEnd] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [showDelete, setShowDelete] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
     const navigate = useNavigate();
     const itemsPerPage = 5;
 
+    useEffect(() => {
+        const fetchContracts = async () => {
+            try {
+                const response = await hopDongService.getAllHopDongService();
+                setContracts(response.danhsachhopdong || []);
+            } catch (error) {
+                console.error('Lỗi khi lấy danh sách hợp đồng:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchContracts();
+    }, []);
+
     const HandleDeleteRow = () => {
-        // TODO: Xử lý xóa tại đây (gửi API hoặc cập nhật state)
         console.log('Đã xác nhận xóa:', showDelete);
         setShowDelete(null);
+        // TODO: Gọi API xóa nếu cần
     };
 
     const HandleViewDetails = (id) => {
         navigate(`/hopdong/${id}`);
     };
 
+    // Lọc dữ liệu
     const filteredContracts = contracts.filter((contract) => {
         const matchesSearch = contract.tenNhaThau.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter ? contract.trangThai === statusFilter : true;
@@ -49,8 +69,7 @@ const QlyHopDong = () => {
 
         return matchesSearch && matchesStatus && matchesField && matchesDate;
     });
-    console.log('dateEnd: ' + dateEnd, 'dateStart: ' + dateStart);
-    console.log(filteredContracts);
+
     const totalPages = Math.ceil(filteredContracts.length / itemsPerPage);
     const paginatedContracts = filteredContracts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -77,17 +96,24 @@ const QlyHopDong = () => {
             />
 
             {/* Bảng hợp đồng */}
-            <div>
-                {/* Table */}
-                <TableComponent
-                    paginatedContracts={paginatedContracts}
-                    HandleViewDetails={HandleViewDetails}
-                    setShowDelete={setShowDelete}
-                />
-
-                {/* Phân trang */}
-                <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
-            </div>
+            {isLoading ? (
+                <div className={cx('spinner-container')} style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+                    <ClipLoader color="#11588B" loading={true} size={50} />
+                </div>
+            ) : (
+                <>
+                    <TableComponent
+                        paginatedContracts={paginatedContracts}
+                        HandleViewDetails={HandleViewDetails}
+                        setShowDelete={setShowDelete}
+                    />
+                    <Pagination
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        totalPages={totalPages}
+                    />
+                </>
+            )}
 
             {/* Modal xác nhận xóa */}
             <ModalDelete showDelete={showDelete} setShowDelete={setShowDelete} HandleDeleteRow={HandleDeleteRow} />

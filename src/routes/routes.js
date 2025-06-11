@@ -17,6 +17,7 @@ import Duyetkehoach from '~/pages/Duyetkhms';
 import Duyetnhathau from '~/pages/Duyetkcnt';
 import Duyetngansach from '~/pages/Duyetngansach';
 import Thanhtoanhopdong from '~/pages/Thanhtoanhopdong';
+import Dashboard from '~/pages/Dashboard/Dashboard';
 
 // Public routes
 const publicRoutes = [
@@ -30,6 +31,7 @@ const publicRoutes = [
     { path: config.routes.chitietnhathau, component: ChiTietNhaThau },
     { path: config.routes.hopdong, component: QlyHopDong },
     { path: config.routes.chitiethopdong, component: ChiTietHopDong },
+    { path: config.routes.dashboard, component: Dashboard },
 
     { path: config.routes.Dsthietbi, component: Dsthietbi },
     { path: config.routes.Duyetkehoach, component: Duyetkehoach },

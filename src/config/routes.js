@@ -10,6 +10,7 @@ const routes = {
     hopdong: '/hopdong',
     chitiethopdong: 'hopdong/:id',
     Dsthietbi: '/dsthietbi',
+    dashboard: '/dashboard',
     // Thịnh
     Duyetkehoach: '/Duyetkehoachmuasam',
     Duyetnhathau: '/Duyetnhathau',

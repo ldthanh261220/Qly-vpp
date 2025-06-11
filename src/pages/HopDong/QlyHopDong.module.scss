@@ -19,4 +19,12 @@ button,
 input {
     border: none;
     outline: none;
+    background-color: transparent;
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
 }
