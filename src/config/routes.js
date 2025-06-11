@@ -5,6 +5,7 @@ const routes = {
     Qlytaikhoan: '/qlytaikhoan',
     Phanquyen: '/phanquyen',
     Dsthietbi: '/dsthietbi',
+    Locthietbi: '/Locthietbi',
     // Thịnh
     Duyetkehoach: '/Duyetkehoachmuasam',
     Duyetnhathau: '/Duyetnhathau',

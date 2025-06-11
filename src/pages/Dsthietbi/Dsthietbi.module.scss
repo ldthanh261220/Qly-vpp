@@ -163,72 +163,60 @@ $color-gray-900: #212529;
         padding: 0 40px;
     }
 }
-
-// Main Container for breadcrumb
-.main-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
-
-    @media (min-width: 1200px) {
-        padding: 0 40px;
-    }
-}
-// Breadcrumb
+/* Breadcrumb Styles */
 .breadcrumb-section {
     position: relative;
     z-index: 10;
-    padding: 20px 0;
-    margin-bottom: 20px;
-    background-color: #f6f6f6;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 0;
     backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba($primary-color, 0.1);
-}
-
-.d-flex {
-    display: flex;
-}
-
-.align-items-center {
-    align-items: center;
-}
-
-.breadcrumb-item {
-    color: $color-gray-600;
-    text-decoration: none;
-    font-weight: 500;
+    background-color: white;
     font-size: 14px;
-    @include transition();
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
-    &:hover {
-        color: $primary-color;
-    }
+    .main-container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0 20px;
 
-    &.active {
-        color: $primary-color;
-        font-weight: 700;
-
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, $primary-color, $primary-light);
-            border-radius: 1px;
+        @media (min-width: 1200px) {
+            padding: 0 40px;
         }
     }
 
-    i {
-        margin-right: 6px;
-    }
-}
+    .breadcrumb-nav {
+        display: flex;
+        align-items: center;
 
-.breadcrumb-separator {
-    margin: 0 12px;
-    color: $primary-light;
-    font-weight: 600;
+        a {
+            color: #666;
+            text-decoration: none;
+
+            &:hover {
+                color: #be8a4b;
+            }
+
+            i {
+                margin-right: 5px;
+            }
+        }
+    }
+
+    .breadcrumb-separator {
+        margin: 0 5px;
+        color: #ccc;
+    }
+
+    .breadcrumb-item {
+        color: #666;
+
+        &.active {
+            color: #333;
+            font-weight: 600;
+        }
+    }
 }
 
 // Header with Animations

@@ -30,6 +30,7 @@ const SEARCH_ITEMS = [
     },
     {
         title: 'Văn bản pháp quy',
+        to: config.routes.Locthietbi,
     },
     {
         id: 'approved_contractors',

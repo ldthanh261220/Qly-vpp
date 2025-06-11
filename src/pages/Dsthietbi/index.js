@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Dsthietbi.module.scss';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import config from '~/config';
 import thietbiService from '~/services/thietbiService';
 
@@ -14,6 +14,8 @@ const Dsthietbi = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [categories, setCategories] = useState([]);
     const isMountedRef = useRef(true);
+    const navigate = useNavigate();
+
     const getAllCategories = async () => {
         try {
             const response = await thietbiService.getAllDanhMucService();
@@ -41,6 +43,7 @@ const Dsthietbi = () => {
     const handleCategoryClick = (category) => {
         setSelectedCategory(category);
         console.log('Selected category:', category);
+        navigate(`${config.routes.Locthietbi}?DanhMuc=${encodeURIComponent(category.tenDanhMuc)}`);
     };
 
     return (
@@ -55,12 +58,12 @@ const Dsthietbi = () => {
 
                 <div className={cx('breadcrumb-section')}>
                     <div className={cx('main-container')}>
-                        <div className={cx('d-flex', 'align-items-center')}>
+                        <div className={cx('breadcrumb-nav')}>
                             <Link to={config.routes.home} className={cx('breadcrumb-item')}>
                                 <i className="fas fa-home"></i> Trang chủ
                             </Link>
                             <span className={cx('breadcrumb-separator')}>{'>'}</span>
-                            <span className={cx('breadcrumb-item', 'active')}>Danh sách thiết bị</span>
+                            <span className={cx('breadcrumb-item', 'active')}>Danh mục thiết bị</span>
                         </div>
                     </div>
                 </div>
