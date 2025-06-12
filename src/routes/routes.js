@@ -20,12 +20,16 @@ import Thanhtoanhopdong from '~/pages/Thanhtoanhopdong';
 import Dashboard from '~/pages/Dashboard/Dashboard';
 
 import Locthietbi from '~/pages/Dsthietbi/Locthietbi';
+import Qlytaikhoan from '~/pages/Qlytaikhoan';
+import Qlythietbi from '~/pages/Qlythietbi';
 // Public routes
 const publicRoutes = [
     { path: config.routes.home, component: Home },
     { path: config.routes.profile, component: Profile },
     { path: config.routes.sendrequest, component: SendRequest },
-    { path: config.routes.Qlytaikhoan, component: Qly },
+    { path: config.routes.Qlytaikhoan, component: Qlytaikhoan },
+    { path: config.routes.Quanlythietbi, component: Qlythietbi },
+
     { path: config.routes.Phanquyen, component: Phanquyen },
 
     { path: config.routes.nhathau, component: QlyNhaThau },

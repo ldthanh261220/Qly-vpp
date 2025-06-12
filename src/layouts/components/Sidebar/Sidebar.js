@@ -1,5 +1,16 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, FileText, UserCircle, Users, Key, ShoppingCart, Book, ChartColumnBig, Layers } from 'lucide-react';
+import {
+    Home,
+    FileText,
+    UserCircle,
+    Users,
+    Key,
+    ShoppingCart,
+    Book,
+    ChartColumnBig,
+    Layers,
+    Monitor,
+} from 'lucide-react';
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
 import config from '~/config';
@@ -16,6 +27,7 @@ export default function Sidebar() {
 
     const privateMenu = [
         { name: 'Gửi yêu cầu', icon: <FileText size={18} />, to: config.routes.sendrequest, quyen: 7 },
+        { name: 'Quản lý thiết bị', icon: <Monitor size={18} />, to: config.routes.Quanlythietbi, quyen: 1 },
         { name: 'Quản lý tài khoản', icon: <Users size={18} />, to: config.routes.Qlytaikhoan, quyen: 1 },
         { name: 'Phân quyền tài khoản', icon: <Key size={18} />, to: config.routes.Phanquyen, quyen: 1 },
         { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },

@@ -3,16 +3,17 @@ const routes = {
     profile: '/@:nickname',
     sendrequest: '/sendrequest',
     Qlytaikhoan: '/qlytaikhoan',
+    Dsthietbi: '/dsthietbi',
+    Locthietbi: '/Locthietbi',
     Phanquyen: '/phanquyen',
+    Quanlythietbi: '/Quanlythietbi',
 
     nhathau: '/nhathau',
     chitietnhathau: '/nhathau/:id',
     hopdong: '/hopdong',
     chitiethopdong: 'hopdong/:id',
-    Dsthietbi: '/dsthietbi',
     dashboard: '/dashboard',
 
-    Locthietbi: '/Locthietbi',
     // Thịnh
     Duyetkehoach: '/Duyetkehoachmuasam',
     Duyetnhathau: '/Duyetnhathau',

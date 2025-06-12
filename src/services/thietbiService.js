@@ -16,8 +16,34 @@ const getAllDanhMucService = (idDanhMuc) => {
     }
     return axios.get(`/get_danhmuc`);
 };
+const createNewDeviceService = (formData) => {
+    console.log('check data from service: ', formData);
+    return axios.post('/create-new-thietbi', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+const editDeviceService = (formData) => {
+    console.log('check data from service: ', formData);
+    return axios.put('/edit-thietbi', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+};
+const deleteDeviceService = (maThietBi) => {
+    return axios.delete('/delete-thietbi', {
+        data: {
+            id: maThietBi,
+        },
+    });
+};
 export default {
     getAllThietbiService,
     getAllPhongService,
     getAllDanhMucService,
+    createNewDeviceService,
+    editDeviceService,
+    deleteDeviceService,
 };
