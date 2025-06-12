@@ -1,18 +1,29 @@
-import React, { useState } from 'react';
-import styles from './PriceRangeSlider.module.scss'; // Import styles object
+import React, { useState, useEffect } from 'react';
+import styles from './PriceRangeSlider.module.scss';
 import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
 
-const PriceRangeSlider = () => {
+const PriceRangeSlider = ({ onPriceChange, initialMin = 0, initialMax = 100000000 }) => {
     const [priceRange, setPriceRange] = useState({
-        min: 0,
-        max: 100000000,
+        min: initialMin,
+        max: initialMax,
     });
 
     const MIN_PRICE = 0;
     const MAX_PRICE = 100000000;
     const STEP = 1000000; // 1 triệu VND mỗi bước
+
+    // Gọi callback khi giá trị thay đổi (với debounce để tránh gọi quá nhiều)
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (onPriceChange) {
+                onPriceChange(priceRange);
+            }
+        }, 300); // Debounce 300ms
+
+        return () => clearTimeout(timeoutId);
+    }, [priceRange, onPriceChange]);
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN').format(price);
@@ -59,16 +70,20 @@ const PriceRangeSlider = () => {
     };
 
     const applyFilter = () => {
-        console.log('Applying filter:', priceRange);
-        // Thêm logic để áp dụng filter ở đây
-        alert(`Lọc giá từ ${formatPrice(priceRange.min)}đ đến ${formatPrice(priceRange.max)}đ`);
+        if (onPriceChange) {
+            onPriceChange(priceRange);
+        }
     };
 
     const resetFilter = () => {
-        setPriceRange({
+        const resetRange = {
             min: MIN_PRICE,
             max: MAX_PRICE,
-        });
+        };
+        setPriceRange(resetRange);
+        if (onPriceChange) {
+            onPriceChange(resetRange);
+        }
     };
 
     return (

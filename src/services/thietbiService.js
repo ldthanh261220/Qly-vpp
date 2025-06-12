@@ -1,12 +1,19 @@
 import axios from '../axios';
 
-const getAllThietbiService = () => {
+const getAllThietbiService = (idDanhMuc) => {
+    if (idDanhMuc) {
+        return axios.get(`/get_thietbi?idDanhMuc=${idDanhMuc}`);
+    }
     return axios.get(`/get_thietbi`);
 };
+
 const getAllPhongService = () => {
     return axios.get(`/get_phong`);
 };
-const getAllDanhMucService = () => {
+const getAllDanhMucService = (idDanhMuc) => {
+    if (idDanhMuc) {
+        return axios.get(`/get_danhmuc?idDanhMuc=${idDanhMuc}`);
+    }
     return axios.get(`/get_danhmuc`);
 };
 export default {
