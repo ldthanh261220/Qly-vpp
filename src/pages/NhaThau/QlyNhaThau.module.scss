@@ -57,7 +57,7 @@
 
             select {
                 padding: 0 10px;
-                width: 100px;
+                width: 200px;
                 outline: none;
                 border: none;
             }
@@ -180,5 +180,20 @@
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+.btn-export {
+    background-color: #28a745;
+    color: white;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    margin-left: 12px;
+
+    &:hover {
+        background-color: #218838;
     }
 }

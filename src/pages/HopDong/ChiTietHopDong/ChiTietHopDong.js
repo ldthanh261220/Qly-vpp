@@ -7,6 +7,7 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { ClipLoader } from 'react-spinners';
 
 import contractService from '~/services/hopdongService'; // Cập nhật đúng path
+import { toast } from 'react-toastify';
 const cx = classNames.bind(styles);
 
 const ChiTietHopDong = () => {
@@ -32,6 +33,7 @@ const ChiTietHopDong = () => {
         }
       } catch (error) {
         console.error('Lỗi khi lấy chi tiết hợp đồng:', error);
+        toast.error('Lỗi khi tải chi tiet hop dong!');
       } finally {
         setLoading(false);
       }
@@ -56,7 +58,7 @@ const ChiTietHopDong = () => {
     );
   }
 
-  if (!contract) return <div>Không tìm thấy hợp đồng</div>;
+  if (!contract) return <div className={cx('wrapper')}>Không tìm thấy hợp đồng</div>;
 
   return (
     <div className={cx('wrapper')}>

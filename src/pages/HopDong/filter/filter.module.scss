@@ -24,6 +24,17 @@
         }
     }
 
+    .filter-field {
+        select {
+            width: 158px;
+        }
+    }
+    .filter-status {
+        select {
+            width: 120px;
+        }
+    }
+
     .filter-date {
         display: flex;
         gap: 10px;

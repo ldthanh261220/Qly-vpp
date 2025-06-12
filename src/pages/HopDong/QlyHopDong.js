@@ -14,6 +14,8 @@ import { faFileContract } from '@fortawesome/free-solid-svg-icons';
 import { ClipLoader } from 'react-spinners';
 
 import hopDongService from '~/services/hopdongService';
+import { toast } from 'react-toastify';
+import linhvucService from '~/services/linhvucService';
 
 const cx = classNames.bind(styles);
 
@@ -28,6 +30,8 @@ const QlyHopDong = () => {
     const [showDelete, setShowDelete] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [linhVucList, setLinhVucList] = useState([]);
+    
     const navigate = useNavigate();
     const itemsPerPage = 5;
 
@@ -38,12 +42,26 @@ const QlyHopDong = () => {
                 setContracts(response.danhsachhopdong || []);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách hợp đồng:', error);
+                toast.error('Lỗi khi tải danh sách hop dong!');
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchContracts();
+
+        const fetchLinhVuc = async () => {
+          try {
+            const res = await linhvucService.getAllLinhVucService();
+            if (res.errCode === 0) {
+              setLinhVucList(res.danhsachlinhvuc); // hoặc `res.data` tùy API
+            }
+          } catch (err) {
+            console.error('Lỗi khi lấy danh sách lĩnh vực:', err);
+          }
+        };
+
+        fetchLinhVuc();
     }, []);
 
     const HandleDeleteRow = () => {
@@ -60,8 +78,8 @@ const QlyHopDong = () => {
     const filteredContracts = contracts.filter((contract) => {
         const matchesSearch = contract.tenNhaThau.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter ? contract.trangThai === statusFilter : true;
-        const matchesField = fieldFilter ? contract.linhVuc === fieldFilter : true;
-
+        const matchesField = fieldFilter ? contract.maLinhVuc === fieldFilter : true;
+        
         const contractDate = new Date(contract.ngayKy);
         const start = dateStart ? new Date(dateStart) : null;
         const end = dateEnd ? new Date(dateEnd) : null;
@@ -81,6 +99,7 @@ const QlyHopDong = () => {
 
             {/* Bộ lọc */}
             <Filter
+                linhVucList={linhVucList}
                 statusFilter={statusFilter}
                 setStatusFilter={setStatusFilter}
                 contractStatus={contractStatus}

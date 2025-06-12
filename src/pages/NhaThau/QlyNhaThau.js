@@ -8,6 +8,10 @@ import nhathauService from '~/services/nhathauService';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
 import 'react-toastify/dist/ReactToastify.css';
+import linhvucService from '~/services/linhvucService';
+
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 const cx = classNames.bind(styles);
 
@@ -18,6 +22,7 @@ const QlyNhaThau = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [showDelete, setShowDelete] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [linhVucList, setLinhVucList] = useState([]);
     const itemsPerPage = 3;
 
     // ✅ Hàm fetch data riêng để tái sử dụng
@@ -35,13 +40,112 @@ const QlyNhaThau = () => {
         }
     };
 
+    const handleExportExcel = async () => {
+        if (!filteredData || filteredData.length === 0) {
+            toast.warn('Không có dữ liệu để xuất!');
+            return;
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Danh sách nhà thầu');
+
+        // Header
+        const header = [
+            'STT',
+            'Mã nhà thầu',
+            'Mã số thuế',
+            'Nơi cấp',
+            'Tên nhà thầu',
+            'Tên viết tắt',
+            'Loại hình DN',
+            'Số GPKD',
+            'Địa chỉ',
+            'Website',
+            'Người đại diện',
+            'Chức vụ',
+            'Số định danh',
+            'Ngày sinh',
+            'Tên lĩnh vực',
+        ];
+
+        worksheet.addRow(header);
+
+        // Style header
+        const headerRow = worksheet.getRow(1);
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+            cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '1A237E' }, // xanh đậm
+            };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' },
+            };
+        });
+
+        // Add data rows
+        filteredData.forEach((item, index) => {
+            worksheet.addRow([
+            index + 1,
+            item.ma,
+            item.maSoThue,
+            item.noiCap,
+            item.tenNhaThau,
+            item.tenVietTat,
+            item.loaiHinhDoanhNghiep,
+            item.soGiayPhepKinhDoanh,
+            item.diaChi,
+            item.website,
+            item.hoTenNguoiDaiDien,
+            item.chucVuNguoiDaiDien,
+            item.soDienDanh,
+            new Date(item.ngaySinh).toLocaleDateString('vi-VN'),
+            item.tenLinhVuc,
+            ]);
+        });
+
+        // Auto column width
+        worksheet.columns.forEach((column) => {
+            let maxLength = 12;
+            column.eachCell?.((cell) => {
+            const cellValue = cell.value ? cell.value.toString() : '';
+            maxLength = Math.max(maxLength, cellValue.length + 2);
+            });
+            column.width = maxLength;
+        });
+
+        // Xuất file
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+        saveAs(blob, 'DanhSachNhaThau.xlsx');
+        toast.success('Xuất Excel thành công!');
+    };
+
     useEffect(() => {
+        const fetchLinhVuc = async () => {
+            try {
+            const res = await linhvucService.getAllLinhVucService();
+            if (res.errCode === 0) {
+                setLinhVucList(res.danhsachlinhvuc); // hoặc `res.data` tùy API
+            }
+            } catch (err) {
+            console.error('Lỗi khi lấy danh sách lĩnh vực:', err);
+            }
+        };
+
+        fetchLinhVuc();
+
         fetchData();
     }, []);
 
     const filteredData = nhaThaus.filter((item) => {
         const matchSearch = item.tenNhaThau.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchField = filterField ? item.tenLinhVuc === filterField : true;
+        const matchField = filterField ? item.maLinhVuc === filterField : true;
         return matchSearch && matchField;
     });
 
@@ -67,7 +171,26 @@ const QlyNhaThau = () => {
         <div className={cx('section')}>
             <div className={cx('header')}>
                 <p>Danh sách nhà thầu</p>
+                <button className={cx('btn-export')} onClick={handleExportExcel}>
+                    Xuất Excel
+                </button>
                 <div className={cx('filter')}>
+                    <div className={cx('search-1')}>
+                        <select
+                            value={filterField}
+                            onChange={(e) => {
+                                setFilterField(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        >
+                            <option value="">Tất cả lĩnh vực</option>
+                            {linhVucList.map((lv) => (
+                                <option key={lv.maLinhVuc} value={lv.maLinhVuc}>
+                                {lv.tenLinhVuc}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div className={cx('search')}>
                         <input
                             placeholder="Nhập tên nhà thầu..."
@@ -80,21 +203,6 @@ const QlyNhaThau = () => {
                         <button>
                             <FontAwesomeIcon icon={faMagnifyingGlass} />
                         </button>
-                    </div>
-
-                    <div className={cx('search-1')}>
-                        <select
-                            value={filterField}
-                            onChange={(e) => {
-                                setFilterField(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                        >
-                            <option value="">Tất cả</option>
-                            <option value="Lĩnh vực 1">Lĩnh vực 1</option>
-                            <option value="Lĩnh vực 2">Lĩnh vực 2</option>
-                            <option value="Lĩnh vực 3">Lĩnh vực 3</option>
-                        </select>
                     </div>
                 </div>
             </div>

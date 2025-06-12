@@ -4,6 +4,7 @@ import styles from './ChiTietNhaThau.module.scss';
 import classNames from 'classnames/bind';
 import nhaThauService from '~/services/nhathauService';
 import { ClipLoader } from 'react-spinners';
+import { toast } from 'react-toastify';
 
 const cx = classNames.bind(styles);
 
@@ -23,6 +24,7 @@ const ChiTietNhaThau = () => {
             }
       } catch (err) {
         setError('Không thể tải dữ liệu nhà thầu!' +id);
+        toast.error('Lỗi khi tải chi tiet nhà thầu!');
       } finally {
         setLoading(false);
       }
@@ -40,7 +42,7 @@ const ChiTietNhaThau = () => {
   }
 
   if (error || !data) {
-    return <p>{error || 'Không tìm thấy nhà thầu!'}</p>;
+    return <p className={cx('container')}>{error || 'Không tìm thấy nhà thầu!'}</p>;
   }
 
   return (

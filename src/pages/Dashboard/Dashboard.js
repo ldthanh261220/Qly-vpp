@@ -16,6 +16,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { toast } from 'react-toastify';
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +34,7 @@ const cx = classNames.bind(styles);
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1); // JS tháng bắt đầu từ 0
   const [year, setYear] = useState(now.getFullYear());
@@ -46,8 +48,14 @@ const Dashboard = () => {
         if (res.errCode === 0) {
           setData(res.dashboard);
         }
+        else {
+          setError('Lỗi lấy dữ liệu dashboard!')
+          toast.error('Lỗi khi tải dashboard!');
+        }
       } catch (err) {
         console.error('Lỗi lấy dữ liệu dashboard:', err);
+        setError('Lỗi lấy dữ liệu dashboard!')
+        toast.error('Lỗi khi tải dashboard!');
       } finally {
         setLoading(false);
       }
@@ -64,6 +72,13 @@ const Dashboard = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className={cx('dashboard')}>
+        {error}
+      </div>
+    );
+  }
   return (
     <div className={cx('dashboard')}>
       <div className={cx('header-filter')}>
