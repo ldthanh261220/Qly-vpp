@@ -4,7 +4,14 @@ const routes = {
     sendrequest: '/sendrequest',
     Qlytaikhoan: '/qlytaikhoan',
     Phanquyen: '/phanquyen',
+
+    nhathau: '/nhathau',
+    chitietnhathau: '/nhathau/:id',
+    hopdong: '/hopdong',
+    chitiethopdong: 'hopdong/:id',
     Dsthietbi: '/dsthietbi',
+    dashboard: '/dashboard',
+
     Locthietbi: '/Locthietbi',
     // Thịnh
     Duyetkehoach: '/Duyetkehoachmuasam',
