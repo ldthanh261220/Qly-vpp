@@ -6,11 +6,19 @@ import Profile from '~/pages/Profile';
 import SendRequest from '~/pages/SendRequest';
 import Qly from '~/pages/Qlytaikhoan';
 import Phanquyen from '~/pages/Phanquyen';
+
+import QlyNhaThau from '~/pages/NhaThau/QlyNhaThau';
+import ChiTietNhaThau from '~/pages/NhaThau/ChiTietNhaThau/ChiTietNhaThau';
+import QlyHopDong from '~/pages/HopDong/QlyHopDong';
+import ChiTietHopDong from '~/pages/HopDong/ChiTietHopDong/ChiTietHopDong';
+
 import Dsthietbi from '~/pages/Dsthietbi';
 import Duyetkehoach from '~/pages/Duyetkhms';
 import Duyetnhathau from '~/pages/Duyetkcnt';
 import Duyetngansach from '~/pages/Duyetngansach';
 import Thanhtoanhopdong from '~/pages/Thanhtoanhopdong';
+import Dashboard from '~/pages/Dashboard/Dashboard';
+
 import Locthietbi from '~/pages/Dsthietbi/Locthietbi';
 // Public routes
 const publicRoutes = [
@@ -19,6 +27,13 @@ const publicRoutes = [
     { path: config.routes.sendrequest, component: SendRequest },
     { path: config.routes.Qlytaikhoan, component: Qly },
     { path: config.routes.Phanquyen, component: Phanquyen },
+
+    { path: config.routes.nhathau, component: QlyNhaThau },
+    { path: config.routes.chitietnhathau, component: ChiTietNhaThau },
+    { path: config.routes.hopdong, component: QlyHopDong },
+    { path: config.routes.chitiethopdong, component: ChiTietHopDong },
+    { path: config.routes.dashboard, component: Dashboard },
+
     { path: config.routes.Dsthietbi, component: Dsthietbi },
     { path: config.routes.Locthietbi, component: Locthietbi },
     { path: config.routes.Duyetkehoach, component: Duyetkehoach },
