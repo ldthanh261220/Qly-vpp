@@ -433,6 +433,8 @@ function Suathietbi({ onClose, editDevice, deviceData }) {
                             <option value="">-- Chọn trạng thái --</option>
                             <option value="Hoạt động">Hoạt động</option>
                             <option value="Hư hỏng">Hư hỏng</option>
+                            <option value="Bảo trì">Bảo trì</option>
+                            <option value="Đang chờ duyệt">Đang chờ duyệt</option>
                         </select>
                     </div>
 
