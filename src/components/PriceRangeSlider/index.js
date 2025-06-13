@@ -1,18 +1,49 @@
-import React, { useState } from 'react';
-import styles from './PriceRangeSlider.module.scss'; // Import styles object
+import React, { useState, useEffect } from 'react';
+import styles from './PriceRangeSlider.module.scss';
 import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
 
-const PriceRangeSlider = () => {
-    const [priceRange, setPriceRange] = useState({
-        min: 0,
-        max: 100000000,
+const PriceRangeSlider = ({ onPriceChange, initialMin = 0, initialMax = 100000000, resetTrigger }) => {
+    // Giá trị hiện tại trong slider (chưa được áp dụng)
+    const [tempRange, setTempRange] = useState({
+        min: initialMin,
+        max: initialMax,
+    });
+
+    // Giá trị đã được áp dụng (để hiển thị trong "Đã chọn")
+    const [appliedRange, setAppliedRange] = useState({
+        min: initialMin,
+        max: initialMax,
     });
 
     const MIN_PRICE = 0;
     const MAX_PRICE = 100000000;
     const STEP = 1000000; // 1 triệu VND mỗi bước
+
+    // Lắng nghe thay đổi từ props để reset component
+    useEffect(() => {
+        setTempRange({
+            min: initialMin,
+            max: initialMax,
+        });
+        setAppliedRange({
+            min: initialMin,
+            max: initialMax,
+        });
+    }, [initialMin, initialMax]);
+
+    // Lắng nghe resetTrigger để reset về default
+    useEffect(() => {
+        if (resetTrigger) {
+            const defaultRange = {
+                min: MIN_PRICE,
+                max: MAX_PRICE,
+            };
+            setTempRange(defaultRange);
+            setAppliedRange(defaultRange);
+        }
+    }, [resetTrigger]);
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN').format(price);
@@ -20,8 +51,8 @@ const PriceRangeSlider = () => {
 
     const handleMinChange = (e) => {
         const value = parseInt(e.target.value);
-        if (value <= priceRange.max) {
-            setPriceRange((prev) => ({
+        if (value <= tempRange.max) {
+            setTempRange((prev) => ({
                 ...prev,
                 min: value,
             }));
@@ -30,8 +61,8 @@ const PriceRangeSlider = () => {
 
     const handleMaxChange = (e) => {
         const value = parseInt(e.target.value);
-        if (value >= priceRange.min) {
-            setPriceRange((prev) => ({
+        if (value >= tempRange.min) {
+            setTempRange((prev) => ({
                 ...prev,
                 max: value,
             }));
@@ -40,8 +71,8 @@ const PriceRangeSlider = () => {
 
     const handleMinInputChange = (e) => {
         const value = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-        if (value <= priceRange.max && value >= MIN_PRICE) {
-            setPriceRange((prev) => ({
+        if (value <= tempRange.max && value >= MIN_PRICE) {
+            setTempRange((prev) => ({
                 ...prev,
                 min: value,
             }));
@@ -50,25 +81,32 @@ const PriceRangeSlider = () => {
 
     const handleMaxInputChange = (e) => {
         const value = parseInt(e.target.value.replace(/[^0-9]/g, '')) || MAX_PRICE;
-        if (value >= priceRange.min && value <= MAX_PRICE) {
-            setPriceRange((prev) => ({
+        if (value >= tempRange.min && value <= MAX_PRICE) {
+            setTempRange((prev) => ({
                 ...prev,
                 max: value,
             }));
         }
     };
 
+    // Chỉ áp dụng filter khi nhấn nút "ÁP DỤNG"
     const applyFilter = () => {
-        console.log('Applying filter:', priceRange);
-        // Thêm logic để áp dụng filter ở đây
-        alert(`Lọc giá từ ${formatPrice(priceRange.min)}đ đến ${formatPrice(priceRange.max)}đ`);
+        setAppliedRange(tempRange);
+        if (onPriceChange) {
+            onPriceChange(tempRange);
+        }
     };
 
     const resetFilter = () => {
-        setPriceRange({
+        const resetRange = {
             min: MIN_PRICE,
             max: MAX_PRICE,
-        });
+        };
+        setTempRange(resetRange);
+        setAppliedRange(resetRange);
+        if (onPriceChange) {
+            onPriceChange(resetRange);
+        }
     };
 
     return (
@@ -95,7 +133,7 @@ const PriceRangeSlider = () => {
                         <label>Từ</label>
                         <input
                             type="text"
-                            value={formatPrice(priceRange.min)}
+                            value={formatPrice(tempRange.min)}
                             onChange={handleMinInputChange}
                             className={cx('price-input')}
                             placeholder="0"
@@ -105,7 +143,7 @@ const PriceRangeSlider = () => {
                         <label>Đến</label>
                         <input
                             type="text"
-                            value={formatPrice(priceRange.max)}
+                            value={formatPrice(tempRange.max)}
                             onChange={handleMaxInputChange}
                             className={cx('price-input')}
                             placeholder="100.000.000"
@@ -119,8 +157,8 @@ const PriceRangeSlider = () => {
                         <div
                             className={cx('slider-range')}
                             style={{
-                                left: `${(priceRange.min / MAX_PRICE) * 100}%`,
-                                right: `${100 - (priceRange.max / MAX_PRICE) * 100}%`,
+                                left: `${(tempRange.min / MAX_PRICE) * 100}%`,
+                                right: `${100 - (tempRange.max / MAX_PRICE) * 100}%`,
                             }}
                         ></div>
                     </div>
@@ -130,7 +168,7 @@ const PriceRangeSlider = () => {
                         min={MIN_PRICE}
                         max={MAX_PRICE}
                         step={STEP}
-                        value={priceRange.min}
+                        value={tempRange.min}
                         onChange={handleMinChange}
                         className={cx('slider', 'slider-min')}
                     />
@@ -140,7 +178,7 @@ const PriceRangeSlider = () => {
                         min={MIN_PRICE}
                         max={MAX_PRICE}
                         step={STEP}
-                        value={priceRange.max}
+                        value={tempRange.max}
                         onChange={handleMaxChange}
                         className={cx('slider', 'slider-max')}
                     />
@@ -167,7 +205,7 @@ const PriceRangeSlider = () => {
                     <p>
                         Đã chọn:{' '}
                         <strong>
-                            {formatPrice(priceRange.min)}đ - {formatPrice(priceRange.max)}đ
+                            {formatPrice(appliedRange.min)}đ - {formatPrice(appliedRange.max)}đ
                         </strong>
                     </p>
                 </div>

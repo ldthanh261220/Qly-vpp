@@ -43,7 +43,11 @@ const Dsthietbi = () => {
     const handleCategoryClick = (category) => {
         setSelectedCategory(category);
         console.log('Selected category:', category);
-        navigate(`${config.routes.Locthietbi}?DanhMuc=${encodeURIComponent(category.tenDanhMuc)}`);
+        navigate(
+            `${config.routes.Locthietbi}?idDanhMuc=${encodeURIComponent(
+                category.maDanhMuc,
+            )}&tenDanhMuc=${encodeURIComponent(category.tenDanhMuc)}`,
+        );
     };
 
     return (

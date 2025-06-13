@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { logout } from '~/store/reducers/userReducer';
 import { toast } from 'react-toastify';
 import thongbaoService from '~/services/thongbaoService';
+import userService from '~/services/userService';
 
 const cx = classNames.bind(styles);
 
@@ -32,7 +33,6 @@ const SEARCH_ITEMS = [
     },
     {
         title: 'Văn bản pháp quy',
-        to: config.routes.Locthietbi,
     },
     {
         id: 'approved_contractors',
@@ -93,6 +93,23 @@ function Header() {
 
     const user = useSelector((state) => state.user.currentUser);
     const [showLoginModal, setshowLoginModal] = useState(false);
+    const [roleuser, setRoleuser] = useState('');
+
+    useEffect(() => {
+        const fetchRoleUser = async () => {
+            if (!user || !user.id) return;
+            try {
+                const response = await userService.getAllRoleUsersService(user.id);
+                if (response?.errCode === 0) {
+                    setRoleuser(response.users[0]?.tenVaiTro || '');
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải vai trò người dùng:', error);
+            }
+        };
+
+        fetchRoleUser();
+    }, [user]); // Lắng nghe sự thay đổi của user
 
     const [thongBaoList, setThongBaoList] = useState([]);
 
@@ -231,7 +248,7 @@ function Header() {
                                                 <div className={cx('user-name')}>
                                                     <strong>{user.hoTen}</strong>
                                                 </div>
-                                                <div className={cx('user-role')}>Nhà thầu</div>
+                                                <div className={cx('user-role')}>{roleuser}</div>
                                             </div>
                                             <img
                                                 src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"

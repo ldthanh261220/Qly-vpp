@@ -20,6 +20,12 @@ function SendRequest() {
     const [danhSachThietBi, setDanhSachThietBi] = useState([]);
     const [selectedViTri, setSelectedViTri] = useState('');
     const [selectedThietBi, setSelectedThietBi] = useState('');
+
+    // Thêm state cho văn phòng phẩm
+    const [danhSachVanPhongPham, setDanhSachVanPhongPham] = useState([]);
+    const [loaiVanPhongPham, setLoaiVanPhongPham] = useState('chon-tu-danh-sach'); // 'chon-tu-danh-sach' hoặc 'nhap-khac'
+    const [selectedVanPhongPham, setSelectedVanPhongPham] = useState('');
+
     const [formData, setFormData] = useState({
         lyDoDeXuat: '',
         maTaiKhoan: user?.id || '',
@@ -60,6 +66,12 @@ function SendRequest() {
             // Kiểm tra component còn mounted không trước khi setState
             if (response?.errCode === 0 && isMountedRef.current) {
                 setDanhSachThietBi(response.danhsachthietbi);
+
+                // Lọc ra văn phòng phẩm có maDanhMuc = 14 và trangThai khác "Hoạt động" và "Hư hỏng"
+                const vanPhongPham = response.danhsachthietbi.filter(
+                    (thietbi) => thietbi.maDanhMuc === 14 && thietbi.trangThai !== 'Đang chờ duyệt',
+                );
+                setDanhSachVanPhongPham(vanPhongPham);
             }
         } catch (error) {
             if (isMountedRef.current) {
@@ -109,12 +121,15 @@ function SendRequest() {
             setSelectedPhong('');
             setSelectedViTri('');
             setSelectedThietBi('');
+            // Reset các trường văn phòng phẩm
+            setLoaiVanPhongPham('chon-tu-danh-sach');
+            setSelectedVanPhongPham('');
             setFormData((prev) => ({
                 ...prev,
                 maThietBi: '',
                 tinhTrangThietBi: '',
                 moTaChiTiet: prev.moTaChiTiet,
-                tenVatDung: prev.tenVatDung,
+                tenVatDung: '', // Reset tên vật dụng
                 soLuong: prev.soLuong,
                 lyDoDeXuat: prev.lyDoDeXuat,
             }));
@@ -130,6 +145,45 @@ function SendRequest() {
                 lyDoDeXuat: prev.lyDoDeXuat,
             }));
             settinhTrangThietBi('Hư hỏng');
+            // Reset các trường văn phòng phẩm
+            setLoaiVanPhongPham('chon-tu-danh-sach');
+            setSelectedVanPhongPham('');
+        }
+    };
+
+    // Xử lý thay đổi loại văn phòng phẩm
+    const handleVanPhongPhamTypeChange = (e) => {
+        if (!isMountedRef.current) return;
+
+        const newType = e.target.value;
+        setLoaiVanPhongPham(newType);
+        setSelectedVanPhongPham('');
+
+        // Reset tên vật dụng và maThietBi
+        setFormData((prev) => ({
+            ...prev,
+            tenVatDung: '',
+            maThietBi: '', // Reset maThietBi khi chuyển đổi
+        }));
+    };
+
+    // Xử lý chọn văn phòng phẩm từ danh sách
+    const handleVanPhongPhamChange = (e) => {
+        if (!isMountedRef.current) return;
+
+        const selectedId = e.target.value;
+        console.log('Selected Van Phong Pham ID:', selectedId);
+        setSelectedVanPhongPham(selectedId);
+
+        // Tìm tên thiết bị tương ứng
+        const selectedItem = danhSachVanPhongPham.find((item) => String(item.maThietBi) === String(selectedId));
+
+        if (selectedItem) {
+            setFormData((prev) => ({
+                ...prev,
+                maThietBi: selectedItem.maThietBi,
+                tenVatDung: selectedItem.tenThietBi,
+            }));
         }
     };
 
@@ -231,10 +285,29 @@ function SendRequest() {
         }
     };
 
+    // Thêm hàm tạo thiết bị mới
+    const createNewDevice = async (data) => {
+        try {
+            const response = await thietbiService.createNewDeviceService(data);
+            if (response?.errCode !== 0) {
+                alert(response.message);
+                return null;
+            }
+            const newDeviceId = response.maThietBi;
+            console.log('Thiết bị mới có ID:', newDeviceId);
+
+            return { maThietBi: newDeviceId };
+        } catch (error) {
+            console.log('Lỗi khi tạo thiết bị mới:', error);
+            return null;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!isMountedRef.current) return;
+        let newDeviceId = null;
 
         // Validate form trước khi submit
         if (!loaiYeuCau) {
@@ -266,6 +339,34 @@ function SendRequest() {
                 alert('Vui lòng nhập số lượng');
                 return;
             }
+
+            // Nếu chọn "nhập khác", tạo thiết bị mới trước
+            if (loaiVanPhongPham === 'nhap-khac') {
+                const deviceData = {
+                    tenThietBi: formData.tenVatDung,
+                    soLuong: formData.soLuong,
+                    maDanhMuc: 14,
+                    giaBan: '',
+                    viTriTrongPhong: '',
+                    moTa: '',
+                    Hang: '',
+                    xuatXu: '',
+                    hinhAnh: '',
+                    createdAt: '',
+                    tenPhong: '',
+                    trangThai: 'Đang chờ duyệt',
+                    huongDanSuDung: '',
+                };
+
+                const deviceResponse = await createNewDevice(deviceData);
+                if (!deviceResponse) {
+                    alert('Có lỗi xảy ra khi tạo thiết bị mới. Vui lòng thử lại.');
+                    return;
+                }
+
+                newDeviceId = deviceResponse.maThietBi;
+                console.log('Thiết bị mới đã được tạo với ID:', newDeviceId);
+            }
         }
 
         if (!formData.lyDoDeXuat) {
@@ -273,9 +374,22 @@ function SendRequest() {
             return;
         }
 
+        // Xác định maThietBi để gửi
+        let maThietBiToSend = null;
+        if (loaiYeuCau === 'mua sắm') {
+            if (loaiVanPhongPham === 'nhap-khac') {
+                maThietBiToSend = newDeviceId; // Sử dụng ID thiết bị mới tạo
+            } else {
+                maThietBiToSend = formData.maThietBi; // Sử dụng ID từ dropdown
+            }
+        } else {
+            maThietBiToSend = selectedThietBi; // Cho sửa chữa
+        }
+
         const dataToSend = {
             ...formData,
             loaiYeuCau,
+            maThietBi: maThietBiToSend,
             tinhTrangThietBi,
         };
 
@@ -349,6 +463,9 @@ function SendRequest() {
         setSelectedPhong('');
         setSelectedViTri('');
         setSelectedThietBi('');
+        // Reset văn phòng phẩm
+        setLoaiVanPhongPham('chon-tu-danh-sach');
+        setSelectedVanPhongPham('');
 
         const fileInput = document.getElementById('attachment');
         if (fileInput) fileInput.value = '';
@@ -602,7 +719,6 @@ function SendRequest() {
                         </div>
                     </div>
                 )}
-
                 {/* Request Information Section */}
                 <div className={cx('section')}>
                     <div className={cx('sectionHeader')}>
@@ -624,35 +740,84 @@ function SendRequest() {
                             </div>
                         </div>
                     )}
-
                     {/* Thông tin mua sắm - Chỉ hiển thị khi chọn mua sắm */}
                     {loaiYeuCau === 'mua sắm' && (
-                        <div className={cx('formRow')}>
-                            <div className={cx('formGroup')}>
-                                <label htmlFor="tenVatDung">Tên vật dụng</label>
-                                <input
-                                    type="text"
-                                    id="tenVatDung"
-                                    name="tenVatDung"
-                                    value={formData.tenVatDung}
-                                    onChange={handleInputChange}
-                                    placeholder="Nhập tên vật dụng cần mua"
-                                />
+                        <>
+                            {/* Lựa chọn loại văn phòng phẩm */}
+                            <div className={cx('formRow', 'single')}>
+                                <div className={cx('formGroup')}>
+                                    <label>Loại văn phòng phẩm</label>
+                                    <div className={cx('radioGroup')}>
+                                        <div className={cx('radioOption')}>
+                                            <input
+                                                type="radio"
+                                                id="chon-tu-danh-sach"
+                                                name="vanPhongPhamType"
+                                                value="chon-tu-danh-sach"
+                                                checked={loaiVanPhongPham === 'chon-tu-danh-sach'}
+                                                onChange={handleVanPhongPhamTypeChange}
+                                            />
+                                            <label htmlFor="chon-tu-danh-sach">Chọn từ danh sách có sẵn</label>
+                                        </div>
+
+                                        <div className={cx('radioOption')}>
+                                            <input
+                                                type="radio"
+                                                id="nhap-khac"
+                                                name="vanPhongPhamType"
+                                                value="nhap-khac"
+                                                checked={loaiVanPhongPham === 'nhap-khac'}
+                                                onChange={handleVanPhongPhamTypeChange}
+                                            />
+                                            <label htmlFor="nhap-khac">Khác (nhập tên vật dụng)</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className={cx('formGroup')}>
-                                <label htmlFor="soLuong">Số lượng</label>
-                                <input
-                                    type="number"
-                                    id="soLuong"
-                                    name="soLuong"
-                                    value={formData.soLuong}
-                                    onChange={handleInputChange}
-                                    placeholder="Nhập số lượng"
-                                    min="1"
-                                />
+                            <div className={cx('formRow')}>
+                                <div className={cx('formGroup')}>
+                                    <label htmlFor="tenVatDung">Tên vật dụng</label>
+                                    {loaiVanPhongPham === 'chon-tu-danh-sach' ? (
+                                        <select
+                                            id="vanPhongPham"
+                                            name="vanPhongPham"
+                                            value={selectedVanPhongPham}
+                                            onChange={handleVanPhongPhamChange}
+                                        >
+                                            <option value="">-- Chọn văn phòng phẩm --</option>
+                                            {danhSachVanPhongPham.map((item) => (
+                                                <option key={item.maThietBi} value={item.maThietBi}>
+                                                    {item.tenThietBi}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            id="tenVatDung"
+                                            name="tenVatDung"
+                                            value={formData.tenVatDung}
+                                            onChange={handleInputChange}
+                                            placeholder="Nhập tên vật dụng cần mua"
+                                        />
+                                    )}
+                                </div>
+
+                                <div className={cx('formGroup')}>
+                                    <label htmlFor="soLuong">Số lượng</label>
+                                    <input
+                                        type="number"
+                                        id="soLuong"
+                                        name="soLuong"
+                                        value={formData.soLuong}
+                                        onChange={handleInputChange}
+                                        placeholder="Nhập số lượng"
+                                        min="1"
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        </>
                     )}
 
                     <div className={cx('formRow', 'single')}>
