@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import styles from './Header.module.scss';
 import config from '~/config';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
 import TimeDate from '~/components/TimeDate';
 import { useEffect, useState } from 'react';
@@ -72,22 +72,22 @@ const HDSD_ITEMS = [
 ];
 function Header() {
     const [open, setOpen] = useState(false);
-
+    const location = useLocation();
     const toggleDropdown = () => {
         setOpen(!open);
     };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-        const isClickInside = event.target.closest('.notification-wrapper');
-        if (!isClickInside) {
-            setOpen(false);
-        }
+            const isClickInside = event.target.closest('.notification-wrapper');
+            if (!isClickInside) {
+                setOpen(false);
+            }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
 
@@ -115,19 +115,19 @@ function Header() {
 
     useEffect(() => {
         console.log(user);
-        
+
         const fetchThongBaos = async () => {
             if (user?.id) {
                 try {
                     const res = await thongbaoService.getThongBaoByTaiKhoan(user.id);
                     console.log(res);
-                    
-                    if(res.errCode === 0){
+
+                    if (res.errCode === 0) {
                         setThongBaoList(res.danhsachthongbao || []);
                     }
                 } catch (err) {
                     console.error('Lỗi khi lấy danh sách thông báo:', err);
-                    toast.error('Lỗi khi lấy danh sách thông báo')
+                    toast.error('Lỗi khi lấy danh sách thông báo');
                 }
             }
         };
@@ -198,11 +198,24 @@ function Header() {
                 <div className={cx('header-menu')}>
                     <div className={cx('header-container')}>
                         <div className={cx('menu-left')}>
-                            <Link to={config.routes.home} className={cx('menu-item')}>
+                            <Link
+                                to={config.routes.home}
+                                className={cx('menu-item', {
+                                    active: location.pathname === config.routes.home,
+                                })}
+                            >
                                 Trang chủ
                             </Link>
                             <Menu items={SEARCH_ITEMS} onChange={handleTracuuClick} V2>
-                                <div className={cx('menu-item')}>Tra cứu</div>
+                                <div
+                                    className={cx('menu-item', {
+                                        active:
+                                            location.pathname === config.routes.Dsthietbi ||
+                                            location.pathname === config.routes.Locthietbi, // Đường dẫn tùy bạn
+                                    })}
+                                >
+                                    Tra cứu
+                                </div>
                             </Menu>
                             <div className={cx('menu-item')}>Câu hỏi thường gặp</div>
                             <Menu items={HDSD_ITEMS} onChange={handleLanguageChange} V2>
@@ -216,10 +229,9 @@ function Header() {
                         <div className={cx('menu-item')}>Thông báo của bộ</div>
                         <div className={cx('menu-item')}>Liên hệ - Góp ý</div> */}
                             <div className={cx('notification-icon')} onClick={toggleDropdown}>
-                                <span>🔔</span>
-                                {thongBaoList?.length > 0 && (
-                                    <span className={cx('badge')}>{thongBaoList.length}</span>
-                                )}
+                                <i class="fas fa-bell fa-shake"></i>
+
+                                {thongBaoList?.length > 0 && <span className={cx('badge')}>{thongBaoList.length}</span>}
                                 {open && (
                                     <div className={cx('dropdown')}>
                                         <div className={cx('header')}>Thông báo</div>
@@ -227,9 +239,14 @@ function Header() {
                                             <div className={cx('empty')}>Không có thông báo nào</div>
                                         ) : (
                                             thongBaoList.map((tb, index) => (
-                                                <div key={index} className={cx('item', { unread: tb.trangThai === 'Chưa đọc' })}>
+                                                <div
+                                                    key={index}
+                                                    className={cx('item', { unread: tb.trangThai === 'Chưa đọc' })}
+                                                >
                                                     <div className={cx('noi-dung')}>{tb.noiDungThongBao}</div>
-                                                    <div className={cx('ngay')}>{new Date(tb.ngayThongBao).toLocaleDateString('vi-VN')}</div>
+                                                    <div className={cx('ngay')}>
+                                                        {new Date(tb.ngayThongBao).toLocaleDateString('vi-VN')}
+                                                    </div>
                                                 </div>
                                             ))
                                         )}
