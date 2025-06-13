@@ -216,7 +216,7 @@ const Locthietbi = () => {
         const fetchThietBi = async () => {
             try {
                 const res = await thietbiService.getAllThietbiService(idDanhMuc);
-                const data = res.danhsachthietbi || [];
+                const data = res.danhsachthietbi.filter((thietbi) => thietbi.trangThai !== 'Đang chờ duyệt');
 
                 setEquipments(data);
                 setFilteredEquipments(data);
