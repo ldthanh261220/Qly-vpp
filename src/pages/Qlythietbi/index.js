@@ -28,7 +28,7 @@ const DEVICE_TYPES = [
     { id: 14, name: 'Dụng cụ văn phòng phẩm' },
 ];
 
-const DEVICE_STATES = ['-- Tất cả trạng thái --', 'Hoạt động', 'Hư hỏng', 'Bảo trì', 'Ngừng sử dụng'];
+const DEVICE_STATES = ['-- Tất cả trạng thái --', 'Hoạt động', 'Hư hỏng', 'Bảo trì', 'Đang chờ duyệt'];
 const SORT_OPTIONS = ['Mã thiết bị', 'Tên thiết bị', 'Giá bán'];
 
 function Qlythietbi() {
