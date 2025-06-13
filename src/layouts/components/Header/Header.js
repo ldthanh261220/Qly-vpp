@@ -4,12 +4,14 @@ import config from '~/config';
 import { Link, useNavigate } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
 import TimeDate from '~/components/TimeDate';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Login from './Login';
 import { useSelector } from 'react-redux';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from '~/store/reducers/userReducer';
+import { toast } from 'react-toastify';
+import thongbaoService from '~/services/thongbaoService';
 
 const cx = classNames.bind(styles);
 
@@ -69,8 +71,52 @@ const HDSD_ITEMS = [
     },
 ];
 function Header() {
+    const [open, setOpen] = useState(false);
+
+    const toggleDropdown = () => {
+        setOpen(!open);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+        const isClickInside = event.target.closest('.notification-wrapper');
+        if (!isClickInside) {
+            setOpen(false);
+        }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const user = useSelector((state) => state.user.currentUser);
     const [showLoginModal, setshowLoginModal] = useState(false);
+
+    const [thongBaoList, setThongBaoList] = useState([]);
+
+    useEffect(() => {
+        console.log(user);
+        
+        const fetchThongBaos = async () => {
+            if (user?.id) {
+                try {
+                    const res = await thongbaoService.getThongBaoByTaiKhoan(user.id);
+                    console.log(res);
+                    
+                    if(res.errCode === 0){
+                        setThongBaoList(res.danhsachthongbao || []);
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi lấy danh sách thông báo:', err);
+                    toast.error('Lỗi khi lấy danh sách thông báo')
+                }
+            }
+        };
+
+        fetchThongBaos();
+    }, [user]);
 
     const navigate = useNavigate();
     const handleTracuuClick = (item) => {
@@ -152,8 +198,26 @@ function Header() {
                         <div className={cx('menu-item')}>Tin tức</div>
                         <div className={cx('menu-item')}>Thông báo của bộ</div>
                         <div className={cx('menu-item')}>Liên hệ - Góp ý</div> */}
-                            <div className={cx('notification-icon')}>
+                            <div className={cx('notification-icon')} onClick={toggleDropdown}>
                                 <span>🔔</span>
+                                {thongBaoList?.length > 0 && (
+                                    <span className={cx('badge')}>{thongBaoList.length}</span>
+                                )}
+                                {open && (
+                                    <div className={cx('dropdown')}>
+                                        <div className={cx('header')}>Thông báo</div>
+                                        {thongBaoList.length === 0 ? (
+                                            <div className={cx('empty')}>Không có thông báo nào</div>
+                                        ) : (
+                                            thongBaoList.map((tb, index) => (
+                                                <div key={index} className={cx('item', { unread: tb.trangThai === 'Chưa đọc' })}>
+                                                    <div className={cx('noi-dung')}>{tb.noiDungThongBao}</div>
+                                                    <div className={cx('ngay')}>{new Date(tb.ngayThongBao).toLocaleDateString('vi-VN')}</div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div className={cx('time-date')}>
                                 <TimeDate />

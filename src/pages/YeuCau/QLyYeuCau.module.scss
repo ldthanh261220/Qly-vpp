@@ -1,0 +1,41 @@
+.manage-request {
+    padding: 20px 0;
+
+    .header-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .btn-export {
+            background-color: #039318;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+        h3 {
+            color: #254a93; // màu xanh dương đậm, thể hiện sự tin cậy
+            font-size: 24px; // to hơn chút để dễ nhìn
+            font-weight: 700;
+            margin-bottom: 16px;
+            border-left: 5px solid #254a93;
+            padding-left: 12px;
+            line-height: 1.4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0.5px;
+        }
+    }
+}
+
+select,
+button,
+input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+}

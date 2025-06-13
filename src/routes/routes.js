@@ -20,6 +20,8 @@ import Thanhtoanhopdong from '~/pages/Thanhtoanhopdong';
 import Dashboard from '~/pages/Dashboard/Dashboard';
 
 import Locthietbi from '~/pages/Dsthietbi/Locthietbi';
+import QLyYeuCau from '~/pages/YeuCau/QLyYeuCau';
+import ChiTietYeuCau from '~/pages/YeuCau/ChiTietYeuCau/ChiTietYeuCau';
 // Public routes
 const publicRoutes = [
     { path: config.routes.home, component: Home },
@@ -32,6 +34,8 @@ const publicRoutes = [
     { path: config.routes.chitietnhathau, component: ChiTietNhaThau },
     { path: config.routes.hopdong, component: QlyHopDong },
     { path: config.routes.chitiethopdong, component: ChiTietHopDong },
+    { path: config.routes.yeucau, component: QLyYeuCau },
+    { path: config.routes.chitietyeucau, component: ChiTietYeuCau },
     { path: config.routes.dashboard, component: Dashboard },
 
     { path: config.routes.Dsthietbi, component: Dsthietbi },
