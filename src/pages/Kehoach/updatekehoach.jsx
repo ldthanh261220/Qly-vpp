@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './themkehoach.scss';
 
-const ThemKeHoach = ({ onBack }) => {
+const SuaKeHoach = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [keHoach, setKeHoach] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [dsYeuCau, setDsYeuCau] = useState([]);
   const [dschonYeuCau, setChonYeuCau] = useState([]);
-  const navigate = useNavigate();
-  useEffect(() => {
+
+
+   useEffect(() => {
     axios
       .get(process.env.REACT_APP_BACKEND + `dsyeucau`)
       .then((res) => {
@@ -17,27 +22,28 @@ const ThemKeHoach = ({ onBack }) => {
         alert("Không thể tải danh sách yêu cầu từ server");
       });
   }, []);
-
-  const [keHoach, setKeHoach] = useState({
-    tenKeHoach: '',
-    TongHopYeuCau: '',
-    chuDautu: 'Trường đại học Sư phạm Kỹ thuật',
-    thoiGianBatDau: '',
-    thoiGianKetThuc: '',
-    donVi: '',
-    matk: 11,
-    loaiyc: '',
-    trangThai: 0,
-    mucDich: '',
-   chiPhiKeHoach: 0,
-  });
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_BACKEND}getkehoach?maKeHoach=${id}`)
+      .then(res => {
+        setChonYeuCau(res.data.yeucau)
+        setKeHoach(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Không thể tải thông tin kế hoạch");
+        setLoading(false);
+      });
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setKeHoach((prev) => ({ ...prev, [name]: value }));
+    setKeHoach(prev => ({
+      ...prev,
+      [name]: name === 'chiPhiKeHoach' ? parseFloat(value || 0) : value
+    }));
   };
-
-  const handleSelectYeuCau = (e) => {
+const handleSelectYeuCau = (e) => {
      
     const maYeuCau = Number(e.target.value);
     const selected = dsYeuCau.find((yc) => yc.maYeuCau === maYeuCau);
@@ -88,38 +94,40 @@ const ThemKeHoach = ({ onBack }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    const confirm = window.confirm('Bạn có chắc chắn muốn cập nhật kế hoạch này?');
+    if (!confirm) return;
 
-  const confirmed = window.confirm('Bạn có chắc chắn muốn thêm kế hoạch này không?');
-  if (!confirmed) return;
-
-  try {
-    const ds = dschonYeuCau.map((item) => item.maYeuCau).join(',');
+    try {
+      const ds = dschonYeuCau.map((item) => item.maYeuCau).join(',');
 
     const keHoachGui = {
       ...keHoach,
       TongHopYeuCau: ds,
+      maKeHoach:id
     };
+   
+    console.log(keHoachGui)
+      await axios.put(`${process.env.REACT_APP_BACKEND}/kehoach/update`, keHoachGui);
+      alert('Cập nhật thành công');
+      navigate('/kehoach');
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi cập nhật kế hoạch');
+    }
+  };
 
-    console.log('>>> Giá trị kế hoạch gửi lên API:', JSON.stringify(keHoachGui, null, 2));
-
-    await axios.post(`${process.env.REACT_APP_BACKEND}kehoach/creater`, keHoachGui);
-    alert("Thêm kế hoạch thành công");
-    navigate(`/kehoach`);
-  } catch (err) {
-    console.error("Lỗi khi thêm kế hoạch:", err);
-    alert("Không thể thêm kế hoạch. Vui lòng thử lại.");
-  }
-};
+  if (loading) return <div>Đang tải dữ liệu kế hoạch...</div>;
+  if (!keHoach) return <div>Không tìm thấy dữ liệu kế hoạch</div>;
 
   return (
     <div className="form-container">
-      <button className="btn-back" onClick={onBack}>← Quay lại danh sách</button>
-      <h2>Thêm kế hoạch mua sắm</h2>
+      <button className="btn-back" onClick={() => navigate(-1)}>← Quay lại</button>
+      <h2>Sửa thông tin kế hoạch</h2>
       <form onSubmit={handleSubmit}>
         <table className="form-table">
           <tbody>
-            <tr>
+             <tr>
               <td><label>Chọn yêu cầu đã duyệt:</label></td>
               <td>
                 <select onChange={handleSelectYeuCau}>
@@ -150,16 +158,15 @@ const ThemKeHoach = ({ onBack }) => {
                 </td>
               </tr>
             )}
-
             <tr>
               <td><label>Tên kế hoạch:</label></td>
-              <td><input type="text" name="tenKeHoach" value={keHoach.tenKeHoach} onChange={handleChange} /></td>
+              <td><input name="tenKeHoach" value={keHoach.tenKeHoach || ''} onChange={handleChange} /></td>
             </tr>
             <tr>
-              <td><label>Loại kế hoạch:</label></td>
+              <td><label>Loại:</label></td>
               <td>
-                <select name="loaiyc" value={keHoach.loaiyc} onChange={handleChange}>
-                  <option value="">-- Chọn loại kế hoạch --</option>
+                <select name="loaiyeucau" value={keHoach.loaiyeucau} onChange={handleChange}>
+                  <option value="">-- Chọn loại --</option>
                   <option value="mua sắm">Mua sắm</option>
                   <option value="sửa chữa">Sửa chữa</option>
                 </select>
@@ -167,49 +174,23 @@ const ThemKeHoach = ({ onBack }) => {
             </tr>
             <tr>
               <td><label>Thời gian bắt đầu:</label></td>
-              <td><input type="date" name="thoiGianBatDau" value={keHoach.thoiGianBatDau} onChange={handleChange} /></td>
+              <td><input type="date" name="thoiGianBatDau" value={keHoach.thoiGianBatDau?.slice(0, 10) || ''} onChange={handleChange} /></td>
             </tr>
             <tr>
               <td><label>Thời gian kết thúc:</label></td>
-              <td><input type="date" name="thoiGianKetThuc" value={keHoach.thoiGianKetThuc} onChange={handleChange} /></td>
+              <td><input type="date" name="thoiGianKetThuc" value={keHoach.thoiGianKetThuc?.slice(0, 10) || ''} onChange={handleChange} /></td>
             </tr>
             <tr>
-              <td><label>Vị trí:</label></td>
-              <td>
-                <input
-                  type="text"
-                  name="chuDautu"
-                  value={keHoach.chuDautu}
-                  onChange={handleChange}
-                />
-              </td>
+              <td><label>Chủ đầu tư:</label></td>
+              <td><input name="chuBuTu" value={keHoach.chuBuTu || ''} onChange={handleChange} /></td>
             </tr>
+
             <tr>
-              <td><label>Mục đích:</label></td>
-              <td>
-                <textarea
-                  name="mucDich"
-                  value={keHoach.mucDich}
-                  onChange={handleChange}
-                  placeholder="Mục đích mua sắm"
-                  className="textarea-large"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td><label>Chi phí dự tính:</label></td>
-              <td>
-                <input
-                  type="number"
-                  name="chiPhiKeHoach"
-                  value={keHoach.chiPhiKeHoach}
-                  onChange={handleChange}
-                />
-              </td>
+              <td><label>Chi phí:</label></td>
+              <td><input type="number" name="chiPhiKeHoach" value={keHoach.chiPhiKeHoach || 0} onChange={handleChange} /></td>
             </tr>
           </tbody>
         </table>
-
         <hr />
 
         {keHoach.loaiyc === 'mua sắm' ? (
@@ -261,11 +242,11 @@ const ThemKeHoach = ({ onBack }) => {
         )}
 
         <div className="button_wrapper">
-          <button type="submit" className="btn-submit">Thêm kế hoạch</button>
+          <button type="submit" className="btn-submit">Lưu thay đổi</button>
         </div>
       </form>
     </div>
   );
 };
 
-export default ThemKeHoach;
+export default SuaKeHoach;

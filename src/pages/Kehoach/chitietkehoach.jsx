@@ -1,81 +1,112 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './chitietkehoach.scss';
-import { useNavigate } from 'react-router-dom';
-
-const duLieuKeHoach = [
-  {
-    id: "20462",
-    tenKeHoach: "Mua sắm 20 máy tính phục vụ học tập",
-    loai: "Thiết bị điện tử",
-    thoiGian: "22/02/2025",
-    diaDiem: "Trường Sư phạm Kĩ thuật Đà Nẵng",
-    chiPhi: { tu: "180.000.000VND", den: "250.000.000VND" },
-    trangThai: "Đã được xác nhận",
-    danhSachSanPham: [
-      { ten: "Bàn", donVi: "Cái", soLuong: 20 },
-      { ten: "Ghế", donVi: "Cái", soLuong: 30 },
-      { ten: "Máy in", donVi: "Cái", soLuong: 10 },
-    ]
-  },
-  // thêm kế hoạch khác nếu cần
-];
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const ChiTietKeHoach = () => {
-  const keHoach = duLieuKeHoach.find(kh => kh.id === "20462");
+  const [keHoach, setKeHoach] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
-  if (!keHoach) return <div>Không tìm thấy kế hoạch</div>;
+  // Lấy mã kế hoạch từ URL hoặc location.state
+  const { maKeHoach } = useParams();
+  console.log(maKeHoach)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(process.env.REACT_APP_BACKEND+`getkehoach?maKeHoach=${maKeHoach}`);
+        setKeHoach(res.data);
+      } catch (err) {
+        console.error('Error fetching kế hoạch:', err);
+        setError('Không tìm thấy kế hoạch hoặc lỗi server.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [maKeHoach]);
 
   const handleTaoHoSo = () => {
+    if (!keHoach) return;
     navigate('/taohosomoithau', {
       state: {
         tenGoiThau: keHoach.tenKeHoach,
-        duToanKinhPhi: `${keHoach.chiPhi.tu} - ${keHoach.chiPhi.den}`,
+        duToanKinhPhi: `${keHoach.chiPhiTu || ''} - ${keHoach.chiPhiDen || ''}`,
         diaDiem: keHoach.diaDiem,
         thoiGianThucHien: keHoach.thoiGian,
-        danhSachSanPham: keHoach.danhSachSanPham,
+        danhSachSanPham: keHoach.sanpham || [],
       }
     });
   };
 
+  console.log(keHoach)
+  if (loading) return <div>Đang tải dữ liệu...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!keHoach) return <div>Không tìm thấy kế hoạch</div>;
+
   return (
     <div className="plan-detail">
-      <button className="btn-back" >← Quay lại danh sách</button>
+      <button className="btn-back" onClick={() => navigate(-1)}>← Quay lại danh sách</button>
       <h2>Chi tiết kế hoạch</h2>
 
       <div className="plan-info">
         <div className="plan-row">
           <div><strong>Tên kế hoạch</strong><br />{keHoach.tenKeHoach}</div>
-          <div><strong>Loại</strong><br />{keHoach.loai}</div>
+          <div><strong>Loại</strong><br />{keHoach.loaiyeucau}</div>
         </div>
         <div className="plan-row">
-          <div><strong>Thời gian thực hiện</strong><br />{keHoach.thoiGian}</div>
-          <div><strong>Địa điểm</strong><br />{keHoach.diaDiem}</div>
+          <div><strong>Thời gian thực hiện</strong><br />{keHoach.thoiGianBatDau}</div>
+          <div><strong>Địa điểm</strong><br />Trường đại học Sư phạm Kỹ thuật </div>
         </div>
-        <div className="plan-cost">
+        {/* <div className="plan-cost">
           <strong>Chi phí:</strong><br />
-          <span className="highlight-cost">{keHoach.chiPhi.tu} - {keHoach.chiPhi.den}</span>
-        </div>
+          <span className="highlight-cost">{keHoach.chiPhiTu} - {keHoach.chiPhiDen}</span>
+        </div> */}
       </div>
 
-      <table className="plan-table">
-        <thead>
-          <tr>
-            <th>Sản phẩm</th>
-            <th>Đơn vị tính</th>
-            <th>Số lượng</th>
+     <table className="plan-table">
+  {keHoach.loaiyeucau === "Mua sắm" ? (
+    <>
+      <thead>
+        <tr>
+          <th>Sản phẩm</th>
+          <th>Số lượng</th>
+        </tr>
+      </thead>
+      <tbody>
+        {(keHoach.yeucau || []).map((sp, index) => (
+          <tr key={index}>
+            <td>{sp.tenVatDung}</td>
+            <td>{sp.soLuong}</td>
           </tr>
-        </thead>
-        <tbody>
-          {keHoach.danhSachSanPham.map((sp, index) => (
-            <tr key={index}>
-              <td>{sp.ten}</td>
-              <td>{sp.donVi}</td>
-              <td>{sp.soLuong}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        ))}
+      </tbody>
+    </>
+  ) : (
+    <>
+      <thead>
+        <tr>
+          <th>Thiết bị</th>
+          <th>Tình trạng thiết bị</th>
+          <th>Số lượng</th>
+        </tr>
+      </thead>
+      <tbody>
+        {(keHoach.yeucau || []).map((sp, index) => (
+          <tr key={index}>
+            <td>{sp.tenVatDung}</td>
+            <td>{sp.tinhTrangThietBi}</td>
+            <td>{sp.soLuong}</td>
+          </tr>
+        ))}
+      </tbody>
+    </>
+  )}
+</table>
+
 
       <div className="plan-footer">
         <div className="status">

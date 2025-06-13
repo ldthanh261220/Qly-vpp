@@ -1,102 +1,169 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './chitietnghiemthu.scss';
-import { useNavigate } from 'react-router-dom';
-import { UploadCloud, UploadCloudIcon } from 'lucide-react'; 
-const ChitietNghiemThu = () => {
 
-  const navigate=useNavigate();
-  const [wordFile, setWordFile] = useState(null);
-  const [sanPhamList, setSanPhamList] = useState([
-    { id: 1, ten: 'Bàn', donVi: 'Cái', soLuong: 20, gia: 100000, hinhAnh: null, xacNhan: false },
-    { id: 2, ten: 'Ghế', donVi: 'Cái', soLuong: 10, gia: 100000, hinhAnh: null, xacNhan: false },
-    { id: 3, ten: 'Máy in', donVi: 'Cái', soLuong: 20, gia: 1100000, hinhAnh: null, xacNhan: false }
-  ]);
-  const handdanhsachnt=()=>{
-    navigate(`/nghiemthu`);
-  }
-  const handleWordChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setWordFile(file);
+const ChitietNghiemThu = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [KeHoach, setKeHoach] = useState(null);
+  const [ghiChuList, setGhiChuList] = useState({});
+  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('Đạt yêu cầu'); // Mặc định
+
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_BACKEND}detailnghiemthu?maNghiemthu=${id}`)
+      .then((response) => {
+        setKeHoach(response.data);
+        const initialGhiChu = response.data.sanpham.reduce((acc, sp) => {
+          acc[sp.mayc_ms] = '';
+          return acc;
+        }, {});
+        setGhiChuList(initialGhiChu);
+      })
+      .catch((error) => {
+        console.error('Axios error:', error);
+      });
+  }, [id]);
+
+  const handleGhiChuChange = (mayc_ms, value) => {
+    setGhiChuList((prev) => ({
+      ...prev,
+      [mayc_ms]: value,
+    }));
   };
 
-  const handleImageChange = (e, index) => {
-    const file = e.target.files[0];
-    if (file) {
-      const updatedList = [...sanPhamList];
-      updatedList[index].hinhAnh = URL.createObjectURL(file);
-      console.log(updatedList)
-      setSanPhamList(updatedList);
+  const handleTrangThaiChange = (e) => {
+    setTrangThaiNghiemThu(e.target.value);
+  };
+
+  const handleXacNhan = async () => {
+    try {
+      const noiDung = Object.values(ghiChuList).join('|');
+       const last8 = KeHoach.maKeHoach.slice(-8); // Lấy 8 ký tự cuối
+    const maNghiemThu = `NT${last8}`;
+      const payload = {
+        maNghiemThu: maNghiemThu,
+        maKeHoach: KeHoach.maKeHoach,
+        hinhAnhNghiemThu: '', // nếu có ảnh, sửa sau
+        trangThai: trangThaiNghiemThu,
+        noiDung: noiDung,
+        ngayTao: new Date().toISOString(),
+      };
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND}xacnhannghiemthu`,
+        payload
+      );
+
+      alert(response.data.message || 'Xác nhận nghiệm thu thành công!');
+      navigate('/Nghiemthu');
+    } catch (error) {
+      console.error('Lỗi xác nhận nghiệm thu:', error);
+      alert(
+        error.response?.data?.message || 'Lỗi khi xác nhận nghiệm thu, vui lòng thử lại.'
+      );
     }
   };
 
-  const handleCheckChange = (index) => {
-    const updatedList = [...sanPhamList];
-    updatedList[index].xacNhan = !updatedList[index].xacNhan;
-    setSanPhamList(updatedList);
-  };
+
+
+  if (!KeHoach) {
+    return <div>Đang tải...</div>;
+  }
+
+  const {
+    maKeHoach,
+    tenKeHoach,
+    chuBuTu,
+    donVi,
+    loaiyeucau,
+    thoiGianBatDau,
+    thoiGianKetThuc,
+    trangThai,
+    yeucau,
+    nghiemThu,
+    daNghiemThu,
+  } = KeHoach;
 
   return (
-    <div className="contract-container">
+    <div className="chitiet-KeHoach-container">
       <h2>Chi tiết nghiệm thu</h2>
-      <h3>Hợp đồng 01</h3>
-      <div className="contract-info">
-        <p><strong>Mã hợp đồng:</strong> HD1</p>
-        <p><strong>Nhà thầu:</strong> Công Ty TNHH Thương Mại Văn Phòng Phẩm Phú Thịnh</p>
-        <p><strong>Ngày bắt đầu:</strong> 22/2/2025</p>
-        <p><strong>Ngày kết thúc:</strong> 22/2/2025</p>
-        <p>
-          <strong>Văn bản hợp đồng:</strong>{' '}
-          <input type="file" accept=".doc,.docx" onChange={handleWordChange} />
-         
-        </p>
+      <div className="KeHoach-info">
+        <h3>{tenKeHoach}</h3>
+        <div className="info-columns">
+          <div className="info-column info-left">
+            <p><strong>Mã nghiệm thu:</strong> {nghiemThu?.maNghiemthu || 'Chưa có'}</p>
+            <p><strong>Mã kế hoạch:</strong> {maKeHoach}</p>
+            <p><strong>Chủ bút từ:</strong> {chuBuTu}</p>
+            <p><strong>Đơn vị:</strong> {donVi}</p>
+            <p><strong>Loại yêu cầu:</strong> {loaiyeucau}</p>
+          </div>
+          <div className="info-column info-right">
+            <p><strong>Thời gian bắt đầu:</strong> {thoiGianBatDau ? new Date(thoiGianBatDau).toLocaleDateString('vi-VN') : ''}</p>
+            <p><strong>Thời gian kết thúc:</strong> {thoiGianKetThuc ? new Date(thoiGianKetThuc).toLocaleDateString('vi-VN') : ''}</p>
+            <p><strong>Trạng thái kế hoạch:</strong> {trangThai}</p>
+            <p><strong>Nội dung nghiệm thu:</strong> {nghiemThu?.noiDung || 'Chưa có'}</p>
+            <p><strong>Ngày tạo:</strong> {nghiemThu?.ngayTao ? new Date(nghiemThu.ngayTao).toLocaleDateString('vi-VN') : ''}</p>
+          </div>
+        </div>
       </div>
 
-      <table className="product-table">
+      <table className="sanpham-table">
         <thead>
           <tr>
-            <th>Sản phẩm</th>
-            <th>Đơn vị tính</th>
+            <th>Tên vật dụng</th>
+            <th>Mô tả chi tiết</th>
             <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Hình ảnh</th>
-            <th>Xác nhận</th>
             <th>Ghi chú</th>
           </tr>
         </thead>
-        <tbody>
-          {sanPhamList.map((sp, index) => (
-            <tr key={sp.id}>
-              <td>{sp.ten}</td>
-              <td>{sp.donVi}</td>
-              <td>{sp.soLuong}</td>
-              <td>{sp.gia.toLocaleString()} vnd</td>
-              <td>
-                <label htmlFor={`file-upload-${index}`} style={{ cursor: 'pointer' }}>
-                    <UploadCloudIcon size={20} />
-                </label>
-                <input
-                    id={`file-upload-${index}`}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => handleImageChange(e, index)}
-                />
-                {sp.hinhAnh && <img src={sp.hinhAnh} alt="uploaded" width="40" />}
-                </td>
-              <td>
-                <input type="checkbox" checked={sp.xacNhan} onChange={() => handleCheckChange(index)} />
-              </td>
-            <td><input type='text'></input></td>
-            </tr>
-          ))}
-        </tbody>
+       <tbody>
+  {yeucau.map((sp, index) => (
+    <tr key={sp.mayc_ms}>
+      <td>{sp.tenVatDung}</td>
+      <td>{sp.moTaChiTiet}</td>
+      <td>{sp.soLuong}</td>
+      <td>
+        {daNghiemThu ? (
+          // Hiển thị ghi chú từ nghiệm thu đã lưu
+          <span>{(nghiemThu?.noiDung || '').split('|')[index]}</span>
+        ) : (
+          <textarea
+            value={ghiChuList[sp.mayc_ms] || ''}
+            onChange={(e) => handleGhiChuChange(sp.mayc_ms, e.target.value)}
+            placeholder="Nhập ghi chú..."
+            rows={2}
+            className="ghi-chu-textarea"
+          />
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
       </table>
 
-    
+      <div className="trangthai-wrapper" style={{ marginBottom: '20px' }}>
+        <label><strong>Trạng thái nghiệm thu: </strong></label>
+        <select value={trangThaiNghiemThu} onChange={handleTrangThaiChange}>
+          <option value="Đạt yêu cầu">Đạt yêu cầu</option>
+          <option value="Không đạt yêu cầu">Không đạt yêu cầu</option>
+        </select>
+      </div>
+
       <div className="button-wrapper">
-        <button className="btn-danger" onClick={()=>handdanhsachnt()}>Từ chối</button>
-        <button className="btn-primary" onClick={()=>handdanhsachnt()}>Xác nhận nghiệm thu</button>
+        {daNghiemThu ? (
+          <>
+            <p className='xacnhan'>Đã xác nhận nghiệm thu</p>
+          </>
+        ) : (
+          <>
+            
+            <button className="btn-xac-nhan" onClick={handleXacNhan}>
+              Xác nhận nghiệm thu
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

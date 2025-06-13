@@ -206,3 +206,51 @@
       background-color: #95a5a6;
     }
   }
+
+  .selected-list {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+
+  h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .selected-item {
+    position: relative;
+    padding: 10px 40px 10px 14px; // chừa chỗ cho nút x bên phải
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 500;
+
+    // nút xoá "×"
+    button.delete-button {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background-color: #e74c3c;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 50%;
+      line-height: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #c0392b;
+      }
+    }
+  }
+}
