@@ -173,10 +173,10 @@ function Header() {
                                 alt="UTE logo"
                             />
                             <div className={cx('logo-text')}>
-                                <h1>Hệ thống đấu thầu điện tử</h1>
+                                <h1>Hệ thống quản lý văn phòng phẩm</h1>
                                 <h2>Đại học sư phạm kỹ thuật</h2>
                                 <div className={cx('slogan')}>
-                                    Minh bạch – Công bằng – Hiệu quả: Hệ thống đấu thầu UTE vì sự phát triển bền vững.
+                                    Hiện đại – Minh bạch – Tiết kiệm: Quản lý văn phòng phẩm hiệu quả cùng UTE.
                                 </div>
                             </div>
                         </Link>
@@ -201,11 +201,14 @@ function Header() {
                             <Link
                                 to={config.routes.home}
                                 className={cx('menu-item', {
-                                    active: location.pathname === config.routes.home,
+                                    active:
+                                        location.pathname !== config.routes.Dsthietbi &&
+                                        location.pathname !== config.routes.Locthietbi,
                                 })}
                             >
                                 Trang chủ
                             </Link>
+
                             <Menu items={SEARCH_ITEMS} onChange={handleTracuuClick} V2>
                                 <div
                                     className={cx('menu-item', {
@@ -229,8 +232,7 @@ function Header() {
                         <div className={cx('menu-item')}>Thông báo của bộ</div>
                         <div className={cx('menu-item')}>Liên hệ - Góp ý</div> */}
                             <div className={cx('notification-icon')} onClick={toggleDropdown}>
-                                <i class="fas fa-bell fa-shake"></i>
-
+                                <i className="fas fa-bell fa-shake"></i>
                                 {thongBaoList?.length > 0 && <span className={cx('badge')}>{thongBaoList.length}</span>}
                                 {open && (
                                     <div className={cx('dropdown')}>
@@ -243,9 +245,25 @@ function Header() {
                                                     key={index}
                                                     className={cx('item', { unread: tb.trangThai === 'Chưa đọc' })}
                                                 >
-                                                    <div className={cx('noi-dung')}>{tb.noiDungThongBao}</div>
-                                                    <div className={cx('ngay')}>
-                                                        {new Date(tb.ngayThongBao).toLocaleDateString('vi-VN')}
+                                                    <div className={cx('avatar')}>
+                                                        {tb.avatar ? (
+                                                            <img src={tb.avatar} alt={tb.tenNguoiGui} />
+                                                        ) : (
+                                                            <img
+                                                                src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(
+                                                                    tb.tenNguoiGui || 'Unknown',
+                                                                )}&radius=50&bold=true&backgroundColor=faa546&fontSize=30`}
+                                                                alt={tb.tenNguoiGui}
+                                                            />
+                                                        )}
+                                                    </div>
+
+                                                    <div className={cx('content')}>
+                                                        <div className={cx('sender')}>{tb.tenNguoiGui}</div>
+                                                        <div className={cx('message')}>{tb.noiDungThongBao}</div>
+                                                        <div className={cx('time')}>
+                                                            {formatTimeAgo(tb.ngayThongBao)}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))
@@ -268,7 +286,9 @@ function Header() {
                                                 <div className={cx('user-role')}>{roleuser}</div>
                                             </div>
                                             <img
-                                                src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+                                                src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(
+                                                    user.hoTen || 'User',
+                                                )}&radius=50&bold=true&fontSize=30`}
                                                 alt="Avatar"
                                             />
                                         </div>
@@ -287,5 +307,22 @@ function Header() {
         </header>
     );
 }
+function formatTimeAgo(dateString) {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+    const diffInMonths = Math.floor(diffInDays / 30);
 
+    if (diffInMinutes < 60) {
+        return `${diffInMinutes} phút trước`;
+    } else if (diffInHours < 24) {
+        return `${diffInHours} giờ trước`;
+    } else if (diffInDays < 30) {
+        return `${diffInDays} ngày trước`;
+    } else {
+        return `${diffInMonths} tháng trước`;
+    }
+}
 export default Header;

@@ -2,10 +2,16 @@ a {
     text-decoration: none;
 }
 .header {
-    background-color: #f3f3f3;
+    background-color: #ffffff;
     width: 100vw;
 }
-
+.header-top {
+    background-image: url('https://muasamcong.mpi.gov.vn/o/egp-portal-theme/images/custom/header2.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100px; /* hoặc cao hơn tùy ý */
+}
 .header-container {
     max-width: 1300px;
     margin: 0 auto;
@@ -211,7 +217,8 @@ a {
     cursor: pointer;
     padding: 12px 16px;
     color: #404040;
-    font-weight: 550;
+    font-weight: 600;
+    color: #333;
     transition: background-color 0.2s, color 0.2s;
 
     &:hover,
@@ -227,28 +234,57 @@ a {
 }
 
 .notification-icon {
-    font-size: 20px;
+    font-size: 22px;
     color: #333;
     cursor: pointer;
     position: relative;
     display: inline-block;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(190, 138, 75, 0.1);
+    }
 
     i {
-        transition: color 0.2s;
+        transition: color 0.3s ease;
     }
 
     &:hover i {
-        color: #be8a4b; // Màu khi hover
+        color: #be8a4b;
+        animation: bellShake 0.5s ease-in-out;
     }
+
     .badge {
         position: absolute;
-        top: -5px;
-        right: -8px;
-        background-color: red;
+        top: 2px;
+        right: 2px;
+        background: linear-gradient(135deg, #ff4757, #ff3742);
         color: white;
-        font-size: 12px;
+        font-size: 11px;
         border-radius: 50%;
-        padding: 2px 6px;
+        padding: 3px 6px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+        animation: pulse 2s infinite;
+    }
+}
+
+@keyframes bellShake {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(10deg);
+    }
+    75% {
+        transform: rotate(-10deg);
     }
 }
 
@@ -296,57 +332,109 @@ a {
     height: 30px;
     border-radius: 50%;
 }
-
+// CSS
 .dropdown {
     position: absolute;
     right: 0;
     margin-top: 20px;
     background: white;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 100;
-    font-size: 15px;
+    font-size: 14px;
+    max-height: 400px;
+    overflow-y: auto;
+
     .header {
         width: 100%;
-        padding: 10px 15px;
-        background-color: #007bff;
+        padding: 15px 20px;
+        background-color: #be8a4b;
         color: white;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        font-size: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
     }
 
     .item {
-        padding: 10px 15px;
-        border-bottom: 1px solid #eee;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
         cursor: pointer;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: background-color 0.15s ease;
+        background-color: #f8f9fa;
 
         &:hover {
-            background-color: #f0f8ff;
+            background-color: #e2e2e2; // sẫm hơn #f8f9fa một chút
         }
 
         &.unread {
-            font-weight: bold;
-            background-color: #eaf4ff;
+            background-color: #ffffff;
+
+            .content {
+                font-weight: 600;
+            }
+
+            &:hover {
+                background-color: #f2f2f2; // sẫm hơn trắng một chút
+            }
         }
 
-        .noi-dung {
-            color: #484848;
+        &:last-child {
+            border-bottom: none;
         }
 
-        .ngay {
-            font-size: 14px;
-            font-style: italic;
-            color: #888;
-            margin-top: 4px;
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #666;
+            overflow: hidden;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .content {
+            flex: 1;
+
+            .sender {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 4px;
+            }
+
+            .message {
+                color: #555;
+                line-height: 1.4;
+                font-weight: 500;
+                margin-bottom: 6px;
+            }
+
+            .time {
+                font-size: 12px;
+                color: #d4a574;
+                font-weight: 500;
+            }
         }
     }
 
     .empty {
-        padding: 15px;
+        padding: 20px;
         text-align: center;
         color: #888;
+        font-style: italic;
     }
 }
