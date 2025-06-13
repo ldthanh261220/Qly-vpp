@@ -143,21 +143,28 @@ const QLyYeuCau = () => {
   };
 
   const filteredRequests = requests.filter((req) => {
-    const matchesSearch = req.tenVatDung?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = searchTerm
+      ? req.tenVatDung?.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+
     const matchesStatus = statusFilter ? req.trangThai === statusFilter : true;
     const matchesField = fieldFilter ? req.loaiYeuCau === fieldFilter : true;
 
-    const reqDate = new Date(req.createdAt);
-    const start = dateStart ? new Date(dateStart) : null;
-    const end = dateEnd ? new Date(dateEnd) : null;
-    const matchesDate = (!start || reqDate >= start) && (!end || reqDate <= end);
+    let matchesDate = true;
+    if (dateStart || dateEnd) {
+      const reqDate = new Date(req.createdAt);
+      const start = dateStart ? new Date(dateStart) : null;
+      const end = dateEnd ? new Date(dateEnd) : null;
+      matchesDate = (!start || reqDate >= start) && (!end || reqDate <= end);
+    }
 
     return matchesSearch && matchesStatus && matchesField && matchesDate;
   });
 
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
   const paginatedRequests = filteredRequests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
+  console.log(filteredRequests);
+  
   return (
     <div className={cx('manage-request')}>
       <div className={cx('header-title')}>
