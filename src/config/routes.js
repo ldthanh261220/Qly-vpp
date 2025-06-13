@@ -13,6 +13,8 @@ const routes = {
     hopdong: '/hopdong',
     chitiethopdong: 'hopdong/:id',
     dashboard: '/dashboard',
+    yeucau: '/yeucau',
+    chitietyeucau: '/yeucau/:id',
 
     // Thịnh
     Duyetkehoach: '/Duyetkehoachmuasam',
