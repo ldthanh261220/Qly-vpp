@@ -1,19 +1,48 @@
-// Menu wrapper
-.menu-list {
-    width: 150px;
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+@import '~normalize.css';
 
-    .menu-item {
-        margin-left: 0;
+.menu-item {
+    display: flex; /* đổi thành flex để căn thẳng hàng */
+    align-items: center; /* căn giữa theo chiều dọc */
+    width: 100%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    text-align: left;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    padding: 12px 16px;
+    background-color: #f9f9f9;
+    color: #000;
+    font-weight: bold;
+
+    &:hover {
+        background-color: #eee;
+    }
+    &:hover span {
+        color: rgb(255, 255, 255);
+    }
+    /* Style riêng cho V2 và V3 */
+    .menu-v2 &,
+    .menu-v3 & {
+        padding: 12px 20px;
+        background-color: transparent;
+        color: #333;
+        font-weight: 300;
+        font-size: 15px;
+
+        &:hover {
+            background-color: #be8a4b;
+            color: white;
+        }
     }
 
-    &.menu-v2 {
-        width: 220px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+    span {
+        display: inline-flex; /* để icon cũng dùng flex, giữ cân chỉnh */
+        align-items: center; /* căn icon giữa theo chiều dọc */
+        margin-right: 6px;
+        color: #555;
+        font-weight: normal;
     }
 }
 
@@ -25,39 +54,7 @@
     overflow-y: auto;
 }
 
-// Menu items
-.menu-item {
-    padding: 12px 16px;
-    background-color: #f9f9f9;
-    color: #000;
-    text-align: left;
-    width: 100%;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
-
-    &:hover {
-        background-color: #eee;
-    }
-
-    // Style riêng cho V2
-    .menu-v2 & {
-        font-size: 15px;
-        padding: 12px 20px;
-        font-weight: 300;
-        color: #333;
-        background-color: transparent;
-
-        &:hover {
-            background-color: #be8a4b;
-            color: white;
-        }
-    }
-}
-
-// Line between items
+// Dòng phân cách giữa các mục
 .separate {
     border-top: 1px solid #ccc;
 
@@ -74,7 +71,7 @@
     margin-top: -8px;
 
     .menu-v2 & {
-        display: none; // V2 không có header
+        display: none; // Ẩn trong menu V2
     }
 }
 

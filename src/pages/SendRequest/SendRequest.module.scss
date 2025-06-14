@@ -1,0 +1,407 @@
+.container {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #be8a4b 0%, #a67c44 100%);
+    }
+}
+
+.formHeader {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 40px 30px;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.formTitle {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #be8a4b 0%, #a67c44 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.formSubtitle {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.requestForm {
+    padding: 40px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+
+    &::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: linear-gradient(135deg, #be8a4b 0%, #a67c44 100%);
+        border-radius: 2px;
+        margin-right: 12px;
+    }
+}
+
+.sectionTitle {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.25px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+
+    &.single {
+        grid-template-columns: 1fr;
+    }
+}
+
+.formGroup {
+    position: relative;
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 600;
+        color: #374151;
+        font-size: 15px;
+        letter-spacing: -0.1px;
+    }
+
+    input,
+    textarea,
+    select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+
+        &:focus {
+            outline: none;
+            border-color: #be8a4b;
+            box-shadow: 0 0 0 3px rgba(190, 138, 75, 0.1);
+            transform: translateY(-2px);
+        }
+
+        &:hover {
+            border-color: #d1d5db;
+        }
+    }
+
+    // Specific styles for select dropdown
+    select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23be8a4b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 20px;
+        padding-right: 44px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        &:focus {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a67c44' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        }
+
+        &:disabled {
+            background-color: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+
+            &:hover {
+                border-color: #e5e7eb;
+                transform: none;
+            }
+        }
+
+        // Custom option styling
+        option {
+            padding: 12px 16px;
+            font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 16px;
+            color: #374151;
+            background: white;
+
+            &:hover {
+                background: rgba(190, 138, 75, 0.1);
+            }
+
+            &:disabled {
+                color: #9ca3af;
+                background: #f3f4f6;
+            }
+        }
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+}
+
+.radioGroup {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.radioOption {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    padding: 10px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:hover {
+        border-color: #be8a4b;
+        background: rgba(190, 138, 75, 0.05);
+    }
+
+    input[type='radio'] {
+        width: 16px;
+        height: 16px;
+        margin-right: 10px;
+        position: relative;
+        transition: all 0.3s ease;
+        accent-color: #be8a4b;
+        transform: scale(1.1);
+
+        &:checked {
+            + label {
+                color: #be8a4b;
+                font-weight: 600;
+            }
+        }
+    }
+
+    label {
+        margin: 0;
+        cursor: pointer;
+        font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+    }
+}
+
+.statusGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.fileUploadArea {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        border-color: #be8a4b;
+        background: rgba(190, 138, 75, 0.05);
+    }
+
+    input[type='file'] {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+}
+
+.uploadIcon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #be8a4b 0%, #a67c44 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.uploadText {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    color: #6b7280;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.uploadHint {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.filePreview {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+.fileIcon {
+    width: 32px;
+    height: 32px;
+    background: #be8a4b;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-right: 12px;
+    font-size: 14px;
+}
+
+.fileName {
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.submitContainer {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btnSubmit {
+    background: linear-gradient(135deg, #be8a4b 0%, #a67c44 100%);
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(190, 138, 75, 0.3);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(190, 138, 75, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.conditionalSection {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+
+    &.active {
+        opacity: 1;
+    }
+}
+
+// Media Queries
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 16px;
+    }
+
+    .formHeader {
+        padding: 30px 20px;
+    }
+
+    .formTitle {
+        font-size: 28px;
+    }
+
+    .formSubtitle {
+        font-size: 16px;
+    }
+
+    .requestForm {
+        padding: 30px 20px;
+    }
+
+    .formRow {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .radioGroup {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .statusGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .submitContainer {
+        padding: 30px 20px;
+    }
+
+    .formGroup select {
+        background-size: 18px;
+        background-position: right 10px center;
+        padding-right: 38px;
+    }
+}

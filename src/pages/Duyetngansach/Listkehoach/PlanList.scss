@@ -1,0 +1,147 @@
+.plan-list {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1rem;
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  &__cards {
+    margin-bottom: 2rem;
+  }
+
+  &__batch-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  &__button {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &--approve {
+      background-color: #2563eb;
+      color: white;
+
+      &:hover {
+        background-color: #1d4ed8;
+      }
+    }
+
+    &--reject {
+      background-color: #ef4444;
+      color: white;
+
+      &:hover {
+        background-color: #dc2626;
+      }
+    }
+  }
+
+  &__detail {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 1rem;
+      margin: 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section {
+      &:not(:last-child) {
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      h3 {
+        background: #f3f4f6;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      p {
+        padding: 0.5rem 1rem;
+        margin: 0;
+        display: flex;
+        border-bottom: 1px solid #f3f4f6;
+
+        strong {
+          width: 200px;
+          flex-shrink: 0;
+        }
+      }
+
+      &:last-child p:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .plan-card__terms {
+      list-style: none;
+      padding: 1rem;
+      margin: 0;
+
+      li {
+        padding: 0.5rem 0;
+        
+        &:not(:last-child) {
+          border-bottom: 1px solid #f3f4f6;
+        }
+      }
+    }
+
+    .flex {
+      padding: 1rem;
+      border-top: 1px solid #e5e7eb;
+
+      input[type="checkbox"] {
+        margin-right: 0.5rem;
+        transform: scale(1.2);
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #111827;
+
+        strong {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Thêm style cho các section header
+.section h3 {
+  background: #e5e7eb !important;
+  color: #111827;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  margin: 0;
+}
+
+// Style cho danh mục mua sắm
+p strong + span {
+  white-space: pre-line;
+}
+
+// Style cho checkbox agreement
+.flex.items-center {
+  background: #f9fafb;
+}
