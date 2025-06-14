@@ -12,6 +12,8 @@ import hopdongService from '~/services/hopdongService';
 
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import '~/fonts/Roboto-Bold-normal';
+import '~/fonts/Roboto-Regular-normal';
 import nhathauService from '~/services/nhathauService';
 
 const cx = classNames.bind(styles);
@@ -75,66 +77,73 @@ const ChiTietHopDong = () => {
   };
 
   const handleExportPDF = () => {
-    const doc = new jsPDF();
-    const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString('vi-VN');
-    let y = 20;
+  const doc = new jsPDF();                    // Nạp font
+  doc.setFont('Roboto', 'normal');       // Chỉ dùng đúng tên này
+  doc.setFontSize(12);
 
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 105, y, null, null, 'center'); y += 7;
-    doc.text('Độc lập - Tự do - Hạnh phúc', 105, y, null, null, 'center'); y += 7;
-    doc.line(75, y, 135, y); y += 10;
+  const formatDate = (dateStr) =>
+    new Date(dateStr).toLocaleDateString('vi-VN');
 
-    doc.setFontSize(13);
-    doc.text('HỢP ĐỒNG MUA BÁN HÀNG HÓA', 105, y, null, null, 'center'); y += 7;
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Số: ${contract.maHopDong}`, 105, y, null, null, 'center'); y += 10;
+  let y = 20;
 
-    doc.text('* Căn cứ Bộ luật Dân sự 2015;', 15, y); y += 6;
-    doc.text('* Căn cứ Luật Thương mại 2005;', 15, y); y += 6;
-    doc.text('* Căn cứ vào nhu cầu và khả năng của hai bên;', 15, y); y += 10;
+  doc.setFont('Roboto', 'bold');
+  doc.text('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 105, y, null, null, 'center'); y += 7;
+  doc.text('Độc lập - Tự do - Hạnh phúc', 105, y, null, null, 'center'); y += 7;
+  doc.line(75, y, 135, y); y += 10;
 
-    doc.text(`Hôm nay, ngày ${formatDate(contract.ngayKy)}, tại địa chỉ: ...............`, 15, y); y += 10;
-    doc.text('Chúng tôi gồm có:', 15, y); y += 8;
+  doc.setFontSize(13);
+  doc.setFont('Roboto', 'bold');
+  doc.text('HỢP ĐỒNG MUA BÁN HÀNG HÓA', 105, y, null, null, 'center'); y += 7;
+  doc.setFontSize(12);
+  doc.setFont('Roboto', 'normal');
+  doc.text(`Số: ${contract.maHopDong}`, 105, y, null, null, 'center'); y += 10;
 
-    doc.setFont(undefined, 'bold');
-    doc.text('BÊN BÁN (Bên A):', 15, y); y += 6;
-    doc.setFont(undefined, 'normal');
-    doc.text('Tên doanh nghiệp: Trường Đại học XYZ', 15, y); y += 6;
-    doc.text('Mã số doanh nghiệp: 1234567890', 15, y); y += 6;
-    doc.text('Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM', 15, y); y += 6;
-    doc.text('Người đại diện: Nguyễn Văn A', 15, y); y += 6;
-    doc.text('Chức vụ: Trưởng phòng vật tư', 15, y); y += 8;
+  doc.text('* Căn cứ Bộ luật Dân sự 2015;', 15, y); y += 6;
+  doc.text('* Căn cứ Luật Thương mại 2005;', 15, y); y += 6;
+  doc.text('* Căn cứ vào nhu cầu và khả năng của hai bên;', 15, y); y += 10;
 
-    doc.setFont(undefined, 'bold');
-    doc.text('BÊN MUA (Bên B):', 15, y); y += 6;
-    doc.setFont(undefined, 'normal');
-    doc.text(`Tên doanh nghiệp: ${nhaThau?.tenNhaThau || '...........'}`, 15, y); y += 6;
-    doc.text(`Mã số doanh nghiệp: ${nhaThau?.maSoThue || '...........'}`, 15, y); y += 6;
-    doc.text(`Địa chỉ: ${nhaThau?.diaChi || '...........'}`, 15, y); y += 6;
-    doc.text(`Người đại diện: ${nhaThau?.hoTenNguoiDaiDien || '...........'}`, 15, y); y += 6;
-    doc.text(`Chức vụ: ${nhaThau?.chucVuNguoiDaiDien || '...........'}`, 15, y); y += 10;
+  doc.text(`Hôm nay, ngày ${formatDate(contract.ngayKy)}, tại địa chỉ: ...............`, 15, y); y += 10;
+  doc.text('Chúng tôi gồm có:', 15, y); y += 8;
 
-    doc.setFont(undefined, 'bold');
-    doc.text('ĐIỀU 1: NỘI DUNG HỢP ĐỒNG', 15, y); y += 6;
-    doc.setFont(undefined, 'normal');
-    const noiDung = doc.splitTextToSize(contract.noiDungHopDong || 'Cam kết giao hàng đúng hạn.', 180);
-    doc.text(noiDung, 15, y); y += noiDung.length * 6 + 4;
-    doc.text(`Thời gian thực hiện: ${formatDate(contract.thoiGianThucHien)} đến ${formatDate(contract.thoiGianHoanThanh)}`, 15, y); y += 6;
-    doc.text(`Hình thức thanh toán: ${contract.hinhThucThanhToan}`, 15, y); y += 6;
-    doc.text(`Trạng thái hiện tại: ${contract.trangThai}`, 15, y); y += 10;
+  doc.setFont('Roboto', 'bold');
+  doc.text('BÊN MUA (Bên A):', 15, y); y += 6;
+  doc.setFont('Roboto', 'normal');
+  doc.text('Tên doanh nghiệp: Trường Đại học XYZ', 15, y); y += 6;
+  doc.text('Mã số doanh nghiệp: 1234567890', 15, y); y += 6;
+  doc.text('Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM', 15, y); y += 6;
+  doc.text('Người đại diện: Nguyễn Văn A', 15, y); y += 6;
+  doc.text('Chức vụ: Trưởng phòng vật tư', 15, y); y += 8;
 
-    if (contract.moTa) {
-      doc.setFont(undefined, 'bold');
-      doc.text('Ghi chú:', 15, y); y += 6;
-      doc.setFont(undefined, 'normal');
-      const moTa = doc.splitTextToSize(contract.moTa, 180);
-      doc.text(moTa, 15, y); y += moTa.length * 6;
-    }
+  doc.setFont('Roboto', 'bold');
+  doc.text('BÊN BÁN (Bên B):', 15, y); y += 6;
+  doc.setFont('Roboto', 'normal');
+  doc.text(`Tên doanh nghiệp: ${nhaThau?.tenNhaThau || '...........'}`, 15, y); y += 6;
+  doc.text(`Mã số doanh nghiệp: ${nhaThau?.maSoThue || '...........'}`, 15, y); y += 6;
+  doc.text(`Địa chỉ: ${nhaThau?.diaChi || '...........'}`, 15, y); y += 6;
+  doc.text(`Người đại diện: ${nhaThau?.hoTenNguoiDaiDien || '...........'}`, 15, y); y += 6;
+  doc.text(`Chức vụ: ${nhaThau?.chucVuNguoiDaiDien || '...........'}`, 15, y); y += 10;
 
-    doc.save(`HopDong_${contract.maHopDong}.pdf`);
-  };
+  doc.setFont('Roboto', 'bold');
+  doc.text('ĐIỀU 1: NỘI DUNG HỢP ĐỒNG', 15, y); y += 6;
+  doc.setFont('Roboto', 'normal');
+  const noiDung = doc.splitTextToSize(contract.noiDungHopDong || 'Cam kết giao hàng đúng hạn.', 180);
+  doc.text(noiDung, 15, y); y += noiDung.length * 6 + 4;
+
+  doc.text(`Thời gian thực hiện: ${formatDate(contract.thoiGianThucHien)} đến ${formatDate(contract.thoiGianHoanThanh)}`, 15, y); y += 6;
+  doc.text(`Hình thức thanh toán: ${contract.hinhThucThanhToan}`, 15, y); y += 6;
+  doc.text(`Trạng thái hiện tại: ${contract.trangThai}`, 15, y); y += 10;
+
+  if (contract.moTa) {
+    doc.setFont('Roboto', 'normal');
+    doc.text('Ghi chú:', 15, y); y += 6;
+    doc.setFont('Roboto', 'normal');
+    const moTa = doc.splitTextToSize(contract.moTa, 180);
+    doc.text(moTa, 15, y); y += moTa.length * 6;
+  }
+
+  doc.save(`HopDong_${contract.maHopDong}.pdf`);
+};
+
 
   if (loading) {
     return (

@@ -33,6 +33,7 @@ const QLyYeuCau = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showDelete, setShowDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   const navigate = useNavigate();
   const itemsPerPage = 5;
@@ -197,9 +198,29 @@ const QLyYeuCau = () => {
     return matchesSearch && matchesStatus && matchesField && matchesDate;
   });
 
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Nếu là ngày
+        if (sortConfig.key === 'ngayKy') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-  const paginatedRequests = filteredRequests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  console.log(filteredRequests);
+  const paginatedRequests = sortedRequests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  
+  const handleSortSelect = (key, direction) => {
+    setSortConfig({ key, direction });
+  };
   
   return (
     <div className={cx('manage-request')}>
@@ -207,9 +228,24 @@ const QLyYeuCau = () => {
         <h3>
           <FontAwesomeIcon icon={faFileContract} /> Danh sách yêu cầu
         </h3>
-        <button className={cx('btn-export')} onClick={handleExportExcel}>
+        <div>
+          <button className={cx('btn-export')} onClick={handleExportExcel}>
           Xuất Excel
         </button>
+        <div className={cx('form-group')}>
+            <label>Sắp xếp theo:</label>
+            <select value={sortConfig.key + '-' + sortConfig.direction} onChange={(e) => {
+                const [key, direction] = e.target.value.split('-');
+                handleSortSelect(key, direction);
+            }}>
+                <option value="">-- Chọn --</option>
+                <option value="tenVatDung-asc">Tên vật dụng (A-Z)</option>
+                <option value="tenVatDung-desc">Tên vật dụng (Z-A)</option>
+                <option value="createdAt-asc">Ngày tạo (Cũ → Mới)</option>
+                <option value="createdAt-desc">Ngày tạo (Mới → Cũ)</option>
+            </select>
+        </div>
+        </div>
       </div>
       {/* Bộ lọc */}
       <Filter

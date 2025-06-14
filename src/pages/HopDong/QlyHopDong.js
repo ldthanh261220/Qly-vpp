@@ -29,6 +29,7 @@ const QlyHopDong = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [showDelete, setShowDelete] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
     const [linhVucList, setLinhVucList] = useState([]);
     
@@ -105,15 +106,50 @@ const QlyHopDong = () => {
         return matchesSearch && matchesStatus && matchesField && matchesDate;
     });
 
+    const sortedContracts = [...filteredContracts].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Nếu là ngày
+        if (sortConfig.key === 'ngayKy') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const handleSortSelect = (key, direction) => {
+        setSortConfig({ key, direction });
+    };
+
     const totalPages = Math.ceil(filteredContracts.length / itemsPerPage);
-    const paginatedContracts = filteredContracts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const paginatedContracts = sortedContracts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className={cx('manage-contract')}>
-            <h3>
-                <FontAwesomeIcon icon={faFileContract} /> Danh sách hợp đồng
-            </h3>
-
+            <div className={cx('heading-title')}>
+                <h3>
+                    <FontAwesomeIcon icon={faFileContract} /> Danh sách hợp đồng
+                </h3>
+                <div className={cx('form-group')}>
+                    <label>Sắp xếp theo:</label>
+                    <select value={sortConfig.key + '-' + sortConfig.direction} onChange={(e) => {
+                        const [key, direction] = e.target.value.split('-');
+                        handleSortSelect(key, direction);
+                    }}>
+                        <option value="">-- Chọn --</option>
+                        <option value="tenHopDong-asc">Tên hợp đồng (A-Z)</option>
+                        <option value="tenHopDong-desc">Tên hợp đồng (Z-A)</option>
+                        <option value="ngayKy-asc">Ngày ký (Cũ → Mới)</option>
+                        <option value="ngayKy-desc">Ngày ký (Mới → Cũ)</option>
+                    </select>
+                </div>
+            </div>
             {/* Bộ lọc */}
             <Filter
                 linhVucList={linhVucList}

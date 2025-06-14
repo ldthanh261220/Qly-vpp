@@ -4,12 +4,20 @@ import { toast } from 'react-toastify';
 import styles from './TaoHopDong.module.scss';
 import classNames from 'classnames/bind';
 import nhathauService from '~/services/nhathauService';
+import { useSearchParams } from 'react-router-dom';
+import hopdongService from '~/services/hopdongService';
 const cx = classNames.bind(styles);
 
-const TaoHopDong = ({ maNhaThau, maPhienDauThau }) => {
+const TaoHopDong = () => {
+
+  const [searchParams] = useSearchParams();
+  const maNhaThau = searchParams.get('maNhaThau');
+  const maPhienDauThau = searchParams.get('maPhienDauThau');
+
   const [tenNhaThau, setTenNhaThau] = useState('');
   const [formData, setFormData] = useState({
-    maHopDong: '',
+
+    maHopDong: `HD${Math.floor(Math.random() * 1000000).toString().padStart(8, '0')}`,
     tenHopDong: '',
     moTa: '',
     maPhienDauThau: maPhienDauThau || '',
@@ -49,9 +57,10 @@ const TaoHopDong = ({ maNhaThau, maPhienDauThau }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/hopdong', formData);
-      if (res.data.errCode === 0) {
+      const res = await hopdongService.createHopDongService(formData);
+      if (res.errCode === 0) {
         toast.success('Tạo hợp đồng thành công!');
+        await hopdongService.updateMoiThauTaoHopDongService({maPhienDauThau: maPhienDauThau});
         setFormData(prev => ({
           ...prev,
           maHopDong: '',
@@ -65,7 +74,7 @@ const TaoHopDong = ({ maNhaThau, maPhienDauThau }) => {
           maLinhVuc: ''
         }));
       } else {
-        toast.error(res.data.message || 'Tạo thất bại');
+        toast.error(res.message || 'Tạo thất bại');
       }
     } catch (err) {
       console.error(err);
