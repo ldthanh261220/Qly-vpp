@@ -7,7 +7,8 @@ const Plan = {
     budget: '',
     category: '',
     location: '',
-    status: 'pending', 
+    status: 'pending',
+    time: '',
   };
   
   export default Plan;

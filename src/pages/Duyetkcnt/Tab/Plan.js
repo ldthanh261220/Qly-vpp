@@ -6,7 +6,9 @@ const Plan = {
     investor: '',
     time: '',
     type: '',
-    status: 'pending', 
+    status: 'pending',
+    userinterface: '',
+    code: ''
   };
   
   export default Plan;
