@@ -18,6 +18,8 @@ import { toast } from 'react-toastify';
 import yeucauService from '~/services/yeucauService';
 import { requestStatus } from '~/constants/requestStatus';
 import { requestType } from '~/constants/requestType';
+import { useSelector } from 'react-redux';
+import thongbaoService from '~/services/thongbaoService';
 
 const cx = classNames.bind(styles);
 
@@ -35,6 +37,8 @@ const QLyYeuCau = () => {
   const navigate = useNavigate();
   const itemsPerPage = 5;
 
+  const user = useSelector((state) => state.user.currentUser);
+  
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -53,10 +57,42 @@ const QLyYeuCau = () => {
     fetchRequests();
   }, []);
 
-  const HandleDeleteRow = () => {
-    console.log('Đã xác nhận xóa:', showDelete);
-    setShowDelete(null);
-    // Gọi API xóa nếu cần
+  const HandleDeleteRow = async () => {
+    if (!showDelete || !showDelete.maYeuCau) {
+        toast.warn('Không có yeu cau để xóa!');
+        return;
+    }
+    try {
+        const res = await yeucauService.deleteYeuCauService(showDelete.maYeuCau);
+        const ngayDuyet = new Date().toISOString().split('T')[0];
+        if (res.errCode === 0) {
+          // Tạo mã thông báo mới
+          const randomId = `TB${Math.floor(Math.random() * 1000000).toString().padStart(8, '0')}`;
+          const thongBao = {
+            maThongBao: randomId,
+            maTaiKhoan: user?.id || null,  
+            ngayThongBao: ngayDuyet,
+            noiDungThongBao: `Yêu cầu ${showDelete.loaiYeuCau} ${showDelete.tenVatDung || showDelete.tenThietBi} đã bi xoa boi ${user.hoTen}.`,
+            trangThai: 'Chưa đọc',
+            maTaiKhoanNhan: showDelete?.maTaiKhoan || null,
+          };
+  
+          await thongbaoService.createThongBao(thongBao);
+          toast.success('Xóa yeu cau thành công!');
+          // Cập nhật lại danh sách
+          setRequests(prev =>
+            prev.filter(item => item.maYeuCau !== showDelete.maYeuCau)
+          );
+          // Đóng modal hoặc popup xác nhận
+          setShowDelete(null);
+        }
+        else {
+          toast.error('Xóa yeu cau thất bại!');
+        }
+    } catch (error) {
+        console.error('Lỗi khi xóa yeu cau:', error);
+        toast.error('Xóa yeu cau thất bại!');
+    }
   };
 
   const HandleViewDetails = (id) => {

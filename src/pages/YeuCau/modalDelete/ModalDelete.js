@@ -20,7 +20,7 @@ const ModalDelete = ({ showDelete, setShowDelete, HandleDeleteRow }) => {
           </div>
           <p>
             Bạn có chắc chắn muốn xóa yêu cầu{' '}
-            <strong>{showDelete.tenYeuCau || showDelete.ten || 'này'}</strong>?
+            <strong>{`${showDelete.loaiYeuCau} ${showDelete.tenVatDung || showDelete.tenThietBi}` || 'này'}</strong>?
           </p>
           <div className={cx('btn-handle')}>
             <button className={cx('btn-del')} onClick={HandleDeleteRow}>

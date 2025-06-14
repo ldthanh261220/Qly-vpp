@@ -64,10 +64,27 @@ const QlyHopDong = () => {
         fetchLinhVuc();
     }, []);
 
-    const HandleDeleteRow = () => {
-        console.log('Đã xác nhận xóa:', showDelete);
-        setShowDelete(null);
-        // TODO: Gọi API xóa nếu cần
+    const HandleDeleteRow = async () => {
+        if (!showDelete || !showDelete.maHopDong) {
+            toast.warn('Không có hop dong để xóa!');
+            return;
+        }
+
+        try {
+            await hopDongService.deleteHopDongService(showDelete.maHopDong);
+            toast.success('Xóa hop dong thành công!');
+
+            // Cập nhật lại danh sách
+            setContracts(prev =>
+            prev.filter(item => item.maHopDong !== showDelete.maHopDong)
+            );
+
+            // Đóng modal hoặc popup xác nhận
+            setShowDelete(null);
+        } catch (error) {
+            console.error('Lỗi khi xóa hop dong:', error);
+            toast.error('Xóa hop dong thất bại!');
+        }
     };
 
     const HandleViewDetails = (id) => {

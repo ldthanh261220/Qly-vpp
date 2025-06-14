@@ -23,9 +23,14 @@ const tuChoiYeuCauService = (maYeuCau, ngayDuyet, lyDoTuChoi) => {
     });
 };
 
+const deleteYeuCauService = (id) => {
+    return axios.delete(`/deleteYeuCau/${id}`);
+};
+
 export default {
     getAllYeuCauService,
     getDetailYeuCauService,
     duyetYeuCauService,
-    tuChoiYeuCauService
+    tuChoiYeuCauService,
+    deleteYeuCauService
 };

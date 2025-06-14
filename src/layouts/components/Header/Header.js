@@ -127,7 +127,7 @@ function Header() {
                     }
                 } catch (err) {
                     console.error('Lỗi khi lấy danh sách thông báo:', err);
-                    toast.error('Lỗi khi lấy danh sách thông báo')
+                    //toast.error('Lỗi khi lấy danh sách thông báo')
                 }
             }
         };

@@ -155,17 +155,28 @@ const QlyNhaThau = () => {
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
     const handleDelete = async () => {
+        if (!showDelete || !showDelete.maNhaThau) {
+            toast.warn('Không có nhà thầu để xóa!');
+            return;
+        }
+
         try {
-            if (showDelete) {
-                await nhathauService.deleteNhaThau(showDelete.ma);
-                toast.success('Xóa nhà thầu thành công!');
-                setShowDelete(null);
-                fetchData();
-            }
+            await nhathauService.deleteNhaThauService(showDelete.maNhaThau);
+            toast.success('Xóa nhà thầu thành công!');
+
+            // Cập nhật lại danh sách
+            setNhaThaus(prev =>
+            prev.filter(item => item.maNhaThau !== showDelete.maNhaThau)
+            );
+
+            // Đóng modal hoặc popup xác nhận
+            setShowDelete(null);
         } catch (error) {
+            console.error('Lỗi khi xóa nhà thầu:', error);
             toast.error('Xóa nhà thầu thất bại!');
         }
     };
+
 
     return (
         <div className={cx('section')}>
