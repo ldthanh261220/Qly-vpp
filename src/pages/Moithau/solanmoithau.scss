@@ -1,0 +1,77 @@
+.hoso-detail {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  .ma-kh {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  h2 {
+    color: #0077cc;
+    font-size: 20px;
+    margin: 5px 0;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    font-size: 14px;
+    margin-bottom: 5px;
+
+    p {
+      margin: 3px 0;
+    }
+  }
+
+  .trang-thai {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 10px;
+
+    &.hoan-thanh {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    &.dang-cho {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+  }
+
+  .link-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &.xem-nha-thau {
+        color: #28a745;
+      }
+
+      &.xem-chi-tiet {
+        color: #17a2b8;
+      }
+    }
+  }
+}

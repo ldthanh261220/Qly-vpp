@@ -41,6 +41,9 @@ export default function Sidebar() {
         { name: 'Duyệt ngân sách ', icon: <ChartColumnBig size={18} />, to: config.routes.Duyetngansach, quyen: 8 },
         { name: 'Thanh toán hợp đồng', icon: <Layers size={18} />, to: config.routes.Thanhtoanhopdong, quyen: 8 },
         { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
+        { name: 'Kế hoạch', icon: <UserCircle size={18} />, to: config.routes.Kehoach },
+        { name: 'Nghiệm thu', icon: <UserCircle size={18} />, to: config.routes.Nghiemthu},
+        { name: 'Mời thầu', icon: <UserCircle size={18} />, to: config.routes.Moithau}
     ];
 
     const filteredMenu = user
