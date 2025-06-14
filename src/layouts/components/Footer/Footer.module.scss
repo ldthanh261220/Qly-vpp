@@ -1,41 +1,192 @@
 .footer {
-    background-color: #0a314d;
-    color: white;
-    padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
+    background: linear-gradient(135deg, #0a314d 0%, #1a4d73 100%);
+    color: #ffffff;
     margin-top: auto;
     width: 100%;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .footer-container {
-    width: 1300px;
+    max-width: 1200px;
     margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 16px;
+    padding: 0 20px;
 }
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+    padding: 40px 0 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 30px 0 20px;
+    }
+}
+
 .footer-column {
-    max-width: 30%;
+    &.university-info {
+        max-width: none;
+    }
+
+    &.contact-info,
+    &.social-section {
+        min-width: 200px;
+    }
 }
 
-.footer-column a {
-    color: white;
+.footer-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.address-item,
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    line-height: 1.5;
+
+    @media (min-width: 769px) {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+
+.label {
+    font-weight: 500;
+    color: #b8d4e3;
+    min-width: 80px;
+    margin-bottom: 4px;
+
+    @media (min-width: 769px) {
+        margin-bottom: 0;
+        margin-right: 8px;
+    }
+}
+
+.contact-link {
+    color: #ffffff;
     text-decoration: none;
-}
+    font-weight: 500;
+    transition: color 0.2s ease;
 
-.footer-column a:hover {
-    text-decoration: underline;
+    &:hover {
+        color: #64b5f6;
+        text-decoration: underline;
+    }
 }
 
 .social-icons {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 15px;
+    margin-top: 8px;
 }
 
-.social-icons img {
-    width: 30px;
-    height: 30px;
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transition: all 0.3s ease;
+    text-decoration: none;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    // Facebook - giữ màu xanh như hiện tại
+    &:nth-child(1):hover {
+        color: #1877f2;
+    }
+
+    // YouTube - màu đỏ
+    &:nth-child(2):hover {
+        color: #ff0000;
+    }
+
+    // X (Twitter) - màu đen
+    &:nth-child(3):hover {
+        color: #000000;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    &:focus {
+        outline: 2px solid #64b5f6;
+        outline-offset: 2px;
+    }
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+
+    .social-link:hover & {
+        transform: scale(1.1);
+    }
+}
+
+.footer-bottom {
+    padding: 20px 0;
+    text-align: center;
+}
+
+.copyright {
+    margin: 0;
+    font-size: 13px;
+    color: #b8d4e3;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+
+// Responsive improvements
+@media (max-width: 480px) {
+    .footer {
+        font-size: 14px;
+    }
+
+    .footer-container {
+        padding: 0 16px;
+    }
+
+    .footer-content {
+        gap: 20px;
+        padding: 20px 0 15px;
+    }
+
+    .footer-title {
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+
+    .address-item,
+    .contact-item {
+        margin-bottom: 10px;
+    }
+
+    .social-icons {
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .footer-bottom {
+        padding: 15px 0;
+    }
+
+    .copyright {
+        font-size: 12px;
+    }
 }

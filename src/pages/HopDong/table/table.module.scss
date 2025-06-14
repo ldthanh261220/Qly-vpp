@@ -1,0 +1,54 @@
+table {
+    width: 100%;
+    font-size: 15px;
+    text-align: center;
+    thead {
+        background-color: #F9E3B6;
+    }
+    th {
+        font-weight: 500;
+        padding: 8px;
+    }
+
+    .text-status {
+        color: #378259;
+        background-color: #EBF9F1;
+        display: block;
+        padding: 5px;
+        border-radius: 15px;
+        font-size: 14px;
+    }
+
+    td {
+        padding: 8px;
+    }
+
+    .icons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+
+        button {
+            display: block;
+            cursor: pointer;
+        }
+
+        .btn-del {
+            color: #ca0a0a;
+        }
+
+        .btn-update {
+            color: #624DE3;
+        }
+
+        .btn-view {
+            color: #0fa341;
+        }
+    }
+
+}
+
+table, td, th {
+    border: 1px solid #666;
+    border-collapse: collapse;
+}

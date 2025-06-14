@@ -1,6 +1,16 @@
+a {
+    text-decoration: none;
+}
 .header {
-    background-color: #f3f3f3;
+    background-color: #ffffff;
     width: 100vw;
+}
+.header-top {
+    background-image: url('https://muasamcong.mpi.gov.vn/o/egp-portal-theme/images/custom/header2.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100px; /* hoặc cao hơn tùy ý */
 }
 .header-container {
     max-width: 1300px;
@@ -17,9 +27,11 @@
     align-items: center;
     gap: 15px;
     text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
         text-decoration: none;
+        transform: translateY(-2px);
     }
 
     h1,
@@ -33,6 +45,13 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-title:hover img {
+    transform: rotate(360deg) scale(1.05);
+    box-shadow: 0 6px 20px rgba(190, 138, 75, 0.3);
 }
 
 .logo-text h1 {
@@ -40,6 +59,7 @@
     font-size: 20px;
     color: #be8a4b;
     font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .logo-text h2 {
@@ -47,12 +67,29 @@
     font-size: 22px;
     color: #0a314d;
     font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.logo-title:hover .logo-text h1 {
+    color: #d4a574;
+    text-shadow: 0 2px 4px rgba(190, 138, 75, 0.2);
+}
+
+.logo-title:hover .logo-text h2 {
+    color: #0f3b5a;
+    text-shadow: 0 2px 4px rgba(10, 49, 77, 0.2);
 }
 
 .slogan {
     font-size: 13px;
     color: #ee1769;
     margin-top: 2px;
+    transition: all 0.3s ease;
+}
+
+.logo-title:hover .slogan {
+    color: #ff4081;
+    transform: scale(1.05);
 }
 
 .header-right {
@@ -62,7 +99,7 @@
 }
 
 .support {
-    background-color: #be8a4b;
+    background: linear-gradient(135deg, #be8a4b, #d4a574);
     color: white;
     padding: 8px 15px;
     border-radius: 6px;
@@ -72,10 +109,50 @@
     gap: 5px;
     margin-bottom: 5px;
     font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(190, 138, 75, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.support::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.support:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(190, 138, 75, 0.3);
+}
+
+.support:hover::before {
+    left: 100%;
 }
 
 .phone-icon {
     margin-right: 3px;
+    animation: phoneRing 3s infinite;
+}
+
+@keyframes phoneRing {
+    0%,
+    90%,
+    100% {
+        transform: rotate(0deg);
+    }
+    5%,
+    15% {
+        transform: rotate(15deg);
+    }
+    10% {
+        transform: rotate(-15deg);
+    }
 }
 
 .language {
@@ -83,16 +160,40 @@
     margin-top: 5px;
     display: flex;
     align-items: center;
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: rgba(190, 138, 75, 0.08);
+    border: 1px solid rgba(190, 138, 75, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.language:hover {
+    background: rgba(190, 138, 75, 0.15);
+    border-color: rgba(190, 138, 75, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(190, 138, 75, 0.15);
 }
 
 .language img {
     width: 20px;
     height: 15px;
     margin-right: 5px;
+    border-radius: 2px;
+    transition: transform 0.3s ease;
+}
+
+.language:hover img {
+    transform: scale(1.1);
 }
 
 .dropdown-arrow {
     margin-left: 3px;
+    transition: transform 0.3s ease;
+}
+
+.language:hover .dropdown-arrow {
+    transform: rotate(180deg);
 }
 
 .header-menu {
@@ -111,13 +212,13 @@
     gap: 20px;
     flex-wrap: wrap;
 }
-
 .menu-item {
     font-size: 15px;
     cursor: pointer;
     padding: 12px 16px;
     color: #404040;
-    font-weight: 550;
+    font-weight: 600;
+    color: #333;
     transition: background-color 0.2s, color 0.2s;
 
     &:hover,
@@ -125,11 +226,66 @@
         background-color: #be8a4b;
         color: white;
     }
+
+    &.active {
+        background-color: #be8a4b;
+        color: white;
+    }
 }
 
 .notification-icon {
-    font-size: 18px;
-    margin-right: 5px;
+    font-size: 22px;
+    color: #333;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(190, 138, 75, 0.1);
+    }
+
+    i {
+        transition: color 0.3s ease;
+    }
+
+    &:hover i {
+        color: #be8a4b;
+        animation: bellShake 0.5s ease-in-out;
+    }
+
+    .badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        font-size: 11px;
+        border-radius: 50%;
+        padding: 3px 6px;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+        animation: pulse 2s infinite;
+    }
+}
+
+@keyframes bellShake {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(10deg);
+    }
+    75% {
+        transform: rotate(-10deg);
+    }
 }
 
 .time-date {
@@ -139,7 +295,17 @@
     line-height: 1.3;
 }
 
-.user-info {
+.btn-login {
+    font-weight: 550;
+    background-color: #be8a4b;
+    color: white;
+    padding: 12px 16px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.user-info .info-container {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -165,4 +331,110 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
+}
+// CSS
+.dropdown {
+    position: absolute;
+    right: 0;
+    margin-top: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    font-size: 14px;
+    max-height: 400px;
+    overflow-y: auto;
+
+    .header {
+        width: 100%;
+        padding: 15px 20px;
+        background-color: #be8a4b;
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        cursor: pointer;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: background-color 0.15s ease;
+        background-color: #f8f9fa;
+
+        &:hover {
+            background-color: #e2e2e2; // sẫm hơn #f8f9fa một chút
+        }
+
+        &.unread {
+            background-color: #ffffff;
+
+            .content {
+                font-weight: 600;
+            }
+
+            &:hover {
+                background-color: #f2f2f2; // sẫm hơn trắng một chút
+            }
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #666;
+            overflow: hidden;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .content {
+            flex: 1;
+
+            .sender {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 4px;
+            }
+
+            .message {
+                color: #555;
+                line-height: 1.4;
+                font-weight: 500;
+                margin-bottom: 6px;
+            }
+
+            .time {
+                font-size: 12px;
+                color: #d4a574;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .empty {
+        padding: 20px;
+        text-align: center;
+        color: #888;
+        font-style: italic;
+    }
 }

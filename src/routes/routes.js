@@ -7,7 +7,8 @@ import NghiemThuTaiSan from '~/pages/Nghiemthu';
 import ChitietNghiemThu from '~/pages/Nghiemthu/Chitietnghiemthu';
 import Profile from '~/pages/Profile';
 import SendRequest from '~/pages/SendRequest';
-
+import Qly from '~/pages/Qlytaikhoan';
+import Phanquyen from '~/pages/Phanquyen';
 import Moithau from '~/pages/Moithau';
 import Solanmoithau from '~/pages/Moithau/solanmoithau';
 import ChiTietGoiThau from '~/pages/Moithau/chitietmoithau';
@@ -17,6 +18,23 @@ import ThemKeHoach from '~/pages/Kehoach/themkehoach';
 import SuaKeHoach from '~/pages/Kehoach/updatekehoach';
 import TaoMoiHoSoMoiThau from '~/pages/Moithau/Taohoso';
 
+import QlyNhaThau from '~/pages/NhaThau/QlyNhaThau';
+import ChiTietNhaThau from '~/pages/NhaThau/ChiTietNhaThau/ChiTietNhaThau';
+import QlyHopDong from '~/pages/HopDong/QlyHopDong';
+import ChiTietHopDong from '~/pages/HopDong/ChiTietHopDong/ChiTietHopDong';
+
+import Dsthietbi from '~/pages/Dsthietbi';
+import Duyetkehoach from '~/pages/Duyetkhms';
+import Duyetnhathau from '~/pages/Duyetkcnt';
+import Duyetngansach from '~/pages/Duyetngansach';
+import Thanhtoanhopdong from '~/pages/Thanhtoanhopdong';
+import Dashboard from '~/pages/Dashboard/Dashboard';
+
+import Locthietbi from '~/pages/Dsthietbi/Locthietbi';
+import QLyYeuCau from '~/pages/YeuCau/QLyYeuCau';
+import ChiTietYeuCau from '~/pages/YeuCau/ChiTietYeuCau/ChiTietYeuCau';
+import Qlytaikhoan from '~/pages/Qlytaikhoan';
+import Qlythietbi from '~/pages/Qlythietbi';
 // Public routes
 const publicRoutes = [
     { path: config.routes.home, component: Home },
@@ -31,7 +49,26 @@ const publicRoutes = [
     { path: config.routes.Solandauthau, component:Solanmoithau},
     { path: config.routes.Chitietmoithau, component:ChiTietGoiThau},
     { path: config.routes.Taohosomoithau, component:TaoMoiHoSoMoiThau},
-     { path: config.routes.Suakehoach, component:SuaKeHoach}
+     { path: config.routes.Suakehoach, component:SuaKeHoach},
+    { path: config.routes.Qlytaikhoan, component: Qlytaikhoan },
+    { path: config.routes.Quanlythietbi, component: Qlythietbi },
+
+    { path: config.routes.Phanquyen, component: Phanquyen },
+
+    { path: config.routes.nhathau, component: QlyNhaThau },
+    { path: config.routes.chitietnhathau, component: ChiTietNhaThau },
+    { path: config.routes.hopdong, component: QlyHopDong },
+    { path: config.routes.chitiethopdong, component: ChiTietHopDong },
+    { path: config.routes.yeucau, component: QLyYeuCau },
+    { path: config.routes.chitietyeucau, component: ChiTietYeuCau },
+    { path: config.routes.dashboard, component: Dashboard },
+
+    { path: config.routes.Dsthietbi, component: Dsthietbi },
+    { path: config.routes.Locthietbi, component: Locthietbi },
+    { path: config.routes.Duyetkehoach, component: Duyetkehoach },
+    { path: config.routes.Duyetnhathau, component: Duyetnhathau },
+    { path: config.routes.Duyetngansach, component: Duyetngansach },
+    { path: config.routes.Thanhtoanhopdong, component: Thanhtoanhopdong },
 
 ];
 

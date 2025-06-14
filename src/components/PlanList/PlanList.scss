@@ -1,0 +1,229 @@
+.plan-list {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1rem;
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  &__cards {
+    margin-bottom: 2rem;
+  }
+
+  &__batch-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  &__button {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-width: 100px;
+
+    &--back {
+      background-color: #6b7280;
+      color: white;
+
+      &:hover {
+        background-color: #4b5563;
+      }
+    }
+
+    &--approve {
+      background-color: #2563eb;
+      color: white;
+
+      &:hover {
+        background-color: #1d4ed8;
+      }
+    }
+
+    &--reject {
+      background-color: #ef4444;
+      color: white;
+
+      &:hover {
+        background-color: #dc2626;
+      }
+    }
+  }
+
+  &__detail {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 1rem;
+      margin: 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section {
+      margin-bottom: 1rem;
+
+      h3 {
+        background: #e5e7eb;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #374151;
+      }
+
+      p {
+        display: flex;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        border-bottom: 1px solid #f3f4f6;
+        line-height: 1.5;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        strong {
+          width: 200px;
+          flex-shrink: 0;
+          font-weight: 600;
+          color: #374151;
+        }
+      }
+
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+
+    // Style cho Điều khoản chính
+    .plan-card__terms {
+      list-style: none;
+      padding: 1rem;
+      margin: 0;
+
+      li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f3f4f6;
+        line-height: 1.5;
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+
+    // Style cho phần checkbox đồng ý
+    .flex.items-center {
+      padding: 1rem;
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 0.75rem;
+        cursor: pointer;
+        border: 2px solid #d1d5db;
+        border-radius: 4px;
+        appearance: none;
+        -webkit-appearance: none;
+        position: relative;
+        background: white;
+
+        &:checked {
+          background-color: #2563eb;
+          border-color: #2563eb;
+
+          &:after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+          }
+        }
+
+        &:hover {
+          border-color: #2563eb;
+        }
+
+        &:focus {
+          outline: 2px solid #93c5fd;
+          outline-offset: 2px;
+        }
+      }
+
+      label {
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+        color: #374151;
+        user-select: none;
+        cursor: pointer;
+
+        strong {
+          font-weight: 600;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    // Style cho buttons cuối trang
+    .plan-list__batch-actions {
+      padding: 1rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin: 0;
+      background: white;
+    }
+  }
+}
+
+// Utility classes
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.rounded {
+  border-radius: 0.375rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
