@@ -365,10 +365,12 @@ a {
         align-items: flex-start;
         gap: 12px;
         transition: background-color 0.15s ease;
+
+        // Mặc định là đã đọc
         background-color: #f8f9fa;
 
         &:hover {
-            background-color: #e2e2e2; // sẫm hơn #f8f9fa một chút
+            background-color: #e2e2e2; // Hover cho đã đọc
         }
 
         &.unread {
@@ -376,10 +378,32 @@ a {
 
             .content {
                 font-weight: 600;
+
+                .message {
+                    color: #222;
+                    font-weight: 600;
+                }
             }
 
             &:hover {
-                background-color: #f2f2f2; // sẫm hơn trắng một chút
+                background-color: #f2f2f2; // Hover cho chưa đọc
+            }
+        }
+
+        &.read {
+            background-color: #f8f9fa;
+
+            .content {
+                font-weight: 400;
+
+                .message {
+                    color: #555;
+                    font-weight: 500;
+                }
+            }
+
+            &:hover {
+                background-color: #e2e2e2;
             }
         }
 
@@ -429,12 +453,5 @@ a {
                 font-weight: 500;
             }
         }
-    }
-
-    .empty {
-        padding: 20px;
-        text-align: center;
-        color: #888;
-        font-style: italic;
     }
 }
