@@ -4,7 +4,7 @@ import config from '~/config';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Menu from '~/components/Popper/Menu';
 import TimeDate from '~/components/TimeDate';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Login from './Login';
 import { useSelector } from 'react-redux';
 import { LayoutDashboard, LogOut } from 'lucide-react';
@@ -70,30 +70,61 @@ const HDSD_ITEMS = [
         title: 'Ban giám hiệu',
     },
 ];
+
 function Header() {
     const [open, setOpen] = useState(false);
     const location = useLocation();
-    const toggleDropdown = () => {
-        setOpen(!open);
-    };
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            const isClickInside = event.target.closest('.notification-wrapper');
-            if (!isClickInside) {
-                setOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+    const notificationRef = useRef(null);
 
     const user = useSelector((state) => state.user.currentUser);
     const [showLoginModal, setshowLoginModal] = useState(false);
     const [roleuser, setRoleuser] = useState('');
+    const [thongBaoList, setThongBaoList] = useState([]);
+
+    const toggleDropdown = () => {
+        setOpen((prev) => !prev);
+    };
+
+    // Effect để xử lý click outside
+    useEffect(() => {
+        const handleClickOutside = async (event) => {
+            // Kiểm tra xem click có nằm trong notification container không
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                if (open) {
+                    setOpen(false);
+
+                    // Kiểm tra xem có thông báo chưa đọc không
+                    const hasUnread = thongBaoList.some((tb) => tb.trangThai === 'Chưa đọc');
+
+                    if (hasUnread && user?.id) {
+                        try {
+                            await thongbaoService.capNhatTrangThaiThongBao(user.id);
+
+                            // Cập nhật state local
+                            setThongBaoList((prevList) =>
+                                prevList.map((tb) => ({
+                                    ...tb,
+                                    trangThai: 'Đã đọc',
+                                })),
+                            );
+                        } catch (error) {
+                            console.error('Lỗi khi cập nhật trạng thái thông báo:', error);
+                            toast.error('Không thể cập nhật trạng thái thông báo!');
+                        }
+                    }
+                }
+            }
+        };
+
+        // Chỉ add event listener khi dropdown đang mở
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [open, thongBaoList, user?.id]); // Thêm dependencies cần thiết
 
     useEffect(() => {
         const fetchRoleUser = async () => {
@@ -109,9 +140,7 @@ function Header() {
         };
 
         fetchRoleUser();
-    }, [user]); // Lắng nghe sự thay đổi của user
-
-    const [thongBaoList, setThongBaoList] = useState([]);
+    }, [user]);
 
     useEffect(() => {
         console.log(user);
@@ -127,7 +156,7 @@ function Header() {
                     }
                 } catch (err) {
                     console.error('Lỗi khi lấy danh sách thông báo:', err);
-                    toast.error('Lỗi khi lấy danh sách thông báo');
+                    // toast.error('Lỗi khi lấy danh sách thông báo');
                 }
             }
         };
@@ -141,11 +170,13 @@ function Header() {
             navigate(item.to);
         }
     };
+
     // Handle logic
     const handleLanguageChange = (item) => {
         console.log('Selected language:', item);
         // TODO: Thay đổi ngôn ngữ trong app tại đây (ví dụ: i18n.changeLanguage(item.code))
     };
+
     const dispatch = useDispatch();
     const handleUserClick = (item) => {
         if (item.title === 'Đăng xuất') {
@@ -155,12 +186,17 @@ function Header() {
             navigate(item.to);
         }
     };
+
     const handleShowLogin = () => {
         setshowLoginModal(true);
     };
+
     const handleCloseLoginModals = () => {
         setshowLoginModal(false);
     };
+
+    const soThongBaoChuaDoc = thongBaoList.filter((tb) => tb.trangThai === 'Chưa đọc').length;
+
     return (
         <header>
             {/* -- HEADER TOP-- */}
@@ -227,13 +263,10 @@ function Header() {
                             <div className={cx('menu-item')}>Liên hệ</div>
                         </div>
                         <div className={cx('menu-right')}>
-                            {/* <div className={cx('menu-item')}>Giới thiệu</div>
-                        <div className={cx('menu-item')}>Tin tức</div>
-                        <div className={cx('menu-item')}>Thông báo của bộ</div>
-                        <div className={cx('menu-item')}>Liên hệ - Góp ý</div> */}
-                            <div className={cx('notification-icon')} onClick={toggleDropdown}>
+                            {/* Notification với ref */}
+                            <div className={cx('notification-icon')} onClick={toggleDropdown} ref={notificationRef}>
                                 <i className="fas fa-bell fa-shake"></i>
-                                {thongBaoList?.length > 0 && <span className={cx('badge')}>{thongBaoList.length}</span>}
+                                {soThongBaoChuaDoc > 0 && <span className={cx('badge')}>{soThongBaoChuaDoc}</span>}
                                 {open && (
                                     <div className={cx('dropdown')}>
                                         <div className={cx('header')}>Thông báo</div>
@@ -243,7 +276,10 @@ function Header() {
                                             thongBaoList.map((tb, index) => (
                                                 <div
                                                     key={index}
-                                                    className={cx('item', { unread: tb.trangThai === 'Chưa đọc' })}
+                                                    className={cx('item', {
+                                                        unread: tb.trangThai === 'Chưa đọc',
+                                                        read: tb.trangThai === 'Đã đọc',
+                                                    })}
                                                 >
                                                     <div className={cx('avatar')}>
                                                         {tb.avatar ? (
@@ -271,6 +307,7 @@ function Header() {
                                     </div>
                                 )}
                             </div>
+
                             <div className={cx('time-date')}>
                                 <TimeDate />
                             </div>
@@ -307,6 +344,7 @@ function Header() {
         </header>
     );
 }
+
 function formatTimeAgo(dateString) {
     const now = new Date();
     const date = new Date(dateString);
@@ -325,4 +363,5 @@ function formatTimeAgo(dateString) {
         return `${diffInMonths} tháng trước`;
     }
 }
+
 export default Header;
