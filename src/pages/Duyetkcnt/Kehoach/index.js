@@ -25,11 +25,11 @@ const PlanCard  = ({ plan, onApprove, onReject, onViewDetails }) => {
           </div>
           <div className="plan-card__field">
             <div className="plan-card__label">Chủ đầu tư :</div>
-            <div className="plan-card__value">{plan.investor}</div>
+            <div className="plan-card__value">Trường ĐHSPKT</div>
           </div>
           <div className="plan-card__field">
             <div className="plan-card__label">Thời gian :</div>
-            <div className="plan-card__value">{plan.time}</div>
+            <div className="plan-card__value">20/6 - 30/6/2025</div>
           </div>
         </div>
         <div>

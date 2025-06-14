@@ -1,43 +1,39 @@
-import React, { useState } from 'react'; 
+import React, {useEffect, useState } from 'react'; 
 import TabNavigation from './../Tab';
 import PlanCard from './../Kehoach';
 import './PlanList.scss';
-
-const mockData = [
-  {
-    id: 'KH001',
-    title: 'Hợp đồng mua sắm giấy in, bút lông ',
-    contractor: 'Công ty TNHH Thiên Long ',
-    investor: 'Trường ĐHSPKT Đà Nẵng ',
-    time: '14/03 - 25/03/20252025',
-    type: 'Mua sắm',
-    status: 'pending',
-  },
-  {
-    id: 'KH001',
-    title: 'Hợp đồng sửa chữa máy in ',
-    contractor: 'Công ty TNHH Thiên Long ',
-    investor: 'Trường ĐHSPKT Đà Nẵng',
-    time: '14/03 - 25/03/20252025',
-    type: 'Sữa chữachữa',
-    status: 'pending',
-  },
-  {
-    id: 'KH001',
-    title: 'Hợp đồng mua sắm giấy in, bút lông',
-    contractor: 'Công ty TNHH Thiên Long ',
-    investor: 'Trường ĐHSPKT Đà NẵngNẵng',
-    time: '14/03 - 25/03/20252025',
-    type: 'Mua sắm',
-    status: 'pending',
-  }
-];
+import thanhtoanhopdongService from '~/services/thanhtoanhopdongService';
+import moment from 'moment';
+const formatMoney = (amount) => {
+    const formatter = new Intl.NumberFormat('vi-VN', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+    return formatter.format(amount) + ' VNĐ';
+};
 
 const PlanList = () => {
-  const [plans, setPlans] = useState(mockData);
+   const [plans, setPlans] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedPlan, setSelectedPlan] = useState(null);
-
+useEffect(() => {
+        thanhtoanhopdongService
+            .getChonHopDongService()
+            .then((response) => {
+                const mappedPlans = response.danhsachhopdong.map((contractor) => ({
+                    id: contractor.maHopDong,
+                    title: contractor.tenHopDong,
+                    contractor: 'Đoàn Hưng Thịnh',
+                    investor: 'Trường ĐHSPKT Đà Nẵng ',
+                    time: `${moment(contractor.thoiGianThucHien).format('DD/MM/YYYY')} - ${moment(contractor.thoiGianHoanThanh).format('DD/MM/YYYY')}`,
+                    type: 'Mua sắm',
+                    status: 'pending',
+                }));
+                setPlans(mappedPlans);
+            })
+            .catch((error) => console.error('❌ Lỗi tải danh sách nhà thầu:', error));
+    }, []);
   const filteredPlans = plans.filter(plan => {
     if (activeTab === 'all') return true;
     return plan.status === activeTab;

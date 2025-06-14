@@ -1,0 +1,135 @@
+.main-content {
+    flex: 1;
+    padding: 24px;
+    background-color: #f9fafb;
+    min-height: 100vh;
+  
+    .main-content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+  
+    .main-content-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+  
+    .add-plan-button {
+      background-color: #2563eb;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+  
+      &:hover {
+        background-color: #1d4ed8;
+      }
+    }
+  
+    .table-container {
+      background-color: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+      overflow-x: auto;
+  
+      .data-table {
+        width: 100%;
+        font-size: 14px;
+        text-align: left;
+        border-collapse: collapse;
+  
+        .table-header {
+          background-color: #f3f4f6;
+        }
+  
+        .table-row {
+          border-bottom: 1px solid #e5e7eb;
+          transition: background-color 0.2s ease;
+  
+          &:hover {
+            background-color: #f9fafb;
+          }
+        }
+  
+        .table-cell {
+          padding: 12px;
+          border: 1px solid #e5e7eb;
+  
+          a {
+            text-decoration: none;
+            color: inherit;
+  
+            &:hover {
+              color: #007bff;
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+  
+    .status-label {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  
+    .status-confirmed {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+  
+    .status-pending {
+      background-color: #fef9c3;
+      color: #a16207;
+    }
+  
+    .status-rejected {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+  
+    .actions {
+      display: flex;
+      gap: 8px;
+  
+      .edit-button,
+      .delete-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: text-decoration 0.2s ease;
+      }
+  
+      .edit-button {
+        color: #9333ea;
+  
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+  
+      .delete-button {
+        color: #dc2626;
+  
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+  .filter-container {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+
+  select {
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+}

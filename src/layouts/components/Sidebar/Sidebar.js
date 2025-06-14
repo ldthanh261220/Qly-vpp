@@ -10,6 +10,9 @@ import {
     ChartColumnBig,
     Layers,
     Monitor,
+    HardHat,
+    FileSignature,
+    ClipboardList,
 } from 'lucide-react';
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
@@ -30,11 +33,17 @@ export default function Sidebar() {
         { name: 'Quản lý thiết bị', icon: <Monitor size={18} />, to: config.routes.Quanlythietbi, quyen: 1 },
         { name: 'Quản lý tài khoản', icon: <Users size={18} />, to: config.routes.Qlytaikhoan, quyen: 1 },
         { name: 'Phân quyền tài khoản', icon: <Key size={18} />, to: config.routes.Phanquyen, quyen: 1 },
-        { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
+        { name: 'Danh sách nhà thầu', icon: <HardHat size={18} />, to: config.routes.nhathau, quyen: 2 },
+        { name: 'Danh sách hợp đồng ', icon: <FileSignature size={18} />, to: config.routes.hopdong, quyen: 2 },
+        { name: 'Duyệt yêu cầu', icon: <ClipboardList size={18} />, to: config.routes.yeucau, quyen: 2 },
         { name: 'Duyệt kế hoạch mua sắm', icon: <ShoppingCart size={18} />, to: config.routes.Duyetkehoach, quyen: 6 },
         { name: 'Duyệt KH chọn nhà thầu', icon: <Book size={18} />, to: config.routes.Duyetnhathau, quyen: 6 },
         { name: 'Duyệt ngân sách ', icon: <ChartColumnBig size={18} />, to: config.routes.Duyetngansach, quyen: 8 },
         { name: 'Thanh toán hợp đồng', icon: <Layers size={18} />, to: config.routes.Thanhtoanhopdong, quyen: 8 },
+        { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
+        { name: 'Kế hoạch', icon: <UserCircle size={18} />, to: config.routes.Kehoach },
+        { name: 'Nghiệm thu', icon: <UserCircle size={18} />, to: config.routes.Nghiemthu},
+        { name: 'Mời thầu', icon: <UserCircle size={18} />, to: config.routes.Moithau}
     ];
 
     const filteredMenu = user
