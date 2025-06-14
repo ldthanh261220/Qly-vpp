@@ -35,6 +35,8 @@ import QLyYeuCau from '~/pages/YeuCau/QLyYeuCau';
 import ChiTietYeuCau from '~/pages/YeuCau/ChiTietYeuCau/ChiTietYeuCau';
 import Qlytaikhoan from '~/pages/Qlytaikhoan';
 import Qlythietbi from '~/pages/Qlythietbi';
+import TaoHopDong from '~/pages/HopDong/TaoHopDong/TaoHopDong';
+import TaoNhaThau from '~/pages/NhaThau/TaoNhaThau/TaoNhaThau';
 // Public routes
 const publicRoutes = [
     { path: config.routes.home, component: Home },
@@ -57,8 +59,10 @@ const publicRoutes = [
 
     { path: config.routes.nhathau, component: QlyNhaThau },
     { path: config.routes.chitietnhathau, component: ChiTietNhaThau },
+    { path: config.routes.taonhathau, component: TaoNhaThau },
     { path: config.routes.hopdong, component: QlyHopDong },
     { path: config.routes.chitiethopdong, component: ChiTietHopDong },
+    { path: config.routes.taohopdong, component: TaoHopDong },
     { path: config.routes.yeucau, component: QLyYeuCau },
     { path: config.routes.chitietyeucau, component: ChiTietYeuCau },
     { path: config.routes.dashboard, component: Dashboard },

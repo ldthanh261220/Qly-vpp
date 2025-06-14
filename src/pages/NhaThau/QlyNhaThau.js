@@ -12,6 +12,7 @@ import linhvucService from '~/services/linhvucService';
 
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -23,8 +24,11 @@ const QlyNhaThau = () => {
     const [showDelete, setShowDelete] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [linhVucList, setLinhVucList] = useState([]);
+    const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' });
+
     const itemsPerPage = 3;
 
+    const navigate = useNavigate();
     // ✅ Hàm fetch data riêng để tái sử dụng
     const fetchData = async () => {
         try {
@@ -126,6 +130,10 @@ const QlyNhaThau = () => {
         toast.success('Xuất Excel thành công!');
     };
 
+    const handleCreate = () => {
+        navigate('/taonhathau')
+    }
+
     useEffect(() => {
         const fetchLinhVuc = async () => {
             try {
@@ -143,37 +151,75 @@ const QlyNhaThau = () => {
         fetchData();
     }, []);
 
+
     const filteredData = nhaThaus.filter((item) => {
         const matchSearch = item.tenNhaThau.toLowerCase().includes(searchTerm.toLowerCase());
         const matchField = filterField ? item.maLinhVuc === filterField : true;
         return matchSearch && matchField;
     });
 
+    const sortedData = [...filteredData].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Nếu là ngày
+        if (sortConfig.key === 'ngayKy') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const handleSortSelect = (key, direction) => {
+        setSortConfig({ key, direction });
+    };
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = sortedData.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
     const handleDelete = async () => {
+        if (!showDelete || !showDelete.maNhaThau) {
+            toast.warn('Không có nhà thầu để xóa!');
+            return;
+        }
+
         try {
-            if (showDelete) {
-                await nhathauService.deleteNhaThau(showDelete.ma);
-                toast.success('Xóa nhà thầu thành công!');
-                setShowDelete(null);
-                fetchData();
-            }
+            await nhathauService.deleteNhaThauService(showDelete.maNhaThau);
+            toast.success('Xóa nhà thầu thành công!');
+
+            // Cập nhật lại danh sách
+            setNhaThaus(prev =>
+            prev.filter(item => item.maNhaThau !== showDelete.maNhaThau)
+            );
+
+            // Đóng modal hoặc popup xác nhận
+            setShowDelete(null);
         } catch (error) {
+            console.error('Lỗi khi xóa nhà thầu:', error);
             toast.error('Xóa nhà thầu thất bại!');
         }
     };
+
 
     return (
         <div className={cx('section')}>
             <div className={cx('header')}>
                 <p>Danh sách nhà thầu</p>
-                <button className={cx('btn-export')} onClick={handleExportExcel}>
-                    Xuất Excel
-                </button>
+                <div>
+                    <button className={cx('btn-export')} onClick={handleExportExcel}>
+                        Xuất Excel
+                    </button>
+                    <button className={cx('btn-create')} onClick={handleCreate}>
+                        Tạo nhà thầu
+                    </button>
+                </div>
                 <div className={cx('filter')}>
                     <div className={cx('search-1')}>
                         <select
@@ -189,6 +235,20 @@ const QlyNhaThau = () => {
                                 {lv.tenLinhVuc}
                                 </option>
                             ))}
+                        </select>
+                    </div>
+                    <div className={cx('form-group')}>
+                        <select value={sortConfig.key + '-' + sortConfig.direction} onChange={(e) => {
+                            const [key, direction] = e.target.value.split('-');
+                            handleSortSelect(key, direction);
+                        }}>
+                            <option value="">Sắp xếp theo</option>
+                            <option value="tenNhaThau-asc">Tên nhà thầu (A-Z)</option>
+                            <option value="maSoThue-asc">Mã số thuế (A-Z)</option>
+                            <option value="ngaySinh-asc">Ngày thành lập (A-Z)</option>
+                            <option value="tenNhaThau-desc">Tên nhà thầu (Z-A)</option>
+                            <option value="maSoThue-desc">Mã số thuế (Z-A)</option>
+                            <option value="ngaySinh-desc">Ngày thành lập (Z-A)</option>
                         </select>
                     </div>
                     <div className={cx('search')}>

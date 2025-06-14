@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Pencil, Trash } from 'lucide-react';
+import { Pencil, Trash, CreditCard } from 'lucide-react';
 import './danhsachmoithau.scss';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -45,6 +45,8 @@ useEffect(() => {
             ngayKetThuc: ngayKetThuc.toLocaleDateString('vi-VN'),
             kinhPhi: Number(item.duToanKinhPhi).toLocaleString('vi-VN'),
             trangThai: item.trangThai,
+            maNhaThau: item.maNhaThau,
+            maPhienDauThau: item.maPhienDauThau
           };
         });
         setData(formattedData);
@@ -55,6 +57,10 @@ useEffect(() => {
 
     fetchData();
   }, []);
+
+  const handleCreateContract = (maNhaThau, maPhienDauThau) => {
+    navigate(`/taohopdong?maNhaThau=${maNhaThau}&maPhienDauThau=${maPhienDauThau}`);
+  };
 
   const filteredData = useMemo(() => {
     return data
@@ -165,6 +171,19 @@ useEffect(() => {
                       <button className="icon-button delete">
                         <Trash size={16} />
                       </button>
+                      {item.trangThai === 'Hoàn thành' && (
+                        <button
+                          className="icon-button create"
+                          onClick={(e) => {
+                            console.log(item);
+                            
+                            e.stopPropagation(); // Ngăn không cho click lan lên <tr>
+                            handleCreateContract(item.maNhaThau, item.maPhienDauThau);
+                          }}
+                        >
+                          <CreditCard size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

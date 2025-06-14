@@ -1,0 +1,72 @@
+.create-hopdong-form {
+  max-width: 800px;
+  margin: 30px 0px;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2b4c7e;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #2c3e50;
+    }
+
+    input,
+    textarea,
+    select {
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      background-color: #f9f9f9;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #3498db;
+        background-color: #fff;
+      }
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .readonly-field {
+      background-color: #e9ecef;
+      color: #555;
+    }
+  }
+
+  .submit-btn {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+
+    &:hover {
+      background-color: #2c80b4;
+    }
+  }
+}

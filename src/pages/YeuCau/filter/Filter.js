@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styles from './filter.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -64,7 +64,7 @@ const Filter = ({
             setCurrentPage(1);
           }}
         >
-          <option value="">Loai yeu cau</option>
+          <option value="">Loại yêu cầu</option>
           {requestType.map((lv) => (
             <option key={lv.name} value={lv.value}>
               {lv.name}
@@ -84,7 +84,7 @@ const Filter = ({
       {/* Tìm theo tên vật dụng */}
       <div className={cx('filter-search')}>
         <input
-          placeholder="Nhập tên vat dung..."
+          placeholder="Nhập tên vật dụng..."
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);

@@ -23,7 +23,7 @@ const TableComponent = ({ paginatedRequests, HandleViewDetails, setShowDelete })
       <tbody>
         {paginatedRequests.map((item) => (
           <tr key={item.maYeuCau}>
-            <td>{item.tenVatDung}</td>
+            <td>{item.tenVatDung || item.tenThietBi}</td>
             <td>{item.lyDoDeXuat}</td>
             <td>{item.tenNguoiTao}</td>
             <td>{item.loaiYeuCau}</td>

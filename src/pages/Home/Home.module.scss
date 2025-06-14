@@ -1,0 +1,154 @@
+.wrapper {
+  font-family: 'Segoe UI', sans-serif;
+  background: #fffaf2; // nhẹ hơn f9e3b6 để dễ đọc nội dung
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 20px auto;
+  color: #2d3748;
+  min-height: 70vh;
+  border-radius: 8px;
+
+  .subnav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 30px;
+
+    .subnav-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #7b5e39;
+      transition: color 0.3s;
+
+      &.active {
+        font-weight: 600;
+        color: #be8a4b;
+        border-bottom: 2px solid #be8a4b;
+      }
+      &:hover {
+        color: #be8a4b;
+      }
+    }
+  }
+
+  .section {
+    padding: 20px 0;
+
+    &.intro {
+      text-align: center;
+
+      h1 {
+        font-size: 32px;
+        margin-bottom: 16px;
+        color: #3a2d1f;
+      }
+
+      p {
+        max-width: 800px;
+        margin: 0 auto 24px;
+        line-height: 1.6;
+        color: #5c4936;
+      }
+
+      .welcome {
+        font-size: 18px;
+        margin-top: 16px;
+        color: #be8a4b;
+      }
+
+      .btn {
+        padding: 10px 24px;
+        background: #be8a4b;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+
+        &:hover {
+          background: #a67136;
+        }
+      }
+    }
+
+    &.features {
+      h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #3a2d1f;
+      }
+
+      .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 16px;
+
+        .feature-item {
+          background: #fffaf2;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+          transition: transform 0.3s;
+
+          &:hover {
+            transform: translateY(-4px);
+          }
+
+          h3 {
+            margin-bottom: 12px;
+            color: #be8a4b;
+            font-size: 20px;
+          }
+
+          p {
+            color: #5c4936;
+            line-height: 1.5;
+          }
+        }
+      }
+    }
+
+    &.benefits, &.guide, &.contact {
+      h2 {
+        font-size: 26px;
+        margin-bottom: 18px;
+        text-align: center;
+        color: #3a2d1f;
+      }
+
+      ul, ol {
+        margin: 0 auto;
+        max-width: 700px;
+        padding-left: 20px;
+        color: #5c4936;
+
+        li {
+          margin-bottom: 10px;
+          line-height: 1.6;
+        }
+      }
+
+      p {
+        text-align: center;
+        font-size: 16px;
+        color: #5c4936;
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  .footer {
+    margin-top: 40px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+    text-align: center;
+    color: #7b5e39;
+    font-size: 14px;
+  }
+}
