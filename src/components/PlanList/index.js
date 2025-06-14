@@ -1,46 +1,36 @@
-import React, { useState } from 'react'; 
+import React, {useEffect, useState } from 'react'; 
 import TabNavigation from './../TabNavigation';
 import PlanCard from './../PlanCard';
 import './PlanList.scss';
-
-const mockData = [
-  {
-    id: 'KH001',
-    title: 'Mua sắm giấy in, bút lông bảng, bìa hồ sơ',
-    type: 'Mua sắm',
-    department: 'Phòng CTSV',
-    budget: '31.000.000 đ',
-    category: 'hàng hóa',
-    location: 'số 48 Cao Thắng, TP. Đà Nẵng',
-    status: 'pending'
-  },
-  {
-    id: 'KH003',
-    title: 'Mua sắm máy chiếu',
-    type: 'Mua sắm',
-    department: 'Phòng CTSV',
-    budget: '31.000.000 đ',
-    category: 'hàng hóa',
-    location: 'số 48 Cao Thắng, TP. Đà Nẵng',
-    status: 'approved'
-  },
-  {
-    id: 'KH002',
-    title: 'Sửa chữa máy in',
-    type: 'Sửa chữa',
-    department: 'Phòng KH-TC',
-    budget: '14.000.000 đ',
-    category: 'hàng hóa',
-    location: 'số 48 Cao Thắng, TP. Đà Nẵng',
-    status: 'pending'
-  }
-];
+import chonmuasamService from '~/services/chonmuasamService';
+import moment from 'moment';
 
 const PlanList = () => {
-  const [plans, setPlans] = useState(mockData);
+  const [plans, setPlans] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedPlan, setSelectedPlan] = useState(null);
-
+  useEffect(() => {
+        chonmuasamService
+            .getChonMuaSamService()
+            .then((response) => {
+                const mappedPlans = response.danhsachkehoach.map((contractor) => ({
+                    id: contractor.maKeHoach,
+                    title: contractor.tenKeHoach,
+                    type: contractor.loaiyeucau,
+                    department: contractor.donViCongTac,
+                    budget: contractor.chiPhiKeHoach,
+                    category: 'hàng hóa',
+                    location: 'số 48 Cao Thắng, TP. Đà Nẵng',
+                    status: 'pending',
+                    time: `${moment(contractor.thoiGianBatDau).format('DD/MM/YYYY')} - ${moment(contractor.thoiGianKetThuc).format('DD/MM/YYYY')}`
+                }));
+                setPlans(mappedPlans);
+            })
+            .catch((error) => console.error('❌ Lỗi tải danh sách nhà thầu:', error));
+    }, []);
+  const handleApprove = (id) => {
+    setPlans(plans.map(plan => plan.id === id ? { ...plan, status: 'approved' } : plan));
+  };
   const filteredPlans = plans.filter(plan => {
     if (activeTab === 'all') return true;
     return plan.status === activeTab;
@@ -51,10 +41,7 @@ const PlanList = () => {
     pending: plans.filter(plan => plan.status === 'pending').length,
     approved: plans.filter(plan => plan.status === 'approved').length
   };
-
-  const handleApprove = (id) => {
-    setPlans(plans.map(plan => plan.id === id ? { ...plan, status: 'approved' } : plan));
-  };
+  
 
   const handleReject = (id) => {
     alert(`Từ chối kế hoạch: ${id}`);
@@ -65,9 +52,6 @@ const PlanList = () => {
     setSelectedPlan(plan);
   };
 
-  const handleBackToList = () => {
-    setSelectedPlan(null);
-  };
 
   const handleApproveAll = () => {
     setPlans(plans.map(plan => plan.status === 'pending' ? { ...plan, status: 'approved' } : plan));
@@ -129,7 +113,7 @@ const PlanList = () => {
             <p><strong>Mã kế hoạch:</strong> {selectedPlan.id}</p>
             <p><strong>Tên kế hoạch:</strong> {selectedPlan.title}</p>
             <p><strong>Loại:</strong> {selectedPlan.type}</p>
-            <p><strong>Thời gian:</strong> 14/03 - 25/03/2025</p>
+            <p><strong>Thời gian:</strong> {selectedPlan.time}</p>
             <p><strong>Địa điểm:</strong> {selectedPlan.location}</p>
             <p><strong>Lĩnh vực:</strong> {selectedPlan.category}</p>
             <p><strong>Số tiền dự kiến:</strong> {selectedPlan.budget}</p>
