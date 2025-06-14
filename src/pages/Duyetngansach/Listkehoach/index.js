@@ -32,7 +32,7 @@ const PlanList = () => {
                 const mappedPlans = response.danhsachkehoach.map((item) => ({
                     id: item.maKeHoach,
                     title: item.tenKeHoach,
-                    type: item.loaiYeuCau,
+                    type: item.loaiyeucau,
                     unit: item.donViCongTac,
                     sum: item.chiPhiKeHoach,
                     field: 'Hàng hóa',
