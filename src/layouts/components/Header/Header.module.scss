@@ -332,7 +332,6 @@ a {
     height: 30px;
     border-radius: 50%;
 }
-// CSS
 .dropdown {
     position: absolute;
     right: 0;
@@ -347,6 +346,14 @@ a {
     max-height: 400px;
     overflow-y: auto;
 
+    // Ẩn thanh cuộn
+    scrollbar-width: none; // Firefox
+    -ms-overflow-style: none; // IE, Edge
+
+    &::-webkit-scrollbar {
+        display: none; // Chrome, Safari
+    }
+
     .header {
         width: 100%;
         padding: 15px 20px;
@@ -355,6 +362,14 @@ a {
         font-size: 18px;
         font-weight: 600;
         text-align: center;
+    }
+
+    .empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        font-size: 15px;
     }
 
     .item {
@@ -366,11 +381,10 @@ a {
         gap: 12px;
         transition: background-color 0.15s ease;
 
-        // Mặc định là đã đọc
         background-color: #f8f9fa;
 
         &:hover {
-            background-color: #e2e2e2; // Hover cho đã đọc
+            background-color: #e2e2e2;
         }
 
         &.unread {
@@ -386,7 +400,7 @@ a {
             }
 
             &:hover {
-                background-color: #f2f2f2; // Hover cho chưa đọc
+                background-color: #f2f2f2;
             }
         }
 

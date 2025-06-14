@@ -1,6 +1,11 @@
 import axios from '../axios';
 
-const getAllYeuCauService = () => {
+const getAllYeuCauService = (trangThai) => {
+    if (trangThai) {
+        return axios.get(`/getDsYeuCau`, {
+            params: { trangThai },
+        });
+    }
     return axios.get(`/getDsYeuCau`);
 };
 
@@ -11,7 +16,7 @@ const getDetailYeuCauService = (id) => {
 const duyetYeuCauService = (maYeuCau, ngayDuyet) => {
     return axios.post(`/duyetYeuCau`, {
         maYeuCau,
-        ngayDuyet
+        ngayDuyet,
     });
 };
 
@@ -19,7 +24,7 @@ const tuChoiYeuCauService = (maYeuCau, ngayDuyet, lyDoTuChoi) => {
     return axios.post(`/tuChoiYeuCau`, {
         maYeuCau,
         ngayDuyet,
-        lyDoTuChoi
+        lyDoTuChoi,
     });
 };
 
@@ -32,5 +37,5 @@ export default {
     getDetailYeuCauService,
     duyetYeuCauService,
     tuChoiYeuCauService,
-    deleteYeuCauService
+    deleteYeuCauService,
 };

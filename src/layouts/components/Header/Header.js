@@ -126,6 +126,16 @@ function Header() {
         };
     }, [open, thongBaoList, user?.id]); // Thêm dependencies cần thiết
 
+    // Effect để reset dữ liệu khi user thay đổi (đăng nhập/đăng xuất)
+    useEffect(() => {
+        if (!user) {
+            // Reset tất cả state khi user đăng xuất
+            setRoleuser('');
+            setThongBaoList([]);
+            setOpen(false);
+        }
+    }, [user]);
+
     useEffect(() => {
         const fetchRoleUser = async () => {
             if (!user || !user.id) return;
@@ -158,6 +168,9 @@ function Header() {
                     console.error('Lỗi khi lấy danh sách thông báo:', err);
                     // toast.error('Lỗi khi lấy danh sách thông báo');
                 }
+            } else {
+                // Nếu không có user, reset thông báo
+                setThongBaoList([]);
             }
         };
 
@@ -180,6 +193,9 @@ function Header() {
     const dispatch = useDispatch();
     const handleUserClick = (item) => {
         if (item.title === 'Đăng xuất') {
+            // Reset dropdown trước khi đăng xuất
+            setOpen(false);
+
             dispatch(logout());
             navigate(config.routes.home); // Chuyển hướng sau khi đăng xuất (tùy chọn)
         } else if (item.to) {
@@ -263,50 +279,52 @@ function Header() {
                             <div className={cx('menu-item')}>Liên hệ</div>
                         </div>
                         <div className={cx('menu-right')}>
-                            {/* Notification với ref */}
-                            <div className={cx('notification-icon')} onClick={toggleDropdown} ref={notificationRef}>
-                                <i className="fas fa-bell fa-shake"></i>
-                                {soThongBaoChuaDoc > 0 && <span className={cx('badge')}>{soThongBaoChuaDoc}</span>}
-                                {open && (
-                                    <div className={cx('dropdown')}>
-                                        <div className={cx('header')}>Thông báo</div>
-                                        {thongBaoList.length === 0 ? (
-                                            <div className={cx('empty')}>Không có thông báo nào</div>
-                                        ) : (
-                                            thongBaoList.map((tb, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={cx('item', {
-                                                        unread: tb.trangThai === 'Chưa đọc',
-                                                        read: tb.trangThai === 'Đã đọc',
-                                                    })}
-                                                >
-                                                    <div className={cx('avatar')}>
-                                                        {tb.avatar ? (
-                                                            <img src={tb.avatar} alt={tb.tenNguoiGui} />
-                                                        ) : (
-                                                            <img
-                                                                src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(
-                                                                    tb.tenNguoiGui || 'Unknown',
-                                                                )}&radius=50&bold=true&backgroundColor=faa546&fontSize=30`}
-                                                                alt={tb.tenNguoiGui}
-                                                            />
-                                                        )}
-                                                    </div>
+                            {/* Chỉ hiển thị notification khi có user */}
+                            {user && (
+                                <div className={cx('notification-icon')} onClick={toggleDropdown} ref={notificationRef}>
+                                    <i className="fas fa-bell fa-shake"></i>
+                                    {soThongBaoChuaDoc > 0 && <span className={cx('badge')}>{soThongBaoChuaDoc}</span>}
+                                    {open && (
+                                        <div className={cx('dropdown')}>
+                                            <div className={cx('header')}>Thông báo</div>
+                                            {thongBaoList.length === 0 ? (
+                                                <div className={cx('empty')}>Không có thông báo nào</div>
+                                            ) : (
+                                                thongBaoList.map((tb, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className={cx('item', {
+                                                            unread: tb.trangThai === 'Chưa đọc',
+                                                            read: tb.trangThai === 'Đã đọc',
+                                                        })}
+                                                    >
+                                                        <div className={cx('avatar')}>
+                                                            {tb.avatar ? (
+                                                                <img src={tb.avatar} alt={tb.tenNguoiGui} />
+                                                            ) : (
+                                                                <img
+                                                                    src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(
+                                                                        tb.tenNguoiGui || 'Unknown',
+                                                                    )}&radius=50&bold=true&backgroundColor=faa546&fontSize=30`}
+                                                                    alt={tb.tenNguoiGui}
+                                                                />
+                                                            )}
+                                                        </div>
 
-                                                    <div className={cx('content')}>
-                                                        <div className={cx('sender')}>{tb.tenNguoiGui}</div>
-                                                        <div className={cx('message')}>{tb.noiDungThongBao}</div>
-                                                        <div className={cx('time')}>
-                                                            {formatTimeAgo(tb.ngayThongBao)}
+                                                        <div className={cx('content')}>
+                                                            <div className={cx('sender')}>{tb.tenNguoiGui}</div>
+                                                            <div className={cx('message')}>{tb.noiDungThongBao}</div>
+                                                            <div className={cx('time')}>
+                                                                {formatTimeAgo(tb.ngayThongBao)}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <div className={cx('time-date')}>
                                 <TimeDate />
