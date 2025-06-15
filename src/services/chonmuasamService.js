@@ -9,7 +9,7 @@ const duyetKeHoach = (maKeHoach) => {
 };
 
 const tuchoiKeHoach = (maKeHoach) => {
-    return axios.post('/tuchoi-ke-hoach', { maKeHoach });
+    return axios.put(`/tuchoi_kehoach/${maKeHoach}/duyet`);
 };
 
 export default {

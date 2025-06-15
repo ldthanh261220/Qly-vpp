@@ -24,7 +24,14 @@ const PlanList = () => {
     const loadPlans = async () => {
         try {
             const response = await chonmuasamService.getChonMuaSamService();
-            const mappedPlans = response.danhsachkehoach.map((contractor) => ({
+
+            // Lọc chỉ lấy trạng thái "Đã duyệt ngân sách" và "Đang chờ duyệt"
+            const filteredContractors = response.danhsachkehoach.filter((contractor) => {
+                const status = contractor.trangThai?.trim();
+                return status === 'Đã duyệt' || status === 'Đã duyệt ngân sách';
+            });
+
+            const mappedPlans = filteredContractors.map((contractor) => ({
                 id: contractor.maKeHoach,
                 title: contractor.tenKeHoach,
                 type: contractor.loaiyeucau,
@@ -33,13 +40,24 @@ const PlanList = () => {
                 user: contractor.hoTen,
                 category: 'hàng hóa',
                 location: 'số 48 Cao Thắng, TP. Đà Nẵng',
-                status: contractor.trangThai === 'Đã duyệt' ? 'approved' : 'pending',
+                status: contractor.trangThai?.trim() === 'Đã duyệt' ? 'approved' : 'pending',
+                originalStatus: contractor.trangThai, // Lưu trạng thái gốc để debug
                 time: `${moment(contractor.thoiGianBatDau).format('DD/MM/YYYY')} - ${moment(
                     contractor.thoiGianKetThuc,
                 ).format('DD/MM/YYYY')}`,
             }));
 
             setPlans(mappedPlans);
+
+            // Debug: In ra console để kiểm tra dữ liệu
+            console.log('📊 Danh sách kế hoạch từ API (tất cả):', response.danhsachkehoach);
+            console.log('📊 Danh sách kế hoạch sau khi lọc trạng thái:', filteredContractors);
+            console.log('📊 Danh sách kế hoạch sau khi map:', mappedPlans);
+            console.log('📊 Số lượng theo trạng thái:', {
+                total: mappedPlans.length,
+                approved: mappedPlans.filter((p) => p.status === 'approved').length,
+                pending: mappedPlans.filter((p) => p.status === 'pending').length,
+            });
         } catch (error) {
             console.error('❌ Lỗi tải danh sách kế hoạch:', error);
         }
@@ -151,8 +169,13 @@ const PlanList = () => {
 
     const filteredPlans = plans.filter((plan) => {
         if (activeTab === 'all') return true;
-        return plan.status === activeTab;
+        if (activeTab === 'approved') return plan.status === 'approved';
+        if (activeTab === 'pending') return plan.status === 'pending';
+        return true;
     });
+
+    console.log('🔍 Active tab:', activeTab);
+    console.log('🔍 Filtered plans:', filteredPlans);
 
     const counts = {
         all: plans.length,
