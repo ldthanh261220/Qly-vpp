@@ -15,6 +15,7 @@ import {
     ClipboardList,
     CheckSquare, // dùng cho "Nghiệm thu"
     Handshake,
+    BarChart2,
 } from 'lucide-react';
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
@@ -38,6 +39,7 @@ export default function Sidebar() {
         { name: 'Danh sách nhà thầu', icon: <HardHat size={18} />, to: config.routes.nhathau, quyen: 2 },
         { name: 'Danh sách hợp đồng ', icon: <FileSignature size={18} />, to: config.routes.hopdong, quyen: 2 },
         { name: 'Duyệt yêu cầu', icon: <ClipboardList size={18} />, to: config.routes.yeucau, quyen: 2 },
+        { name: 'Thống kê hệ thống', icon: <BarChart2 size={18} />, to: config.routes.dashboard, quyen: 2 },
         { name: 'Duyệt kế hoạch mua sắm', icon: <ShoppingCart size={18} />, to: config.routes.Duyetkehoach, quyen: 6 },
         { name: 'Duyệt KH chọn nhà thầu', icon: <Book size={18} />, to: config.routes.Duyetnhathau, quyen: 6 },
         { name: 'Duyệt ngân sách ', icon: <ChartColumnBig size={18} />, to: config.routes.Duyetngansach, quyen: 8 },
