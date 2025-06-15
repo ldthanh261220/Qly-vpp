@@ -46,6 +46,7 @@ export default function TaoMoiHoSoMoiThau() {
             .catch((err) => console.error('Lỗi gói thầu:', err));
     }, []);
 
+
     const handleRemoveNhaThau = (maNhaThau) => {
         setDanhSachNhaThau((prev) => prev.filter((nt) => nt.maNhaThau !== maNhaThau));
     };
