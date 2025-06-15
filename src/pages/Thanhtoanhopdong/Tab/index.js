@@ -15,13 +15,13 @@ const TabNavigation = ({ activeTab, setActiveTab, counts }) => {
           className={`tab-navigation__tab ${activeTab === 'pending' ? 'active' : ''}`}
           onClick={() => setActiveTab('pending')}
         >
-          Chưa duyệt ({counts.pending})
+          Chưa thanh toán ({counts.pending})
         </button>
         <button
           className={`tab-navigation__tab ${activeTab === 'approved' ? 'active' : ''}`}
           onClick={() => setActiveTab('approved')}
         >
-          Đã duyệt ({counts.approved})
+          Đã thanh toán ({counts.approved})
         </button>
       </div>
     </div>

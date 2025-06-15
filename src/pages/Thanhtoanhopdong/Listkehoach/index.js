@@ -33,7 +33,7 @@ const PlanList = () => {
           investor: 'Trường ĐHSPKT Đà Nẵng ',
           time: `${moment(contractor.thoiGianThucHien).format('DD/MM/YYYY')} - ${moment(contractor.thoiGianHoanThanh).format('DD/MM/YYYY')}`,
           type: 'Mua sắm',
-          status: 'pending',
+          status: contractor.trangThai || 'pending', // Load trạng thái từ API
         }));
         setPlans(mappedPlans);
       })
@@ -55,7 +55,17 @@ const PlanList = () => {
     setSelectedPlan(null);
   };
 
-  const handleApprove = (id) => {
+  const updatePlanStatus = async (id, status) => {
+    try {
+      await thanhtoanhopdongService.updateTrangThaiHopDongService(id, status);
+      console.log(`✅ Cập nhật trạng thái thành công: ${status}`);
+    } catch (error) {
+      console.error('❌ Lỗi khi cập nhật trạng thái:', error);
+    }
+  };
+
+  const handleApprove = async (id) => {
+    await updatePlanStatus(id, 'approved');
     setPlans(plans.map((plan) => 
       plan.id === id ? { ...plan, status: 'approved' } : plan
     ));
@@ -69,7 +79,8 @@ const PlanList = () => {
     }
   };
 
-  const handleReject = (id) => {
+  const handleReject = async (id) => {
+    await updatePlanStatus(id, 'pending');
     setPlans(plans.map((plan) => 
       plan.id === id ? { ...plan, status: 'pending' } : plan
     ));
@@ -83,15 +94,15 @@ const PlanList = () => {
     }
   };
 
-  const handleApproveDetail = () => {
+  const handleApproveDetail = async () => {
     if (selectedPlan) {
-      handleApprove(selectedPlan.id);
+      await handleApprove(selectedPlan.id);
     }
   };
 
-  const handleRejectDetail = () => {
+  const handleRejectDetail = async () => {
     if (selectedPlan) {
-      handleReject(selectedPlan.id);
+      await handleReject(selectedPlan.id);
     }
   };
 
@@ -127,17 +138,21 @@ const PlanList = () => {
     }
   };
 
-  const handleApproveAll = () => {
-    setPlans(
-      plans.map((plan) => (plan.status === 'pending' ? { ...plan, status: 'approved' } : plan))
-    );
+  const handleApproveAll = async () => {
+    const pendingPlans = plans.filter((plan) => plan.status === 'pending');
+    for (const plan of pendingPlans) {
+      await updatePlanStatus(plan.id, 'approved');
+    }
+    setPlans(plans.map((plan) => (plan.status === 'pending' ? { ...plan, status: 'approved' } : plan)));
     setActiveTab('approved');
   };
 
-  const handleRejectAll = () => {
-    setPlans(
-      plans.map((plan) => (plan.status === 'pending' ? { ...plan, status: 'pending' } : plan))
-    );
+  const handleRejectAll = async () => {
+    const pendingPlans = plans.filter((plan) => plan.status === 'pending');
+    for (const plan of pendingPlans) {
+      await updatePlanStatus(plan.id, 'pending');
+    }
+    setPlans(plans.map((plan) => (plan.status === 'pending' ? { ...plan, status: 'pending' } : plan)));
     setActiveTab('pending');
   };
 
@@ -152,26 +167,14 @@ const PlanList = () => {
               <PlanCard
                 key={`${plan.id}-${index}`}
                 plan={plan}
-                onApprove={handleApprove}
-                onReject={handleReject}
+                onApprove={() => handleApprove(plan.id)}
+                onReject={() => handleReject(plan.id)}
                 onViewDetails={() => handleViewDetails(plan.id)}
               />
             ))}
           </div>
           {filteredPlans.length > 0 && (
             <div className="plan-list__batch-actions">
-              <button
-                onClick={handleApproveAll}
-                className="plan-list__button plan-list__button--approve"
-              >
-                Duyệt tất cả
-              </button>
-              <button
-                onClick={handleRejectAll}
-                className="plan-list__button plan-list__button--reject"
-              >
-                Từ chối tất cả
-              </button>
             </div>
           )}
         </>
@@ -209,14 +212,9 @@ const PlanList = () => {
               onClick={handleApproveDetail}
               className="plan-list__button plan-list__button--approve"
             >
-              Duyệt
+              Xác nhận thanh toán 
             </button>
-            <button
-              onClick={handleRejectDetail}
-              className="plan-list__button plan-list__button--reject"
-            >
-              Từ chối
-            </button>
+            
           </div>
         </div>
       )}
