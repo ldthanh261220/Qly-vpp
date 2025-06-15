@@ -3,11 +3,11 @@ import axios from '../axios';
 const getChonHopDongService = () => {
     return axios.get('/getlisthopdong');
 };
-const getdetailhopdongService = (maHopDong) => {
-  return axios.get(`/getThongTinHopDong/${maHopDong}`);
+const getInforHopDongService = (id) => {
+    return axios.get(`/getThongTinHopDong/${id}`);
 };
 
 export default {
     getChonHopDongService,
-    getdetailhopdongService
+    getInforHopDongService
 };
