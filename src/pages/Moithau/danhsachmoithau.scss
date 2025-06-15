@@ -81,7 +81,7 @@
     }
 
     th {
-      background-color: #f5f5f5;
+   
       font-weight: 600;
     }
 
@@ -170,14 +170,30 @@
     }
   }
 }
-.data-table th {
-  background-color: #20232a !important; 
-  color: white;// đè header table
-}
+
 
 .add-plan-button ,.btn {
   background-color: #28a745 !important; // đè nút xanh lá
   color: white !important;
 }
 
+
+icon-action {
+            margin-right: 12px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+
+            &.edit {
+              color: #3b82f6;
+              &:hover {
+                color: #1d4ed8;
+              }
+            }
+
+            &.delete {
+              color: #ef4444;
+              &:hover {
+                color: #dc2626;
+              }
+            }}
 

@@ -1,12 +1,22 @@
-import { useNavigate } from 'react-router-dom';
-import './kehoach.scss';
-import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
 
-export default function Kehoach() {
+import React, { useState, useEffect, useMemo } from 'react';
+import { Pencil, Trash } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './kehoach.scss';
+
+const Kehoach = () => {
   const navigate = useNavigate();
 
-  // Hàm điều hướng chi tiết
+  // Định nghĩa màu cho các trạng thái
+  const statusColor = {
+    'Đã duyệt ngân sách': 'status-confirmed',
+    'Đang chờ duyệt': 'status-pending',
+    'Từ chối': 'status-rejected',
+    'Đã mời thầu': 'status-invited' // Thêm trạng thái mới
+  };
+
+  // Hàm điều hướng
   const handleDetail = (id) => {
     navigate(`/kehoach/${id}`);
   };
@@ -15,32 +25,23 @@ export default function Kehoach() {
     navigate(`/suakehoach/${id}`);
   };
 
-  // Hàm điều hướng thêm kế hoạch
   const handleAdd = () => {
     navigate(`/themkehoach`);
   };
 
-  // State để quản lý dữ liệu từ API và bộ lọc
+  // State để quản lý dữ liệu và bộ lọc
   const [data, setData] = useState([]);
   const [filterYear, setFilterYear] = useState('');
   const [filterMonth, setFilterMonth] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(''); // New state for search
-
-  // --- Phân trang ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const statusColor = {
-    "Đã xác nhận": "status-confirmed",
-    "Đang chờ duyệt": "status-pending",
-    "Không duyệt": "status-rejected",
-  };
-
-  // Gọi API để lấy dữ liệu khi component mount
+  // Gọi API để lấy dữ liệu
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -65,9 +66,14 @@ export default function Kehoach() {
     fetchData();
   }, []);
 
+  // Reset trang khi bộ lọc thay đổi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterYear, filterMonth, filterStatus, searchQuery, sortOrder]);
+
   // Lọc và sắp xếp dữ liệu
   const filteredData = useMemo(() => {
-    const result = data
+    return data
       .filter(item => {
         const [day, month, year] = item.date.split('/');
         const searchLower = searchQuery.toLowerCase();
@@ -88,11 +94,9 @@ export default function Kehoach() {
         const dateB = new Date(`${yearB}-${monthB}-${dayB}`);
         return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
       });
+  }, [data, filterYear, filterMonth, filterStatus, searchQuery, sortOrder]);
 
-    return result;
-  }, [data, filterYear, filterMonth, filterStatus, sortOrder, searchQuery]);
-
-  // --- Lấy phần dữ liệu cho trang hiện tại ---
+  // Phân trang
   const startIdx = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIdx, startIdx + itemsPerPage);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -118,6 +122,7 @@ export default function Kehoach() {
             placeholder="Tìm kiếm mã, tên hoặc loại kế hoạch..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
           />
         </div>
         <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
@@ -134,13 +139,10 @@ export default function Kehoach() {
         </select>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="">Tất cả trạng thái</option>
-          <option value="Đã xác nhận">Đã xác nhận</option>
+          <option value="Đã duyệt ngân sách">Đã duyệt ngân sách</option>
           <option value="Đang chờ duyệt">Đang chờ duyệt</option>
-          <option value="Không duyệt">Không duyệt</option>
-        </select>
-        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-          <option value="desc">Mới nhất</option>
-          <option value="asc">Cũ nhất</option>
+          <option value="Từ chối">Từ chối</option>
+          <option value="Đã mời thầu">Đã mời thầu</option>
         </select>
       </div>
 
@@ -170,13 +172,20 @@ export default function Kehoach() {
                 </td>
                 <td className="table-cell">{item.loaiyeucau || 'N/A'}</td>
                 <td className="table-cell">
-                  <span className={`status-label ${statusColor[item.trangThai]}`}>
+                  <span className={`status-label ${statusColor[item.trangThai] || 'status-pending'}`}>
                     {item.trangThai}
                   </span>
                 </td>
                 <td className="table-cell actions">
-                  <button onClick={() => handleUpdate(item.maKeHoach)} className="edit-button">Sửa</button>
-                  <button className="delete-button">Xoá</button>
+                  <Pencil
+                    className="icon-action edit"
+                    size={16}
+                    onClick={() => handleUpdate(item.maKeHoach)}
+                  />
+                  <Trash
+                    className="icon-action delete"
+                    size={16}
+                  />
                 </td>
               </tr>
             ))}
@@ -213,4 +222,6 @@ export default function Kehoach() {
       </div>
     </div>
   );
-}
+};
+
+export default Kehoach;

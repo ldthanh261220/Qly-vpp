@@ -29,7 +29,7 @@ export default function TaoMoiHoSoMoiThau() {
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_BACKEND}getdskehoach`)
       .then(res => {
-        const active = res.data.filter(kh => (kh.trangThai === '1'||kh.trangThai=="Đã duyệt"));
+        const active = res.data.filter(kh => (kh.trangThai === '1'||kh.trangThai=="Đã duyệt ngân sách"));
         setKeHoachList(active);
       })
       .catch(err => console.error("Lỗi kế hoạch:", err));
