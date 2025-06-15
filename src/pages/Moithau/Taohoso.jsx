@@ -60,10 +60,11 @@ export default function TaoMoiHoSoMoiThau() {
 
   if (!confirm) return;
     const body = {
-      maKeHoach: selectedKeHoach.maKeHoach,
-      maGoiThau: selectedGoiThau.maGoiThau,
+      KeHoach: selectedKeHoach,
+      GoiThau: selectedGoiThau,
       duToanKinhPhi:selectedKeHoach.chiPhiKeHoach,
       ...formData,
+      nhathau:dsNhaThau
     };
     console.log(body)
     try {

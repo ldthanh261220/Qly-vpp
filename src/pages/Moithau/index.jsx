@@ -12,25 +12,11 @@ const Moithau = () => {
   const [filterMonth, setFilterMonth] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   const navigate = useNavigate();
-useEffect(() => {
-  if (activeTab === 'goithau') {
-    const fetchGoiThau = async () => {
-      try {
-        const response = await axios.get(process.env.REACT_APP_BACKEND + 'dsgoithau');
-        const formatted = response.data.map(item => ({
-          ...item,
-          ngayTao: new Date(item.ngayTao).toLocaleDateString('vi-VN'),
-        }));
-        setGoiThauData(formatted);
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách gói thầu:', error);
-      }
-    };
-    fetchGoiThau();
-  }
-}, [activeTab]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,8 +39,39 @@ useEffect(() => {
       }
     };
 
+    const fetchGoiThau = async () => {
+      try {
+        const response = await axios.get(process.env.REACT_APP_BACKEND + 'dsgoithau');
+        const formatted = response.data.map(item => ({
+          ...item,
+          ngayTao: new Date(item.ngayTao).toLocaleDateString('vi-VN'),
+        }));
+        setGoiThauData(formatted);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách gói thầu:', error);
+      }
+    };
+
     fetchData();
+    fetchGoiThau();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, filterYear, filterMonth, filterStatus, sortOrder]);
+
+  const paginate = (dataArray) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return dataArray.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  const totalPages = (dataArray) => Math.ceil(dataArray.length / itemsPerPage);
+
+  const handlePageChange = (page, dataArray) => {
+    if (page >= 1 && page <= totalPages(dataArray)) {
+      setCurrentPage(page);
+    }
+  };
 
   const filteredData = useMemo(() => {
     return data
@@ -73,162 +90,148 @@ useEffect(() => {
       });
   }, [data, filterYear, filterMonth, filterStatus, sortOrder]);
 
-  const handleDetailsolan = (id) => {
-    navigate(`/phieuthau/${id}`);
-  };
+  const filteredGoiThauData = useMemo(() => {
+    return goiThauData
+      .filter(item => {
+        const [day, month, year] = item.ngayTao.split('/');
+        return (
+          (filterYear === '' || year === filterYear) &&
+          (filterMonth === '' || month === filterMonth) &&
+          (filterStatus === '' || item.trangThai === filterStatus)
+        );
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.ngayTao.split('/').reverse().join('-'));
+        const dateB = new Date(b.ngayTao.split('/').reverse().join('-'));
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
+      });
+  }, [goiThauData, filterYear, filterMonth, filterStatus, sortOrder]);
 
-  const handleAdd = () => {
-    navigate(`/taohosomoithau`);
-  };
+  const handleDetailsolan = (id) => navigate(`/phieuthau/${id}`);
+  const handleAddGoiThau = () => navigate('/taogoithau');
+  const handleAdd = () => navigate(`/taohosomoithau`);
 
   return (
     <div className="main-content">
       <div className="tabs">
-        <button
-          className={activeTab === 'hoso' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('hoso')}
-        >
-          Hồ sơ mời thầu
-        </button>
-        <button
-          className={activeTab === 'goithau' ? 'tab active' : 'tab'}
-          onClick={() => setActiveTab('goithau')}
-        >
-          Gói thầu
-        </button>
+        <button className={activeTab === 'hoso' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hoso')}>Hồ sơ mời thầu</button>
+        <button className={activeTab === 'goithau' ? 'tab active' : 'tab'} onClick={() => setActiveTab('goithau')}>Gói thầu</button>
       </div>
 
-      {activeTab === 'hoso' && (
-        <>
+      <div className="filter-container">
+        <select value={filterYear} onChange={e => setFilterYear(e.target.value)}>
+          <option value="">Tất cả năm</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+        </select>
+        <select value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
+          <option value="">Tất cả tháng</option>
+          {Array.from({ length: 12 }, (_, i) => (
+            <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>Tháng {i + 1}</option>
+          ))}
+        </select>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+          <option value="">Tất cả trạng thái</option>
+          <option value="Hoàn thành">Hoàn thành</option>
+          <option value="Đang mở">Đang mở</option>
+          <option value="Hoạt động">Hoạt động</option>
+          <option value="Tạm ngưng">Tạm ngưng</option>
+        </select>
+        <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
+          <option value="desc">Mới nhất</option>
+          <option value="asc">Cũ nhất</option>
+        </select>
+      </div>
+
+      {activeTab === 'hoso' ? (
+        <div>
           <div className="main-content-header">
-            <h2 className="main-content-title">HỒ SƠ MỜI THẦU</h2>
-            <button className="add-plan-button" onClick={handleAdd}>
-              Thêm hồ sơ mời thầu
-            </button>
+            <h2 className="main-content-title">Hồ sơ mời thầu</h2>
+            <button className="add-plan-button" onClick={handleAdd}>Thêm hồ sơ mời thầu</button>
           </div>
 
-          <div className="filter-container">
-            <select value={filterYear} onChange={e => setFilterYear(e.target.value)}>
-              <option value="">Tất cả năm</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-            </select>
-            <select value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
-              <option value="">Tất cả tháng</option>
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>
-                  Tháng {i + 1}
-                </option>
-              ))}
-            </select>
-            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-              <option value="">Tất cả trạng thái</option>
-              <option value="Hoàn thành">Hoàn thành</option>
-              <option value="Đang mở">Đang mở</option>
-            </select>
-            <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
-              <option value="desc">Mới nhất</option>
-              <option value="asc">Cũ nhất</option>
-            </select>
-          </div>
-
-          <div className="table-container">
-            <table className="data-table">
-              <thead className="table-header">
-                <tr>
-                  <th>Mã hồ sơ</th>
-                  <th>Kế hoạch</th>
-                  <th>Ngày thực hiện</th>
-                  <th>Ngày kết thúc</th>
-                  <th>Kinh phí</th>
-                  <th>Trạng thái</th>
-                  <th>Action</th>
+          <table className="data-table">
+            <thead className="table-header">
+              <tr>
+                <th>Mã hồ sơ</th>
+                <th>Kế hoạch</th>
+                <th>Ngày thực hiện</th>
+                <th>Ngày kết thúc</th>
+                <th>Kinh phí</th>
+                <th>Trạng thái</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginate(filteredData).map((item, index) => (
+                <tr key={index} onClick={() => handleDetailsolan(item.id)}>
+                  <td>{item.id}</td>
+                  <td>{item.tenKeHoach}</td>
+                  <td>{item.ngayThucHien}</td>
+                  <td>{item.ngayKetThuc}</td>
+                  <td>{item.kinhPhi} VND</td>
+                  <td><span className={`status-label ${item.trangThai === 'Hoàn thành' ? 'status-success' : 'status-open'}`}>{item.trangThai}</span></td>
+                  <td className="actions" onClick={(e) => e.stopPropagation()}>
+                    <button className="icon-button edit" onClick={() => navigate(`/suaphiendauthau/${item.id}`)}><Pencil size={16} /></button>
+                    <button className="icon-button delete"><Trash size={16} /></button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={index} onClick={() => handleDetailsolan(item.id)}>
-                    <td>{item.id}</td>
-                    <td>{item.tenKeHoach}</td>
-                    <td>{item.ngayThucHien}</td>
-                    <td>{item.ngayKetThuc}</td>
-                    <td>{item.kinhPhi} VND</td>
-                    <td>
-                      <span className={`status-label ${item.trangThai === 'Hoàn thành' ? 'status-success' : 'status-open'}`}>
-                        {item.trangThai}
-                      </span>
-                    </td>
-                    <td className="actions ">
-                      <button className="icon-button edit">
-                        <Pencil size={16} />
-                      </button>
-                      <button className="icon-button delete">
-                        <Trash size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
 
-            <div className="pagination">
-              <button disabled>Previous</button>
-              <button className="active">1</button>
-              <button>2</button>
-              <button>3</button>
-              <button>Next</button>
-            </div>
+          <div className="pagination">
+            <button onClick={() => handlePageChange(currentPage - 1, filteredData)} disabled={currentPage === 1}>Previous</button>
+            {Array.from({ length: totalPages(filteredData) }, (_, i) => (
+              <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => handlePageChange(i + 1, filteredData)}>{i + 1}</button>
+            ))}
+            <button onClick={() => handlePageChange(currentPage + 1, filteredData)} disabled={currentPage === totalPages(filteredData)}>Next</button>
           </div>
-        </>
+        </div>
+      ) : (
+        <div>
+          <div className="main-content-header">
+            <h2>Danh sách gói thầu</h2>
+            <button className="btn btn-primary" onClick={handleAddGoiThau}>Thêm gói thầu</button>
+          </div>
+
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Mã gói thầu</th>
+                <th>Tên gói thầu</th>
+                <th>Lĩnh vực</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginate(filteredGoiThauData).map((item, idx) => (
+                <tr key={idx} onClick={() => navigate(`/chitietgoithau/${item.maGoiThau}`)} style={{ cursor: 'pointer' }}>
+                  <td>{item.maGoiThau}</td>
+                  <td>{item.tenGoiThau}</td>
+                  <td>{item.tenLinhVuc}</td>
+                  <td><span className={`status-label ${item.trangThai === 'Hoạt động' ? 'status-success' : 'status-pause'}`}>{item.trangThai}</span></td>
+                  <td>{item.ngayTao}</td>
+                  <td className="actions" onClick={(e) => e.stopPropagation()}>
+                    <button className="icon-button" onClick={() => navigate(`/suagoithau/${item.maGoiThau}`)}><Pencil size={16} /></button>
+                    <button className="icon-button delete"><Trash size={16} /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="pagination">
+            <button onClick={() => handlePageChange(currentPage - 1, filteredGoiThauData)} disabled={currentPage === 1}>Previous</button>
+            {Array.from({ length: totalPages(filteredGoiThauData) }, (_, i) => (
+              <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => handlePageChange(i + 1, filteredGoiThauData)}>{i + 1}</button>
+            ))}
+            <button onClick={() => handlePageChange(currentPage + 1, filteredGoiThauData)} disabled={currentPage === totalPages(filteredGoiThauData)}>Next</button>
+          </div>
+        </div>
       )}
-
-      {activeTab === 'goithau' && (
-  <div className="goithau-tab">
-    <h2>Danh sách gói thầu</h2>
-    <div className="header-actions">
-  <button className="btn btn-primary">Thêm gói thầu</button>
-</div>
-
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>Mã gói thầu</th>
-          <th>Tên gói thầu</th>
-          <th>Lĩnh vực</th>
-        
-          <th>Trạng thái</th>
-          <th>Ngày tạo</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {goiThauData.map((item, idx) => (
-          <tr key={idx}>
-            <td>{item.maGoiThau}</td>
-            <td>{item.tenGoiThau}</td>
-            <td>{item.tenLinhVuc}</td>
-         
-            <td className="status-cell">
-              <span className={`status-label ${item.trangThai === 'Hoạt động' ? 'status-success' : 'status-pause'}`}>
-                {item.trangThai}
-              </span>
-            </td>
-            <td>{item.ngayTao}</td>
-            <td className="actions">
-                      <button className="icon-button">
-                        <Pencil size={16} />
-                      </button>
-                      <button className="icon-button delete">
-                        <Trash size={16} />
-                      </button>
-                    </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
-
     </div>
   );
 };

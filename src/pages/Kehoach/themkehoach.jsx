@@ -27,7 +27,7 @@ const ThemKeHoach = ({ onBack }) => {
     donVi: '',
     matk: 11,
     loaiyc: '',
-    trangThai: 0,
+    trangThai: "Đang chờ duyệt",
     mucDich: '',
    chiPhiKeHoach: 0,
   });

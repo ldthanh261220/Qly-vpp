@@ -14,6 +14,10 @@ const routes = {
     Solandauthau:'/moithau/:idphieu',
     Chitietmoithau:'/phieuthau/:id',
     Taohosomoithau:'/taohosomoithau',
+    Taogoithau: '/taogoithau',
+    Suaphiendauthau: '/suaphiendauthau/:id',
+    SuaGoiThau: '/suagoithau/:maGoiThau',
+    ChiTietGoiThau: '/chitietgoithau/:maGoiThau',
 
     Qlytaikhoan: '/qlytaikhoan',
     Dsthietbi: '/dsthietbi',
