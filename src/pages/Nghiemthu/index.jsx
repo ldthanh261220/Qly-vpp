@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Pencil, Trash } from 'lucide-react';
 import './index.scss';
 import { useNavigate } from 'react-router-dom';
@@ -11,54 +11,66 @@ const NghiemThuTaiSan = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // New state for search
+
+  // --- Phân trang ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     axios
       .get(process.env.REACT_APP_BACKEND + 'dsnghiemthu')
-      .then((response) => {
-        setDummyData(response.data);
-        console.log(response.data); // Debug dữ liệu
-      })
-      .catch((error) => {
-        console.error('Axios error:', error);
-      });
+      .then((response) => setDummyData(response.data))
+      .catch((error) => console.error('Axios error:', error));
   }, []);
-
-  const handleDetail = (id) => {
-    navigate(`/nghiemthu/${id}`);
-  };
 
   const filteredData = useMemo(() => {
     const result = dummyData.filter((item) => {
-      // Lọc theo ngayYeuCau (giả sử có trong kehoach)
       const ngayYeuCau = item.ngayYeuCau ? new Date(item.ngayYeuCau) : null;
       const month = ngayYeuCau ? (ngayYeuCau.getMonth() + 1).toString().padStart(2, '0') : '';
       const year = ngayYeuCau ? ngayYeuCau.getFullYear().toString() : '';
-      
-      // Lọc theo trạng thái nghiệm thu
-      const trangThaiNghiemThu = item.daNghiemThu ? item.nghiemThu?.trangThai : 'Chưa nghiệm thu';
+      const trangThaiNghiemThu = item.daNghiemThu
+        ? item.nghiemThu?.trangThai
+        : 'Chưa nghiệm thu';
+      const searchLower = searchQuery.toLowerCase();
+
       return (
         (statusFilter === '' || trangThaiNghiemThu === statusFilter) &&
         (monthFilter === '' || month === monthFilter) &&
-        (yearFilter === '' || year === yearFilter)
+        (yearFilter === '' || year === yearFilter) &&
+        (searchQuery === '' ||
+          item.maKeHoach?.toLowerCase().includes(searchLower) ||
+          item.tenKeHoach?.toLowerCase().includes(searchLower) ||
+          item.loaiyeucau?.toLowerCase().includes(searchLower))
       );
     });
 
-    // Sắp xếp theo maKeHoach thay vì maNghiemthu
     return result.sort((a, b) => {
       const maA = a.maKeHoach || '';
       const maB = b.maKeHoach || '';
-      if (sortOrder === 'desc') {
-        return maB.localeCompare(maA);
-      }
-      return maA.localeCompare(maB);
+      return sortOrder === 'desc'
+        ? maB.localeCompare(maA)
+        : maA.localeCompare(maB);
     });
-  }, [dummyData, statusFilter, monthFilter, yearFilter, sortOrder]);
+  }, [dummyData, statusFilter, monthFilter, yearFilter, sortOrder, searchQuery]);
+
+  // --- Lấy phần dữ liệu cho trang hiện tại ---
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const paginatedData = filteredData.slice(startIdx, startIdx + itemsPerPage);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <div className="nt-container">
       <h2>Danh sách nghiệm thu tài sản</h2>
       <div className="nt-actions">
+        <div className="nt-search">
+          <input
+            type="text"
+            placeholder="Tìm kiếm mã, tên hoặc loại kế hoạch..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <button className="btn-duyet">Duyệt tất cả</button>
         <button className="btn-tu-choi">Từ chối</button>
         <div className="nt-filter">
@@ -83,10 +95,9 @@ const NghiemThuTaiSan = () => {
         <div className="nt-filter">
           <select value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}>
             <option value="">Năm</option>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
+            {[2022, 2023, 2024, 2025].map((y) => (
+              <option key={y} value={String(y)}>{y}</option>
+            ))}
           </select>
         </div>
         <div className="nt-sort">
@@ -110,8 +121,8 @@ const NghiemThuTaiSan = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredData.map((item, index) => (
-            <tr key={index} onClick={() => handleDetail(item.maKeHoach)}>
+          {paginatedData.map((item, idx) => (
+            <tr key={idx} onClick={() => navigate(`/nghiemthu/${item.maKeHoach}`)}>
               <td>{item.maKeHoach}</td>
               <td>{item.tenKeHoach || 'N/A'}</td>
               <td>{item.loaiyeucau || 'N/A'}</td>
@@ -120,14 +131,17 @@ const NghiemThuTaiSan = () => {
                   ? new Date(item.thoiGianBatDau).toLocaleDateString('vi-VN')
                   : 'N/A'}
               </td>
-              
               <td>
                 <span
                   className={`nt-status ${
-                    item.daNghiemThu && item.nghiemThu?.trangThai === 'Đạt' ? 'success' : 'error'
+                    item.daNghiemThu && item.nghiemThu?.trangThai === 'Đạt'
+                      ? 'success'
+                      : 'error'
                   }`}
                 >
-                  {item.daNghiemThu ? item.nghiemThu?.trangThai : 'Chưa nghiệm thu'}
+                  {item.daNghiemThu
+                    ? item.nghiemThu?.trangThai
+                    : 'Chưa nghiệm thu'}
                 </span>
               </td>
               <td>
@@ -144,12 +158,32 @@ const NghiemThuTaiSan = () => {
         </tbody>
       </table>
 
+      {/* Phân trang */}
       <div className="nt-pagination">
-        <button disabled>Previous</button>
-        <button className="active">1</button>
-        <button>2</button>
-        <button>3</button>
-        <button disabled>Next</button>
+        <button
+          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            className={currentPage === i + 1 ? 'active' : ''}
+            onClick={() => setCurrentPage(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+        <span className="pagination-info">
+          Trang {currentPage} / {totalPages}
+        </span>
       </div>
     </div>
   );

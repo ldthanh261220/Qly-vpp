@@ -128,3 +128,99 @@
       }
     }
   
+
+    .add-nhathau-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  z-index: 999;
+  padding: 24px;
+  width: 66vw; // 2/3 chiều ngang màn hình
+  max-width: 800px; // tránh quá lớn với màn hình lớn
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+
+  input, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #999;
+
+    &:hover {
+      color: #333;
+    }
+  }
+
+  button {
+    grid-column: 1 / -1;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}
+
+.update-status-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+
+  .update-status-btn {
+    background-color: #17a2b8; // màu xanh dương nhạt
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #138496; // màu đậm hơn khi hover
+    }
+  }
+}
+
+
+.add-nhathau-btn {
+  margin-left: 12px;
+  padding: 8px 16px;
+  background-color: #28a745; // màu xanh lá
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #218838; // màu đậm khi hover
+  }
+}

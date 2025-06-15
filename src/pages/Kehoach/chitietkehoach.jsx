@@ -68,7 +68,7 @@ const ChiTietKeHoach = () => {
       </div>
 
      <table className="plan-table">
-  {keHoach.loaiyeucau === "Mua sắm" ? (
+  {keHoach.loaiyeucau === "mua sắm" ? (
     <>
       <thead>
         <tr>
@@ -112,7 +112,10 @@ const ChiTietKeHoach = () => {
         <div className="status">
           Trạng thái: <span className="status-success">{keHoach.trangThai}</span>
         </div>
-        <button className="btn-submit" onClick={handleTaoHoSo}>Tạo hồ sơ mời thầu</button>
+        {(keHoach.trangThai==="Hoạt động"||keHoach.trangThai==='1')&&
+<button className="btn-submit" onClick={handleTaoHoSo}>Tạo hồ sơ mời thầu</button>
+        }
+        
       </div>
     </div>
   );

@@ -7,28 +7,6 @@ import yeucauService from '~/services/yeucauService';
 const ThemKeHoach = ({ onBack }) => {
     const [dsYeuCau, setDsYeuCau] = useState([]);
     const [dschonYeuCau, setChonYeuCau] = useState([]);
-    const navigate = useNavigate();
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await yeucauService.getAllYeuCauService('Đã duyệt');
-                console.log('RESPONSE:', response);
-
-                if (response.errCode !== 0) {
-                    alert(response.data.message || 'Có lỗi xảy ra!');
-                    return;
-                }
-
-                setDsYeuCau(response.danhsachyeucau);
-            } catch (error) {
-                alert('Không thể tải danh sách yêu cầu từ server');
-                console.error('ERROR:', error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
     const [keHoach, setKeHoach] = useState({
         tenKeHoach: '',
         TongHopYeuCau: '',
@@ -38,10 +16,26 @@ const ThemKeHoach = ({ onBack }) => {
         donVi: '',
         matk: 11,
         loaiyc: '',
-        trangThai: 0,
+        trangThai: "Đang chờ duyệt",
         mucDich: '',
         chiPhiKeHoach: 0,
     });
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await yeucauService.getAllYeuCauService('Đã duyệt');
+                console.log('RESPONSE:', response);
+                setDsYeuCau(response.danhsachyeucau);
+            } catch (error) {
+                alert('Không thể tải danh sách yêu cầu từ server');
+                console.error('ERROR:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
