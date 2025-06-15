@@ -34,7 +34,7 @@ const PlanList = () => {
                     title: item.tenKeHoach,
                     type: item.loaiyeucau,
                     unit: item.donViCongTac,
-                    sum: item.chiPhiKeHoach,
+                    sum: formatMoney(item.chiPhiKeHoach),
                     field: 'Hàng hóa',
                     address: 'số 48 Cao Thắng, TP. Đà Nẵng',
                     status: 'pending',
