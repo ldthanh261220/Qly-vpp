@@ -10,7 +10,6 @@ import SendRequest from '~/pages/SendRequest';
 import Qly from '~/pages/Qlytaikhoan';
 import Phanquyen from '~/pages/Phanquyen';
 import Moithau from '~/pages/Moithau';
-import Solanmoithau from '~/pages/Moithau/solanmoithau';
 import ChiTietGoiThau from '~/pages/Moithau/chitietmoithau';
 
 import ChiTietKeHoach from '~/pages/Kehoach/chitietkehoach';
@@ -35,6 +34,9 @@ import QLyYeuCau from '~/pages/YeuCau/QLyYeuCau';
 import ChiTietYeuCau from '~/pages/YeuCau/ChiTietYeuCau/ChiTietYeuCau';
 import Qlytaikhoan from '~/pages/Qlytaikhoan';
 import Qlythietbi from '~/pages/Qlythietbi';
+import GoiThauForm from '~/pages/Moithau/Taogoithau';
+import CapNhatPhienThau from '~/pages/Moithau/Suaphiendauthau';
+
 import TaoHopDong from '~/pages/HopDong/TaoHopDong/TaoHopDong';
 import TaoNhaThau from '~/pages/NhaThau/TaoNhaThau/TaoNhaThau';
 // Public routes
@@ -48,10 +50,14 @@ const publicRoutes = [
     { path: config.routes.Nghiemthu, component:NghiemThuTaiSan },
     { path: config.routes.Chitietnghiemthu, component:ChitietNghiemThu },
     { path: config.routes.Moithau, component:Moithau},
-    { path: config.routes.Solandauthau, component:Solanmoithau},
+    
     { path: config.routes.Chitietmoithau, component:ChiTietGoiThau},
     { path: config.routes.Taohosomoithau, component:TaoMoiHoSoMoiThau},
+     { path: config.routes.Taogoithau, component: GoiThauForm },
+  { path: config.routes.SuaGoiThau, component: GoiThauForm },
+  { path: config.routes.ChiTietGoiThau, component: GoiThauForm },
      { path: config.routes.Suakehoach, component:SuaKeHoach},
+    { path: config.routes.Suaphiendauthau, component:CapNhatPhienThau},
     { path: config.routes.Qlytaikhoan, component: Qlytaikhoan },
     { path: config.routes.Quanlythietbi, component: Qlythietbi },
 

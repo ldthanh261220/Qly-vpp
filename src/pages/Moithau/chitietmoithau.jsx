@@ -33,7 +33,7 @@ const [dschonYeuCau, setChonYeuCau] = useState([]);
   const {
     kehoach, tenGoiThau, moTaChiTiet, duToanKinhPhi, trangThai,
     ngayTao, diaChi, ngayDauThau, ngayNopHoSo, ngayKetthuc,
-    giaTrungThau, tenNhaThau, hoTenNguoiDaiDien, chucVuNguoiDaiDien,
+    giaTrungThau, tenNhaThau,Email,website, hoTenNguoiDaiDien, chucVuNguoiDaiDien,
     soGiayPhepKinhDoanh
   } = data;
 
@@ -125,17 +125,19 @@ const [dschonYeuCau, setChonYeuCau] = useState([]);
           <p><strong>Ngày tạo:</strong> {new Date(ngayTao).toLocaleDateString('vi-VN')}</p>
         </div>
  
-        {trangThai === 'Hoạt động' &&  (
+        {trangThai === 'Hoàn thành' &&  (
           <div className="info-block">
             <h3>Thông tin nhà thầu</h3>
             <p><strong>Tên nhà thầu:</strong> {tenNhaThau}</p>
             <p><strong>Người đại diện:</strong> {hoTenNguoiDaiDien} ({chucVuNguoiDaiDien})</p>
+             <p><strong>Email:</strong> {Email} </p>
+               <p><strong>Website:</strong> {website} </p>
             <p><strong>Giấy phép KD:</strong> {soGiayPhepKinhDoanh}</p>
           </div>
         )}
       </div>
        <div className="status-footer">
-      {trangThai === 'Hoạt động' ? (
+      {trangThai === 'Hoàn thành' ? (
         <span className="status-tag hoat-dong">{trangThai}</span>
       ) : (
         <span className="status-tag khac">{trangThai}</span>

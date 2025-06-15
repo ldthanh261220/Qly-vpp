@@ -29,7 +29,7 @@ export default function TaoMoiHoSoMoiThau() {
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_BACKEND}getdskehoach`)
       .then(res => {
-        const active = res.data.filter(kh => kh.trangThai === '0');
+        const active = res.data.filter(kh => (kh.trangThai === '1'||kh.trangThai=="Đã duyệt"));
         setKeHoachList(active);
       })
       .catch(err => console.error("Lỗi kế hoạch:", err));
@@ -60,10 +60,11 @@ export default function TaoMoiHoSoMoiThau() {
 
   if (!confirm) return;
     const body = {
-      maKeHoach: selectedKeHoach.maKeHoach,
-      maGoiThau: selectedGoiThau.maGoiThau,
+      KeHoach: selectedKeHoach,
+      GoiThau: selectedGoiThau,
       duToanKinhPhi:selectedKeHoach.chiPhiKeHoach,
       ...formData,
+      nhathau:dsNhaThau
     };
     console.log(body)
     try {
