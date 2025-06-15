@@ -11,50 +11,80 @@ const NghiemThuTaiSan = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
-  const [searchQuery, setSearchQuery] = useState(''); // New state for search
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // --- Phân trang ---
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  useEffect(() => {
+  // Function to fetch data
+  const fetchData = () => {
     axios
       .get(process.env.REACT_APP_BACKEND + 'dsnghiemthu')
       .then((response) => setDummyData(response.data))
       .catch((error) => console.error('Axios error:', error));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
+  const handleDelete = (maNghiemThu) => {
+    // Show confirmation dialog
+    const confirmDelete = window.confirm(`Bạn có chắc muốn xóa kế hoạch ${maNghiemThu}?`);
+    if (!confirmDelete) return;
+
+    axios
+      .delete(`${process.env.REACT_APP_BACKEND}nghiemthu/detele?maNghiemThu=${maNghiemThu}`)
+      .then(() => {
+        // Show success alert
+        window.alert('Xóa kế hoạch thành công!');
+        // Reload data
+        fetchData();
+      })
+      .catch((error) => {
+        console.error('Axios delete error:', error);
+        // Show error alert for foreign key constraint or other errors
+        window.alert('Xóa không thành công! Có thể kế hoạch này đang được sử dụng (dính khóa ngoại).');
+      });
+  };
+
   const filteredData = useMemo(() => {
-    const result = dummyData.filter((item) => {
-      const ngayYeuCau = item.ngayYeuCau ? new Date(item.ngayYeuCau) : null;
-      const month = ngayYeuCau ? (ngayYeuCau.getMonth() + 1).toString().padStart(2, '0') : '';
-      const year = ngayYeuCau ? ngayYeuCau.getFullYear().toString() : '';
-      const trangThaiNghiemThu = item.daNghiemThu
-        ? item.nghiemThu?.trangThai
-        : 'Chưa nghiệm thu';
-      const searchLower = searchQuery.toLowerCase();
+  const result = dummyData.filter((item) => {
+    // Lấy ngày tạo nghiệm thu (hoặc ngày yêu cầu nếu bạn muốn)
+    const ngay = item.daNghiemThu ? item.nghiemThu?.ngayTao : null;
+    const date = ngay ? new Date(ngay) : null;
+    const month = date ? (date.getMonth() + 1).toString().padStart(2, '0') : '';
+    const year = date ? date.getFullYear().toString() : '';
+    
+    const trangThaiNghiemThu = item.daNghiemThu
+      ? item.nghiemThu?.trangThai
+      : 'Chưa nghiệm thu';
 
-      return (
-        (statusFilter === '' || trangThaiNghiemThu === statusFilter) &&
-        (monthFilter === '' || month === monthFilter) &&
-        (yearFilter === '' || year === yearFilter) &&
-        (searchQuery === '' ||
-          item.maKeHoach?.toLowerCase().includes(searchLower) ||
-          item.tenKeHoach?.toLowerCase().includes(searchLower) ||
-          item.loaiyeucau?.toLowerCase().includes(searchLower))
-      );
-    });
+    const searchLower = searchQuery.toLowerCase();
 
-    return result.sort((a, b) => {
-      const maA = a.maKeHoach || '';
-      const maB = b.maKeHoach || '';
-      return sortOrder === 'desc'
-        ? maB.localeCompare(maA)
-        : maA.localeCompare(maB);
-    });
-  }, [dummyData, statusFilter, monthFilter, yearFilter, sortOrder, searchQuery]);
+    return (
+      (statusFilter === '' || trangThaiNghiemThu === statusFilter) &&
+      (monthFilter === '' || month === monthFilter) &&
+      (yearFilter === '' || year === yearFilter) &&
+      (searchQuery === '' ||
+        item.maKeHoach?.toLowerCase().includes(searchLower) ||
+        item.tenKeHoach?.toLowerCase().includes(searchLower) ||
+        item.loaiyeucau?.toLowerCase().includes(searchLower))
+    );
+  });
 
-  // --- Lấy phần dữ liệu cho trang hiện tại ---
+  return result.sort((a, b) => {
+    const maA = a.maKeHoach || '';
+    const maB = b.maKeHoach || '';
+    return sortOrder === 'desc'
+      ? maB.localeCompare(maA)
+      : maA.localeCompare(maB);
+  });
+}, [dummyData, statusFilter, monthFilter, yearFilter, sortOrder, searchQuery]);
+
+
+  // Pagination
   const startIdx = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(startIdx, startIdx + itemsPerPage);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -71,12 +101,11 @@ const NghiemThuTaiSan = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className="btn-duyet">Duyệt tất cả</button>
-        <button className="btn-tu-choi">Từ chối</button>
+        
         <div className="nt-filter">
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
             <option value="">Tất cả trạng thái</option>
-            <option value="Đạt">Đạt</option>
+            <option value="Đạt yêu cầu">Đạt yêu cầu</option>
             <option value="Không đạt">Không đạt</option>
             <option value="Chưa nghiệm thu">Chưa nghiệm thu</option>
             <option value="Đã từ chối">Đã từ chối</option>
@@ -98,12 +127,6 @@ const NghiemThuTaiSan = () => {
             {[2022, 2023, 2024, 2025].map((y) => (
               <option key={y} value={String(y)}>{y}</option>
             ))}
-          </select>
-        </div>
-        <div className="nt-sort">
-          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
-            <option value="desc">Mới → Cũ</option>
-            <option value="asc">Cũ → Mới</option>
           </select>
         </div>
       </div>
@@ -133,32 +156,45 @@ const NghiemThuTaiSan = () => {
               </td>
               <td>
                 <span
-                  className={`nt-status ${
-                    item.daNghiemThu && item.nghiemThu?.trangThai === 'Đạt'
-                      ? 'success'
-                      : 'error'
-                  }`}
-                >
-                  {item.daNghiemThu
-                    ? item.nghiemThu?.trangThai
-                    : 'Chưa nghiệm thu'}
-                </span>
+              className={`nt-status ${
+                item.daNghiemThu
+                  ? item.nghiemThu?.trangThai === 'Đạt yêu cầu' || item.nghiemThu?.trangThai === 'Đạt'
+                    ? 'success'
+                    : 'error'
+                  : 'warning' // Thêm class cho trạng thái chưa nghiệm thu
+              }`}
+            >
+              {item.daNghiemThu ? item.nghiemThu?.trangThai : 'Chưa nghiệm thu'}
+            </span>
               </td>
               <td>
                 {item.daNghiemThu && item.nghiemThu?.ngayTao
                   ? new Date(item.nghiemThu.ngayTao).toLocaleDateString('vi-VN')
                   : 'Chưa có'}
               </td>
-              <td>
-                <Pencil className="icon-action edit" size={16} />
-                <Trash className="icon-action delete" size={16} />
+              <td onClick={(e) => e.stopPropagation()}>
+                <Pencil
+                  className="icon-action edit"
+                  size={16}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/capnhatnghiemthu/${item.maKeHoach}`);
+                  }}
+                />
+                <Trash
+                  className="icon-action delete"
+                  size={16}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item?.nghiemThu?.maNghiemthu);
+                  }}
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Phân trang */}
       <div className="nt-pagination">
         <button
           onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}

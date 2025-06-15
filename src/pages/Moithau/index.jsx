@@ -11,6 +11,7 @@ const Moithau = () => {
   const [filterYear, setFilterYear] = useState('');
   const [filterMonth, setFilterMonth] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -27,8 +28,8 @@ const Moithau = () => {
           return {
             id: item.maPhienDauThau,
             tenKeHoach: item.tenKeHoach,
-            ngayThucHien: ngayThucHien.toLocaleDateString('vi-VN'),
-            ngayKetThuc: ngayKetThuc.toLocaleDateString('vi-VN'),
+            ngayThucHien: ngayThucHien.toISOString().split('T')[0], // Định dạng YYYY-MM-DD
+            ngayKetThuc: ngayKetThuc.toISOString().split('T')[0], // Định dạng YYYY-MM-DD
             kinhPhi: Number(item.duToanKinhPhi).toLocaleString('vi-VN'),
             trangThai: item.trangThai,
             maNhaThau: item.maNhaThau,
@@ -46,7 +47,7 @@ const Moithau = () => {
         const response = await axios.get(process.env.REACT_APP_BACKEND + 'dsgoithau');
         const formatted = response.data.map(item => ({
           ...item,
-          ngayTao: new Date(item.ngayTao).toLocaleDateString('vi-VN'),
+          ngayTao: new Date(item.ngayTao).toISOString().split('T')[0], // Định dạng YYYY-MM-DD
         }));
         setGoiThauData(formatted);
       } catch (error) {
@@ -60,7 +61,7 @@ const Moithau = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, filterYear, filterMonth, filterStatus, sortOrder]);
+  }, [activeTab, filterYear, filterMonth, filterStatus, searchQuery, sortOrder]);
 
   const paginate = (dataArray) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -82,36 +83,40 @@ const Moithau = () => {
   const filteredData = useMemo(() => {
     return data
       .filter(item => {
-        const [day, month, year] = item.ngayThucHien.split('/');
+        const [year, month] = item.ngayThucHien.split('-'); // Tách YYYY-MM-DD
+        const matchesSearch = item.tenKeHoach.toLowerCase().includes(searchQuery.toLowerCase());
         return (
+          matchesSearch &&
           (filterYear === '' || year === filterYear) &&
           (filterMonth === '' || month === filterMonth) &&
           (filterStatus === '' || item.trangThai === filterStatus)
         );
       })
       .sort((a, b) => {
-        const dateA = new Date(a.ngayThucHien.split('/').reverse().join('-'));
-        const dateB = new Date(b.ngayThucHien.split('/').reverse().join('-'));
+        const dateA = new Date(a.ngayThucHien);
+        const dateB = new Date(b.ngayThucHien);
         return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
       });
-  }, [data, filterYear, filterMonth, filterStatus, sortOrder]);
+  }, [data, filterYear, filterMonth, filterStatus, searchQuery, sortOrder]);
 
   const filteredGoiThauData = useMemo(() => {
     return goiThauData
       .filter(item => {
-        const [day, month, year] = item.ngayTao.split('/');
+        const [year, month] = item.ngayTao.split('-'); // Tách YYYY-MM-DD
+        const matchesSearch = item.tenGoiThau.toLowerCase().includes(searchQuery.toLowerCase());
         return (
+          matchesSearch &&
           (filterYear === '' || year === filterYear) &&
           (filterMonth === '' || month === filterMonth) &&
           (filterStatus === '' || item.trangThai === filterStatus)
         );
       })
       .sort((a, b) => {
-        const dateA = new Date(a.ngayTao.split('/').reverse().join('-'));
-        const dateB = new Date(b.ngayTao.split('/').reverse().join('-'));
+        const dateA = new Date(a.ngayTao);
+        const dateB = new Date(b.ngayTao);
         return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
       });
-  }, [goiThauData, filterYear, filterMonth, filterStatus, sortOrder]);
+  }, [goiThauData, filterYear, filterMonth, filterStatus, searchQuery, sortOrder]);
 
   const handleDetailsolan = (id) => navigate(`/phieuthau/${id}`);
   const handleAddGoiThau = () => navigate('/taogoithau');
@@ -120,32 +125,41 @@ const Moithau = () => {
   return (
     <div className="main-content">
       <div className="tabs">
-        <button className={activeTab === 'hoso' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hoso')}>Hồ sơ mời thầu</button>
-        <button className={activeTab === 'goithau' ? 'tab active' : 'tab'} onClick={() => setActiveTab('goithau')}>Gói thầu</button>
+        <button className={activeTab === 'hoso' ? 'tab active' : 'tab'} onClick={() => setActiveTab('hoso')}>
+          Hồ sơ mời thầu
+        </button>
+        <button className={activeTab === 'goithau' ? 'tab active' : 'tab'} onClick={() => setActiveTab('goithau')}>
+          Gói thầu
+        </button>
       </div>
 
       <div className="filter-container">
-        <select value={filterYear} onChange={e => setFilterYear(e.target.value)}>
+        <input
+          type="text"
+          placeholder={activeTab === 'hoso' ? 'Tìm kiếm theo kế hoạch...' : 'Tìm kiếm theo tên gói thầu...'}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
+        <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
           <option value="">Tất cả năm</option>
           <option value="2024">2024</option>
           <option value="2025">2025</option>
         </select>
-        <select value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
+        <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
           <option value="">Tất cả tháng</option>
           {Array.from({ length: 12 }, (_, i) => (
-            <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>Tháng {i + 1}</option>
+            <option key={i + 1} value={(i + 1).toString().padStart(2, '0')}>
+              Tháng {i + 1}
+            </option>
           ))}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="">Tất cả trạng thái</option>
           <option value="Hoàn thành">Hoàn thành</option>
-          <option value="Đang mở">Đang mở</option>
-          <option value="Hoạt động">Hoạt động</option>
+          <option value="Chờ đấu thầu">Chờ đấu thầu</option>
+          <option value="Từ chối">Từ chối</option>
           <option value="Tạm ngưng">Tạm ngưng</option>
-        </select>
-        <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
-          <option value="desc">Mới nhất</option>
-          <option value="asc">Cũ nhất</option>
         </select>
       </div>
 
@@ -153,7 +167,9 @@ const Moithau = () => {
         <div>
           <div className="main-content-header">
             <h2 className="main-content-title">Hồ sơ mời thầu</h2>
-            <button className="add-plan-button" onClick={handleAdd}>Thêm hồ sơ mời thầu</button>
+            <button className="add-plan-button" onClick={handleAdd}>
+              Thêm hồ sơ mời thầu
+            </button>
           </div>
 
           <table className="data-table">
@@ -176,10 +192,20 @@ const Moithau = () => {
                   <td>{item.ngayThucHien}</td>
                   <td>{item.ngayKetThuc}</td>
                   <td>{item.kinhPhi} VND</td>
-                  <td><span className={`status-label ${item.trangThai === 'Hoàn thành' ? 'status-success' : 'status-open'}`}>{item.trangThai}</span></td>
+                  <td>
+                    <span
+                      className={`status-label ${item.trangThai === 'Hoàn thành' ? 'status-success' : 'status-open'}`}
+                    >
+                      {item.trangThai}
+                    </span>
+                  </td>
                   <td className="actions" onClick={(e) => e.stopPropagation()}>
-                    <button className="icon-button edit" onClick={() => navigate(`/suaphiendauthau/${item.id}`)}><Pencil size={16} /></button>
-                    <button className="icon-button delete"><Trash size={16} /></button>
+                    <Pencil
+                      className="icon-action edit"
+                      size={16}
+                      onClick={() => navigate(`/suaphiendauthau/${item.id}`)}
+                    />
+                    <Trash className="icon-action delete" size={16} />
                     {item.trangThai === 'Hoàn thành' && (
                       <button
                         className="icon-button create"
@@ -198,18 +224,36 @@ const Moithau = () => {
           </table>
 
           <div className="pagination">
-            <button onClick={() => handlePageChange(currentPage - 1, filteredData)} disabled={currentPage === 1}>Previous</button>
+            <button
+              onClick={() => handlePageChange(currentPage - 1, filteredData)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
             {Array.from({ length: totalPages(filteredData) }, (_, i) => (
-              <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => handlePageChange(i + 1, filteredData)}>{i + 1}</button>
+              <button
+                key={i}
+                className={currentPage === i + 1 ? 'active' : ''}
+                onClick={() => handlePageChange(i + 1, filteredData)}
+              >
+                {i + 1}
+              </button>
             ))}
-            <button onClick={() => handlePageChange(currentPage + 1, filteredData)} disabled={currentPage === totalPages(filteredData)}>Next</button>
+            <button
+              onClick={() => handlePageChange(currentPage + 1, filteredData)}
+              disabled={currentPage === totalPages(filteredData)}
+            >
+              Next
+            </button>
           </div>
         </div>
       ) : (
         <div>
           <div className="main-content-header">
             <h2>Danh sách gói thầu</h2>
-            <button className="btn btn-primary" onClick={handleAddGoiThau}>Thêm gói thầu</button>
+            <button className="btn btn-primary" onClick={handleAddGoiThau}>
+              Thêm gói thầu
+            </button>
           </div>
 
           <table className="data-table">
@@ -225,15 +269,29 @@ const Moithau = () => {
             </thead>
             <tbody>
               {paginate(filteredGoiThauData).map((item, idx) => (
-                <tr key={idx} onClick={() => navigate(`/chitietgoithau/${item.maGoiThau}`)} style={{ cursor: 'pointer' }}>
+                <tr
+                  key={idx}
+                  onClick={() => navigate(`/chitietgoithau/${item.maGoiThau}`)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>{item.maGoiThau}</td>
                   <td>{item.tenGoiThau}</td>
                   <td>{item.tenLinhVuc}</td>
-                  <td><span className={`status-label ${item.trangThai === 'Hoạt động' ? 'status-success' : 'status-pause'}`}>{item.trangThai}</span></td>
+                  <td>
+                    <span
+                      className={`status-label ${item.trangThai === 'Hoạt động' ? 'status-success' : 'status-pause'}`}
+                    >
+                      {item.trangThai}
+                    </span>
+                  </td>
                   <td>{item.ngayTao}</td>
                   <td className="actions" onClick={(e) => e.stopPropagation()}>
-                    <button className="icon-button" onClick={() => navigate(`/suagoithau/${item.maGoiThau}`)}><Pencil size={16} /></button>
-                    <button className="icon-button delete"><Trash size={16} /></button>
+                    <Pencil
+                      className="icon-action edit"
+                      size={16}
+                      onClick={() => navigate(`/suagoithau/${item.maGoiThau}`)}
+                    />
+                    <Trash className="icon-action delete" size={16} />
                   </td>
                 </tr>
               ))}
@@ -241,11 +299,27 @@ const Moithau = () => {
           </table>
 
           <div className="pagination">
-            <button onClick={() => handlePageChange(currentPage - 1, filteredGoiThauData)} disabled={currentPage === 1}>Previous</button>
+            <button
+              onClick={() => handlePageChange(currentPage - 1, filteredGoiThauData)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
             {Array.from({ length: totalPages(filteredGoiThauData) }, (_, i) => (
-              <button key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => handlePageChange(i + 1, filteredGoiThauData)}>{i + 1}</button>
+              <button
+                key={i}
+                className={currentPage === i + 1 ? 'active' : ''}
+                onClick={() => handlePageChange(i + 1, filteredGoiThauData)}
+              >
+                {i + 1}
+              </button>
             ))}
-            <button onClick={() => handlePageChange(currentPage + 1, filteredGoiThauData)} disabled={currentPage === totalPages(filteredGoiThauData)}>Next</button>
+            <button
+              onClick={() => handlePageChange(currentPage + 1, filteredGoiThauData)}
+              disabled={currentPage === totalPages(filteredGoiThauData)}
+            >
+              Next
+            </button>
           </div>
         </div>
       )}

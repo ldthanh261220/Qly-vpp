@@ -2,7 +2,7 @@
   padding: 24px;
   background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   font-family: 'Segoe UI', sans-serif;
 
   .main-content-header {
@@ -12,24 +12,25 @@
     margin-bottom: 24px;
 
     .main-content-title {
-      font-size: 20px;
-      font-weight: 600;
+      font-size: 24px;
+      font-weight: 700;
       color: #1a202c;
     }
 
     .add-plan-button {
-      padding: 8px 16px;
+      padding: 10px 18px;
       background-color: #4a90e2;
       color: #ffffff;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: all 0.2s ease;
 
       &:hover {
         background-color: #357abd;
+        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
       }
     }
   }
@@ -37,23 +38,21 @@
   .filter-container {
     display: flex;
     gap: 16px;
-    margin-bottom: 24px;
     flex-wrap: wrap;
+    margin-bottom: 24px;
+    align-items: center;
 
     .nt-search {
       flex: 1;
       max-width: 300px;
-      position: relative;
 
       input {
         width: 100%;
-        padding: 8px 12px;
+        padding: 10px 14px;
         border: 1px solid #cbd5e0;
         border-radius: 6px;
         font-size: 14px;
-        color: #2d3748;
-        background-color: #edf2f7;
-        transition: border-color 0.2s ease;
+        background-color: #f9fafb;
 
         &::placeholder {
           color: #a0aec0;
@@ -68,14 +67,12 @@
     }
 
     select {
-      padding: 8px 12px;
+      padding: 10px 12px;
       border: 1px solid #cbd5e0;
       border-radius: 6px;
       font-size: 14px;
-      color: #2d3748;
-      background-color: #edf2f7;
+      background-color: #f9fafb;
       cursor: pointer;
-      transition: border-color 0.2s ease;
 
       &:focus {
         outline: none;
@@ -92,18 +89,19 @@
       width: 100%;
       border-collapse: collapse;
       background-color: #ffffff;
+      font-size: 14px;
 
       .table-header {
-        background-color: #f7fafc;
-        color: #2d3748;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 12px;
+        background-color: #f9e3b6;
 
         th {
-          padding: 12px 16px;
-          border-bottom: 2px solid #e2e8f0;
+          padding: 14px 18px;
           text-align: left;
+          border-bottom: 2px solid #e2e8f0;
+          color: #2d3748;
+          font-weight: 600;
+          font-size: 13px;
+          text-transform: uppercase;
         }
       }
 
@@ -115,9 +113,8 @@
         }
 
         .table-cell {
-          padding: 12px 16px;
+          padding: 14px 18px;
           border-bottom: 1px solid #e2e8f0;
-          font-size: 14px;
           color: #2d3748;
 
           .link-button {
@@ -136,13 +133,14 @@
 
           .status-label {
             padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 500;
             display: inline-block;
+            text-align: center;
 
             &.status-confirmed {
-              background-color: #48bb78;
+              background-color: #38a169;
               color: #ffffff;
             }
 
@@ -152,7 +150,7 @@
             }
 
             &.status-rejected {
-              background-color: #f56565;
+              background-color: #e53e3e;
               color: #ffffff;
             }
           }
@@ -162,14 +160,13 @@
             gap: 8px;
 
             .edit-button {
-              padding: 4px 12px;
+              padding: 6px 12px;
               background-color: #4a90e2;
               color: #ffffff;
               border: none;
               border-radius: 4px;
-              font-size: 12px;
+              font-size: 13px;
               cursor: pointer;
-              transition: background-color 0.2s ease;
 
               &:hover {
                 background-color: #357abd;
@@ -177,17 +174,16 @@
             }
 
             .delete-button {
-              padding: 4px 12px;
-              background-color: #f56565;
+              padding: 6px 12px;
+              background-color: #e53e3e;
               color: #ffffff;
               border: none;
               border-radius: 4px;
-              font-size: 12px;
+              font-size: 13px;
               cursor: pointer;
-              transition: background-color 0.2s ease;
 
               &:hover {
-                background-color: #e53e3e;
+                background-color: #c53030;
               }
             }
           }
@@ -200,19 +196,18 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
-    margin-top: 24px;
+    gap: 10px;
+    margin-top: 32px;
 
     button {
       padding: 8px 16px;
       border: none;
       border-radius: 8px;
-      background-color: #e5e7eb;
+      background-color: #edf2f7;
       font-size: 14px;
       font-weight: 500;
-      color: #374151;
+      color: #2d3748;
       cursor: pointer;
-      transition: background-color 0.2s ease, color 0.2s ease;
 
       &.active {
         background-color: #4a90e2;
@@ -220,20 +215,81 @@
       }
 
       &:hover:not(:disabled) {
-        background-color: #d1d5db;
+        background-color: #e2e8f0;
       }
 
       &:disabled {
         background-color: #f3f4f6;
-        color: #9ca3af;
+        color: #a0aec0;
         cursor: not-allowed;
       }
     }
 
+    
+
     .pagination-info {
       font-size: 14px;
-      color: #374151;
-      margin-left: 16px;
+      color: #4a5568;
+      margin-left: 8px;
     }
   }
+}
+table thead {
+  background-color: #F9E3B6 !important;
+}
+
+  .icon-action {
+            margin-right: 12px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+
+            &.edit {
+              color: #3b82f6;
+              &:hover {
+                color: #1d4ed8;
+              }
+            }
+
+            &.delete {
+              color: #ef4444;
+              &:hover {
+                color: #dc2626;
+              }
+            }}
+
+
+      
+.status-label {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.status-label.status-confirmed {
+  background-color: #e6f4ea;
+  color: #2e7d32; /* Xanh lá cho Đã xác nhận */
+}
+
+.status-label.status-pending {
+  background-color: #fff3e0;
+  color: #f57c00; /* Vàng/cam cho Đang chờ duyệt */
+}
+
+.status-label.status-rejected {
+  background-color: #ffebee;
+  color: #d32f2f; /* Đỏ cho Không duyệt */
+}
+
+.status-label.status-invited {
+  background-color: #e3f2fd;
+  color: #1e88e5; /* Xanh dương nhạt cho Đã mời thầu */
+}
+
+.search-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  width: 200px;
 }
