@@ -10,7 +10,7 @@ const Kehoach = () => {
 
   // Định nghĩa màu cho các trạng thái
   const statusColor = {
-    'Đã duyệt': 'status-confirmed',
+    'Đã duyệt ngân sách': 'status-confirmed',
     'Đang chờ duyệt': 'status-pending',
     'Từ chối': 'status-rejected',
     'Đã mời thầu': 'status-invited' // Thêm trạng thái mới
@@ -139,7 +139,7 @@ const Kehoach = () => {
         </select>
         <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="">Tất cả trạng thái</option>
-          <option value="Đã duyệt">Đã duyệt</option>
+          <option value="Đã duyệt ngân sách">Đã duyệt ngân sách</option>
           <option value="Đang chờ duyệt">Đang chờ duyệt</option>
           <option value="Từ chối">Từ chối</option>
           <option value="Đã mời thầu">Đã mời thầu</option>
