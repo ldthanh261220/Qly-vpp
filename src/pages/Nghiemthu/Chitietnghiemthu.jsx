@@ -8,15 +8,19 @@ const ChitietNghiemThu = () => {
   const navigate = useNavigate();
   const [KeHoach, setKeHoach] = useState(null);
   const [ghiChuList, setGhiChuList] = useState({});
-  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('Đạt yêu cầu'); // Mặc định
+  const [Data, setData] = useState({});
+  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('Đạt yêu cầu');
 
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_BACKEND}detailnghiemthu?maNghiemthu=${id}`)
       .then((response) => {
-        setKeHoach(response.data);
-        const initialGhiChu = response.data.sanpham.reduce((acc, sp) => {
-          acc[sp.mayc_ms] = '';
+        const data = response.data;
+      setData(data.data)
+        setKeHoach(data);
+
+        const initialGhiChu = data.sanpham.reduce((acc, sp, idx) => {
+          acc[`${sp.mayc_ms}_${idx}`] = '';
           return acc;
         }, {});
         setGhiChuList(initialGhiChu);
@@ -26,10 +30,10 @@ const ChitietNghiemThu = () => {
       });
   }, [id]);
 
-  const handleGhiChuChange = (mayc_ms, value) => {
+  const handleGhiChuChange = (key, value) => {
     setGhiChuList((prev) => ({
       ...prev,
-      [mayc_ms]: value,
+      [key]: value,
     }));
   };
 
@@ -38,35 +42,44 @@ const ChitietNghiemThu = () => {
   };
 
   const handleXacNhan = async () => {
-    try {
-      const noiDung = Object.values(ghiChuList).join('|');
-       const last8 = KeHoach.maKeHoach.slice(-8); // Lấy 8 ký tự cuối
-    const maNghiemThu = `NT${last8}`;
-      const payload = {
-        maNghiemThu: maNghiemThu,
-        maKeHoach: KeHoach.maKeHoach,
-        hinhAnhNghiemThu: '', // nếu có ảnh, sửa sau
-        trangThai: trangThaiNghiemThu,
-        noiDung: noiDung,
-        ngayTao: new Date().toISOString(),
-      };
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND}xacnhannghiemthu`,
-        payload
-      );
-
-      alert(response.data.message || 'Xác nhận nghiệm thu thành công!');
-      navigate('/Nghiemthu');
-    } catch (error) {
-      console.error('Lỗi xác nhận nghiệm thu:', error);
-      alert(
-        error.response?.data?.message || 'Lỗi khi xác nhận nghiệm thu, vui lòng thử lại.'
-      );
+  try {
+    // Use KeHoach.yeucau instead of undefined yeucau
+    const noiDung = KeHoach.yeucau.map((sp, idx) => {
+      const key = `${sp.mayc_ms}_${idx}`;
+      return ghiChuList[key] || '';
+    }).join('|');
+  
+    // Ensure maKeHoach exists and has enough characters
+    if (!KeHoach.maKeHoach || KeHoach.maKeHoach.length < 8) {
+      throw new Error('Mã kế hoạch không hợp lệ');
     }
-  };
+    const last8 = KeHoach.maKeHoach.slice(-8);
+    const maNghiemThu = `NT${last8}`;
 
+    const payload = {
+      maNghiemThu,
+      maKeHoach: KeHoach.maKeHoach,
+      hinhAnhNghiemThu: '',
+      trangThai: trangThaiNghiemThu,
+      noiDung,
+      ngayTao: new Date().toISOString(),
+    };
 
+    console.log(payload)
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND}/xacnhannghiemthu`, // Add leading slash for consistency
+      payload
+    );
+
+    alert(response.data.message || 'Xác nhận nghiệm thu thành công!');
+    navigate('/Nghiemthu');
+  } catch (error) {
+    console.error('Lỗi xác nhận nghiệm thu:', error);
+    alert(
+      error.response?.data?.message || 'Lỗi khi xác nhận nghiệm thu, vui lòng thử lại.'
+    );
+  }
+};
 
   if (!KeHoach) {
     return <div>Đang tải...</div>;
@@ -85,6 +98,8 @@ const ChitietNghiemThu = () => {
     nghiemThu,
     daNghiemThu,
   } = KeHoach;
+
+  const danhSachGhiChuDaLuu = (nghiemThu?.noiDung || '').split('|');
 
   return (
     <div className="chitiet-KeHoach-container">
@@ -107,6 +122,32 @@ const ChitietNghiemThu = () => {
             <p><strong>Ngày tạo:</strong> {nghiemThu?.ngayTao ? new Date(nghiemThu.ngayTao).toLocaleDateString('vi-VN') : ''}</p>
           </div>
         </div>
+
+        <div className="info-columns">
+          <div className="info-column info-left">
+            <h2>Phiên thầu-Nhà thầu</h2>
+            <p><strong>Phiên thầu</strong> {nghiemThu?.maNghiemthu || 'Chưa có'}</p>
+          <p><strong>Ngày đấu thầu:</strong> {new Date(Data.ngayDauThau).toLocaleDateString('vi-VN')}</p>
+        <p><strong>Ngày kết thúc:</strong> {new Date(Data.ngayKetthuc).toLocaleDateString('vi-VN')}</p>
+
+            <p><strong>Kinh phí</strong> {Data.giaTrungThau}</p>
+             <p><strong>Tên nhà thầu:</strong> {Data.tenNhaThau}</p>
+            <p><strong>Địa chỉ:</strong> {Data.diaChi}</p>
+            <p><strong>website:</strong> {Data.website}</p>
+            <p><strong>Email:</strong> {Data.Email}</p>
+          </div>
+          
+        
+          <div className="info-column info-right">
+            <h2>Hợp đồng</h2>
+    
+            <p><strong>Hình thức thanh toán:</strong> {Data.hinhThucThanhToan}</p>
+            <p><strong>Tên hợp đồng:</strong> {Data.tenHopDong}</p>
+            <p><strong>Nội dung:</strong> {Data.noiDungHopDong}</p>
+            <p><strong>Ngày kí:</strong> {nghiemThu?.ngayTao ? new Date(Data.ngayKy).toLocaleDateString('vi-VN') : ''}</p>
+          </div>
+      
+      </div>
       </div>
 
       <table className="sanpham-table">
@@ -118,29 +159,31 @@ const ChitietNghiemThu = () => {
             <th>Ghi chú</th>
           </tr>
         </thead>
-       <tbody>
-  {yeucau.map((sp, index) => (
-    <tr key={sp.mayc_ms}>
-      <td>{sp.tenVatDung}</td>
-      <td>{sp.moTaChiTiet}</td>
-      <td>{sp.soLuong}</td>
-      <td>
-        {daNghiemThu ? (
-          // Hiển thị ghi chú từ nghiệm thu đã lưu
-          <span>{(nghiemThu?.noiDung || '').split('|')[index]}</span>
-        ) : (
-          <textarea
-            value={ghiChuList[sp.mayc_ms] || ''}
-            onChange={(e) => handleGhiChuChange(sp.mayc_ms, e.target.value)}
-            placeholder="Nhập ghi chú..."
-            rows={2}
-            className="ghi-chu-textarea"
-          />
-        )}
-      </td>
-    </tr>
-  ))}
-</tbody>
+        <tbody>
+          {yeucau.map((sp, index) => {
+            const key = `${sp.mayc_ms}_${index}`;
+            return (
+              <tr key={key}>
+                <td>{sp.tenVatDung}</td>
+                <td>{sp.moTaChiTiet}</td>
+                <td>{sp.soLuong}</td>
+                <td>
+                  {daNghiemThu ? (
+                    <span>{danhSachGhiChuDaLuu[index] || ''}</span>
+                  ) : (
+                    <textarea
+                      value={ghiChuList[key] || ''}
+                      onChange={(e) => handleGhiChuChange(key, e.target.value)}
+                      placeholder="Nhập ghi chú..."
+                      rows={2}
+                      className="ghi-chu-textarea"
+                    />
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
 
       <div className="trangthai-wrapper" style={{ marginBottom: '20px' }}>
@@ -153,16 +196,11 @@ const ChitietNghiemThu = () => {
 
       <div className="button-wrapper">
         {daNghiemThu ? (
-          <>
-            <p className='xacnhan'>Đã xác nhận nghiệm thu</p>
-          </>
+          <p className='xacnhan'>Đã xác nhận nghiệm thu</p>
         ) : (
-          <>
-            
-            <button className="btn-xac-nhan" onClick={handleXacNhan}>
-              Xác nhận nghiệm thu
-            </button>
-          </>
+          <button className="btn-xac-nhan" onClick={handleXacNhan}>
+            Xác nhận nghiệm thu
+          </button>
         )}
       </div>
     </div>

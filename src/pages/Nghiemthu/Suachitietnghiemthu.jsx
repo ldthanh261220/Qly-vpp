@@ -1,38 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './chitietnghiemthu.scss'; // Reusing the same styles
+import './chitietnghiemthu.scss';
 
 const SuaChitietNghiemThu = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [KeHoach, setKeHoach] = useState(null);
   const [ghiChuList, setGhiChuList] = useState({});
-  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('');
+    const [Data, setData] = useState({});
+  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('Đạt yêu cầu');
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND}detailnghiemthu?maNghiemthu=${id}`)
+      .get(`${process.env.REACT_APP_BACKEND}/detailnghiemthu?maNghiemthu=${id}`)
       .then((response) => {
-        setKeHoach(response.data);
-        // Initialize ghiChuList with existing notes or empty strings
-        const initialGhiChu = response.data.yeucau.reduce((acc, sp, index) => {
-          acc[sp.mayc_ms] = (response.data.nghiemThu?.noiDung || '').split('|')[index] || '';
+        const data = response.data;
+            setData(data.data)
+        setKeHoach(data);
+        // Initialize ghiChuList with existing notes or empty strings, using same key format as ChitietNghiemThu
+        const initialGhiChu = data.yeucau.reduce((acc, sp, index) => {
+          acc[`${sp.mayc_ms}_${index}`] = (data.nghiemThu?.noiDung || '').split('|')[index] || '';
           return acc;
         }, {});
         setGhiChuList(initialGhiChu);
         // Set initial status from existing data
-        setTrangThaiNghiemThu(response.data.nghiemThu?.trangThai || 'Đạt yêu cầu');
+        setTrangThaiNghiemThu(data.nghiemThu?.trangThai || 'Đạt yêu cầu');
       })
       .catch((error) => {
         console.error('Axios error:', error);
       });
   }, [id]);
 
-  const handleGhiChuChange = (mayc_ms, value) => {
+  const handleGhiChuChange = (key, value) => {
     setGhiChuList((prev) => ({
       ...prev,
-      [mayc_ms]: value,
+      [key]: value,
     }));
   };
 
@@ -42,31 +45,43 @@ const SuaChitietNghiemThu = () => {
 
   const handleCapNhat = async () => {
     try {
-      const noiDung = Object.values(ghiChuList).join('|');
+      if (!KeHoach || !KeHoach.yeucau || !KeHoach.nghiemThu) {
+        throw new Error('Dữ liệu không hợp lệ');
+      }
+
+      // Map over KeHoach.yeucau to ensure note order matches
+      const noiDung = KeHoach.yeucau.map((sp, idx) => {
+        const key = `${sp.mayc_ms}_${idx}`;
+        return ghiChuList[key] || '';
+      }).join('|');
+
       const payload = {
         maNghiemThu: KeHoach.nghiemThu.maNghiemthu,
+        maKeHoach: KeHoach.maKeHoach,
         trangThai: trangThaiNghiemThu,
-        noiDung: noiDung,
-        
+        noiDung,
+        ngayTao: new Date().toISOString(), // Include ngayTao to match ChitietNghiemThu
       };
-      console.log(payload)
+
+      console.log('Payload:', payload);
+
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND}capnhatnghiemthu`,
+        `${process.env.REACT_APP_BACKEND}/capnhatnghiemthu`,
         payload
       );
 
       alert(response.data.message || 'Cập nhật nghiệm thu thành công!');
       navigate('/Nghiemthu');
     } catch (error) {
-      console.error('Lỗi cập nhật nghiệm thu:', error);
+      console.error('Lỗi cập nhật nghiệm thu:', error.response || error);
       alert(
         error.response?.data?.message || 'Lỗi khi cập nhật nghiệm thu, vui lòng thử lại.'
       );
     }
   };
 
-  if (!KeHoach) {
-    return <div>Đang tải...</div>;
+  if (!KeHoach || !KeHoach.yeucau || !KeHoach.nghiemThu) {
+    return <div>Đang tải hoặc dữ liệu không hợp lệ...</div>;
   }
 
   const {
@@ -89,7 +104,7 @@ const SuaChitietNghiemThu = () => {
         <h3>{tenKeHoach}</h3>
         <div className="info-columns">
           <div className="info-column info-left">
-            <p><strong>Mã nghiệm thu:</strong> {nghiemThu?.maNghiemthu}</p>
+            <p><strong>Mã nghiệm thu:</strong> {nghiemThu?.maNghiemthu || 'Chưa có'}</p>
             <p><strong>Mã kế hoạch:</strong> {maKeHoach}</p>
             <p><strong>Chủ bút từ:</strong> {chuBuTu}</p>
             <p><strong>Đơn vị:</strong> {donVi}</p>
@@ -102,7 +117,35 @@ const SuaChitietNghiemThu = () => {
             <p><strong>Ngày tạo:</strong> {nghiemThu?.ngayTao ? new Date(nghiemThu.ngayTao).toLocaleDateString('vi-VN') : ''}</p>
           </div>
         </div>
+
+        
+        <div className="info-columns">
+          <div className="info-column info-left">
+            <h2>Phiên thầu-Nhà thầu</h2>
+            <p><strong>Phiên thầu</strong> {nghiemThu?.maNghiemthu || 'Chưa có'}</p>
+          <p><strong>Ngày đấu thầu:</strong> {new Date(Data.ngayDauThau).toLocaleDateString('vi-VN')}</p>
+        <p><strong>Ngày kết thúc:</strong> {new Date(Data.ngayKetthuc).toLocaleDateString('vi-VN')}</p>
+
+            <p><strong>Kinh phí</strong> {Data.giaTrungThau}</p>
+             <p><strong>Tên nhà thầu:</strong> {Data.tenNhaThau}</p>
+            <p><strong>Địa chỉ:</strong> {Data.diaChi}</p>
+            <p><strong>website:</strong> {Data.website}</p>
+            <p><strong>Email:</strong> {Data.Email}</p>
+          </div>
+            </div>
+        <div className="info-columns">
+          <div className="info-column info-right">
+            <h2>Hợp đồng</h2>
+    
+            <p><strong>Hình thức thanh toán:</strong> {Data.hinhThucThanhToan}</p>
+            <p><strong>Tên hợp đồng:</strong> {Data.tenHopDong}</p>
+            <p><strong>Nội dung:</strong> {Data.noiDungHopDong}</p>
+            <p><strong>Ngày kí:</strong> {nghiemThu?.ngayTao ? new Date(Data.ngayKy).toLocaleDateString('vi-VN') : ''}</p>
+          </div>
+      
       </div>
+      </div>
+
 
       <table className="sanpham-table">
         <thead>
@@ -114,22 +157,25 @@ const SuaChitietNghiemThu = () => {
           </tr>
         </thead>
         <tbody>
-          {yeucau.map((sp) => (
-            <tr key={sp.mayc_ms}>
-              <td>{sp.tenVatDung}</td>
-              <td>{sp.moTaChiTiet}</td>
-              <td>{sp.soLuong}</td>
-              <td>
-                <textarea
-                  value={ghiChuList[sp.mayc_ms] || ''}
-                  onChange={(e) => handleGhiChuChange(sp.mayc_ms, e.target.value)}
-                  placeholder="Nhập ghi chú..."
-                  rows={2}
-                  className="ghi-chu-textarea"
-                />
-              </td>
-            </tr>
-          ))}
+          {yeucau.map((sp, index) => {
+            const key = `${sp.mayc_ms}_${index}`;
+            return (
+              <tr key={key}>
+                <td>{sp.tenVatDung}</td>
+                <td>{sp.moTaChiTiet}</td>
+                <td>{sp.soLuong}</td>
+                <td>
+                  <textarea
+                    value={ghiChuList[key] || ''}
+                    onChange={(e) => handleGhiChuChange(key, e.target.value)}
+                    placeholder="Nhập ghi chú..."
+                    rows={2}
+                    className="ghi-chu-textarea"
+                  />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
