@@ -29,25 +29,18 @@ const PlanList = () => {
         try {
             setLoading(true);
             const response = await duyetngansachService.getlistmuasamService();
-            if (response?.danhsachkehoach) {
-                const mappedPlans = response.danhsachkehoach
-                    .filter(
-                        (item) =>
-                            item?.trangThaiKeHoach === 'Đã duyệt ngân sách' ||
-                            item?.trangThaiKeHoach === 'Đang chờ duyệt',
-                    )
-                    .map((item) => ({
-                        id: item.maKeHoach,
-                        title: item.tenKeHoach || 'Không có tiêu đề',
-                        type: item.loaiyeucau || 'Không xác định',
-                        unit: item.donViCongTac || 'Không xác định',
-                        sum: item.chiPhiKeHoach || 0,
-                        field: 'Hàng hóa',
-                        address: 'số 48 Cao Thắng, TP. Đà Nẵng',
-                        status: mapStatusToTabValue(item.trangThaiKeHoach),
-                        originalStatus: item.trangThaiKeHoach,
-                        ngayTao: item.ngayTao || new Date().toISOString().split('T')[0],
-                    }));
+            if (response.danhsachkehoach) {
+                const mappedPlans = response.danhsachkehoach.map((item) => ({
+                    id: item.maKeHoach,
+                    title: item.tenKeHoach,
+                    type: item.loaiyeucau,
+                    unit: item.donViCongTac,
+                    sum: item.chiPhiKeHoach,
+                    field: 'Hàng hóa',
+                    address: 'số 48 Cao Thắng, TP. Đà Nẵng',
+                    status: 'pending',
+                    ngayTao: '2025-06-14',
+                }));
                 setPlans(mappedPlans);
             } else {
                 setPlans([]);
