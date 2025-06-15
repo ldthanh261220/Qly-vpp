@@ -55,7 +55,7 @@ const ChiTietYeuCau = () => {
           maThongBao: randomId,
           maTaiKhoan: user?.id || null,  
           ngayThongBao: ngayDuyet,
-          noiDungThongBao: `Yêu cầu ${id} đã được phê duyệt.`,
+          noiDungThongBao: `Yêu cầu ${yeuCau.loaiYeuCau} ${yeuCau.tenVatDung || yeuCau.tenThietBi} đã được phê duyệt.`,
           trangThai: 'Chưa đọc',
           maTaiKhoanNhan: yeuCau?.maTaiKhoan || null,
         };
@@ -93,7 +93,7 @@ const ChiTietYeuCau = () => {
           maTaiKhoan: user?.id || null,            // Người thực hiện từ chối
           maTaiKhoanNhan: yeuCau?.maTaiKhoan || null,      // Người gửi yêu cầu
           ngayThongBao: ngayDuyet,
-          noiDungThongBao: `Yêu cầu ${id} đã bị từ chối. Lý do: ${rejectReason}`,
+          noiDungThongBao: `Yêu cầu ${yeuCau.loaiYeuCau} ${yeuCau.tenVatDung || yeuCau.tenThietBi} đã bị từ chối. Lý do: ${rejectReason}`,
           trangThai: 'Chưa đọc'
         };
 
@@ -128,72 +128,97 @@ const ChiTietYeuCau = () => {
   }
 
   return (
-    <div className={cx('wrapper')}>
-      <h3>Chi tiết yêu cầu</h3>
+  <div className={cx('wrapper')}>
+    <h3>Chi tiết yêu cầu</h3>
 
-      <div className={cx('info')}>
-        <p><strong>Mã yêu cầu:</strong> {yeuCau.maYeuCau}</p>
-        <p><strong>Loại yêu cầu:</strong> {yeuCau.loaiYeuCau}</p>
-        <p><strong>Người tạo:</strong> {yeuCau.tenNguoiTao}</p>
-        <p>
-          <strong>Trạng thái:</strong>{' '}
-          <span style={{
-            color:
-              yeuCau.trangThai === 'Đã phê duyệt' ? 'green' :
-              yeuCau.trangThai === 'Đã từ chối' ? 'red' :
-              yeuCau.trangThai === 'Đang chờ duyệt' ? '#ff9800' :
-              '#007bff',
-            fontWeight: 'bold'
-          }}>
-            {yeuCau.trangThai}
-          </span>
-        </p>
-        <p><strong>Tên vật dụng:</strong> {yeuCau.tenVatDung}</p>
-        <p><strong>Số lượng:</strong> {yeuCau.soLuong || 0}</p>
-        <p><strong>Tình trạng thiết bị:</strong> {yeuCau.tinhTrangThietBi}</p>
-        <p><strong>Lý do đề xuất:</strong> {yeuCau.lyDoDeXuat}</p>
-        <p><strong>Mô tả chi tiết:</strong> {yeuCau.moTaChiTiet}</p>
-        {yeuCau.lyDoTuChoi && (
-          <p><strong>Lý do từ chối:</strong> {yeuCau.lyDoTuChoi}</p>
-        )}
-        {yeuCau.hinhAnhSuaChua ? (
-          <div>
-            <strong>Hình ảnh sửa chữa: </strong>
-            <img src={yeuCau.hinhAnhSuaChua} title={yeuCau.tenVatDung} alt="Ảnh sửa chữa" style={{ width: '100%', marginTop: '10px', borderRadius: '8px' }} />
-          </div>
-        ) : <div>
-            <strong>Hình ảnh sửa chữa: </strong><FontAwesomeIcon style={{fontSize: '100px'}} icon={faImage} title='Chua co hinh anh cua vat pham'/></div>}
-      </div>
-
-      {yeuCau.trangThai === 'Đang chờ duyệt' ? (
-        <div className={cx('actions')}>
-          <button className={cx('btn', 'btn-back')} onClick={() => navigate(-1)}>← Quay lại</button>
-          <div>
-            <button className={cx('btn', 'btn-approve')} onClick={handleApprove}><FontAwesomeIcon icon={faThumbsUp}/> Phê duyệt</button>
-            <button className={cx('btn', 'btn-reject')} onClick={() => setShowRejectModal(true)}><FontAwesomeIcon icon={faThumbsDown}/> Từ chối</button>
-          </div>
-        </div>
-      ):<button className={cx('btn', 'btn-back')} onClick={() => navigate(-1)}>← Quay lại</button>}
-
-      {showRejectModal && (
-        <div className={cx('modal')}>
-          <div className={cx('modal-content')}>
-            <h4>Lý do từ chối</h4>
-            <textarea
-              placeholder="Nhập lý do từ chối..."
-              value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
-            />
-            <div className={cx('modal-actions')}>
-              <button onClick={handleReject} className={cx('btn', 'btn-confirm')}>Xác nhận</button>
-              <button onClick={() => setShowRejectModal(false)} className={cx('btn', 'btn-cancel')}>Hủy</button>
+    <div className={cx('info')}>
+      <p><strong>Mã yêu cầu:</strong> {yeuCau.maYeuCau}</p>
+      <p><strong>Loại yêu cầu:</strong> {yeuCau.loaiYeuCau}</p>
+      <p><strong>Người tạo:</strong> {yeuCau.tenNguoiTao}</p>
+      <p>
+        <strong>Trạng thái:</strong>{' '}
+        <span style={{
+          color:
+            yeuCau.trangThai === 'Đã phê duyệt' ? 'green' :
+            yeuCau.trangThai === 'Đã từ chối' ? 'red' :
+            yeuCau.trangThai === 'Đang chờ duyệt' ? '#ff9800' :
+            '#007bff',
+          fontWeight: 'bold'
+        }}>
+          {yeuCau.trangThai}
+        </span>
+      </p>
+      <p><strong>Tên vật dụng:</strong> {yeuCau.tenVatDung || yeuCau.tenThietBi}</p>
+      <p><strong>Số lượng:</strong> {yeuCau.soLuong || 0}</p>
+      
+      {/* Hiển thị chỉ khi là sửa chữa */}
+      {yeuCau.loaiYeuCau === 'sửa chữa' && (
+        <>
+          <p><strong>Tình trạng thiết bị:</strong> {yeuCau.tinhTrangThietBi}</p>
+          {yeuCau.hinhAnhSuaChua ? (
+            <div>
+              <strong>Hình ảnh sửa chữa: </strong>
+              <img
+                src={yeuCau.hinhAnhSuaChua}
+                title={yeuCau.tenVatDung}
+                alt="Ảnh sửa chữa"
+                style={{ width: '100%', marginTop: '10px', borderRadius: '8px' }}
+              />
             </div>
-          </div>
-        </div>
+          ) : (
+            <div>
+              <strong>Hình ảnh sửa chữa: </strong>
+              <FontAwesomeIcon
+                style={{ fontSize: '100px' }}
+                icon={faImage}
+                title="Chưa có hình ảnh của vật phẩm"
+              />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Hiển thị chỉ khi là mua sắm */}
+      {yeuCau.loaiYeuCau === 'mua sắm' && (
+        <p><strong>Mô tả chi tiết:</strong> {yeuCau.moTaChiTiet}</p>
+      )}
+
+      {yeuCau.lyDoTuChoi && (
+        <p><strong>Lý do từ chối:</strong> {yeuCau.lyDoTuChoi}</p>
       )}
     </div>
 
-  );
+    {yeuCau.trangThai === 'Đang chờ duyệt' ? (
+      <div className={cx('actions')}>
+        <button className={cx('btn', 'btn-back')} onClick={() => navigate(-1)}>← Quay lại</button>
+        <div>
+          <button className={cx('btn', 'btn-approve')} onClick={handleApprove}><FontAwesomeIcon icon={faThumbsUp}/> Phê duyệt</button>
+          <button className={cx('btn', 'btn-reject')} onClick={() => setShowRejectModal(true)}><FontAwesomeIcon icon={faThumbsDown}/> Từ chối</button>
+        </div>
+      </div>
+    ) : (
+      <button className={cx('btn', 'btn-back')} onClick={() => navigate(-1)}>← Quay lại</button>
+    )}
+
+    {showRejectModal && (
+      <div className={cx('modal')}>
+        <div className={cx('modal-content')}>
+          <h4>Lý do từ chối</h4>
+          <textarea
+            placeholder="Nhập lý do từ chối..."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
+          <div className={cx('modal-actions')}>
+            <button onClick={handleReject} className={cx('btn', 'btn-confirm')}>Xác nhận</button>
+            <button onClick={() => setShowRejectModal(false)} className={cx('btn', 'btn-cancel')}>Hủy</button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
 };
 
 export default ChiTietYeuCau;

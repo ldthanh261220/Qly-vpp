@@ -14,9 +14,13 @@ const getThongBaoById = (id) => {
 const createThongBao = (data) => {
     return axios.post(`/themThongBao`, data);
 };
+const capNhatTrangThaiThongBao = (id) => {
+    return axios.put('/capnhat_thongbao', { id });
+};
 
 export default {
     getThongBaoByTaiKhoan,
     getThongBaoById,
-    createThongBao
+    createThongBao,
+    capNhatTrangThaiThongBao,
 };

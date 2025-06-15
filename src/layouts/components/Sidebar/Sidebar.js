@@ -13,6 +13,8 @@ import {
     HardHat,
     FileSignature,
     ClipboardList,
+    CheckSquare, // dùng cho "Nghiệm thu"
+    Handshake,
 } from 'lucide-react';
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
@@ -40,10 +42,10 @@ export default function Sidebar() {
         { name: 'Duyệt KH chọn nhà thầu', icon: <Book size={18} />, to: config.routes.Duyetnhathau, quyen: 6 },
         { name: 'Duyệt ngân sách ', icon: <ChartColumnBig size={18} />, to: config.routes.Duyetngansach, quyen: 8 },
         { name: 'Thanh toán hợp đồng', icon: <Layers size={18} />, to: config.routes.Thanhtoanhopdong, quyen: 8 },
+        { name: 'Kế hoạch', icon: <FileText size={18} />, to: config.routes.Kehoach, quyen: 4 },
+        { name: 'Nghiệm thu', icon: <CheckSquare size={18} />, to: config.routes.Nghiemthu, quyen: 4 },
+        { name: 'Mời thầu', icon: <Handshake size={18} />, to: config.routes.Moithau, quyen: 4 },
         { name: 'Thông tin tài khoản', icon: <UserCircle size={18} />, to: config.routes.profile },
-        { name: 'Kế hoạch', icon: <UserCircle size={18} />, to: config.routes.Kehoach },
-        { name: 'Nghiệm thu', icon: <UserCircle size={18} />, to: config.routes.Nghiemthu},
-        { name: 'Mời thầu', icon: <UserCircle size={18} />, to: config.routes.Moithau}
     ];
 
     const filteredMenu = user

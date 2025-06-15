@@ -1,197 +1,232 @@
-import React, { useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import TabNavigation from './../Tab';
 import PlanCard from './../Kehoach';
 import './PlanList.scss';
+import duyetngansachService from '~/services/duyetngansachService';
 
-const mockData = [
-  {
-    id: 'KH001',
-    title: 'Mua sắm giấy in, bút lông ',
-    type: 'Mua sắm ',
-    unit: 'Phòng CTSV ',
-    sum: '10.000.000 VND',
-    field: 'Hàng hóa',
-    address: '48 Cao Thắng, Đà Nẵng',
-    status: 'pending',
-  },
-  {
-    id: 'KH003',
-    title: 'Sửa chữa máy in ',
-    type: 'Sửa chữa ',
-    unit: 'Phòng CTSV ',
-    sum: '20.000.000 VND',
-    field: 'Hàng hóa',
-    address: '48 Cao Thắng, Đà Nẵng',
-    status: 'pending',
-  },
-  {
-    id: 'KH004',
-    title: 'Mua sắm giấy in, bút lông ',
-    type: 'Mua sắm ',
-    unit: 'Phòng CTSV ',
-    sum: '10.000.000 VND',
-    field: 'Hàng hóa',
-    address: '48 Cao Thắng, Đà Nẵng',
-    status: 'pending',
-  }
-];
+const formatMoney = (amount) => {
+    const formatter = new Intl.NumberFormat('vi-VN', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+    return formatter.format(amount) + ' VNĐ';
+};
 
 const PlanList = () => {
-  const [plans, setPlans] = useState(mockData);
-  const [activeTab, setActiveTab] = useState('all');
-  const [selectedPlan, setSelectedPlan] = useState(null);
+    const [plans, setPlans] = useState([]);
+    const [thietBiList, setThietBiList] = useState([]);
+    const [activeTab, setActiveTab] = useState('all');
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const filteredPlans = plans.filter(plan => {
-    if (activeTab === 'all') return true;
-    return plan.status === activeTab;
-  });
+    useEffect(() => {
+        loadPlans();
+    }, []);
 
-  const counts = {
-    all: plans.length,
-    pending: plans.filter(plan => plan.status === 'pending').length,
-    approved: plans.filter(plan => plan.status === 'approved').length
-  };
+    const loadPlans = async () => {
+        try {
+            setLoading(true);
+            const response = await duyetngansachService.getlistmuasamService();
+            if (response.danhsachkehoach) {
+                const mappedPlans = response.danhsachkehoach.map((item) => ({
+                    id: item.maKeHoach,
+                    title: item.tenKeHoach,
+                    type: item.loaiyeucau,
+                    unit: item.donViCongTac,
+                    sum: item.chiPhiKeHoach,
+                    field: 'Hàng hóa',
+                    address: 'số 48 Cao Thắng, TP. Đà Nẵng',
+                    status: 'pending',
+                    ngayTao: '2025-06-14'
+                }));
+                setPlans(mappedPlans);
+            }
+        } catch (error) {
+            console.error('❌ Lỗi tải danh sách ngân sách:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleApprove = (id) => {
-    setPlans(plans.map(plan => plan.id === id ? { ...plan, status: 'approved' } : plan));
-  };
+    const handleViewDetails = async (id) => {
+        try {
+            setLoading(true);
+            const plan = plans.find(p => p.id === id);
+            setSelectedPlan(plan);
 
-  const handleReject = (id) => {
-    alert(`Từ chối kế hoạch: ${id}`);
-  };
+            const response = await duyetngansachService.getlistthietbiService(id);
+            if (response && response.listthietbi) {
+                setThietBiList(response.listthietbi);
+            } else {
+                setThietBiList([]);
+            }
+        } catch (error) {
+            console.error('❌ Lỗi khi lấy thiết bị:', error);
+            setThietBiList([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleViewDetails = (id) => {
-    const plan = plans.find(p => p.id === id);
-    setSelectedPlan(plan);
-  };
+    const handleApprove = (id) => {
+        setPlans(plans.map(plan => 
+            plan.id === id ? { ...plan, status: 'approved' } : plan
+        ));
+        if (selectedPlan && selectedPlan.id === id) {
+            setSelectedPlan(prev => ({
+                ...prev,
+                status: 'approved'
+            }));
+            setActiveTab('approved');
+            handleBackToList();
+        }
+    };
 
-  const handleBackToList = () => {
-    setSelectedPlan(null);
-  };
+    const handleReject = (id) => {
+        setPlans(plans.map(plan => 
+            plan.id === id ? { ...plan, status: 'pending' } : plan
+        ));
+        if (selectedPlan && selectedPlan.id === id) {
+            setSelectedPlan(prev => ({
+                ...prev,
+                status: 'pending'
+            }));
+            setActiveTab('pending');
+            handleBackToList();
+        }
+    };
 
-  const handleApproveAll = () => {
-    setPlans(plans.map(plan => plan.status === 'pending' ? { ...plan, status: 'approved' } : plan));
-  };
+    const handleBackToList = () => {
+        setSelectedPlan(null);
+        setThietBiList([]);
+    };
 
-  const handleRejectAll = () => {
-    alert('Từ chối tất cả kế hoạch chưa duyệt');
-  };
+    const handleApproveAll = () => {
+        setPlans(plans.map(plan => ({
+            ...plan,
+            status: 'approved'
+        })));
+        setActiveTab('approved');
+    };
 
-  return (
-    <div className="plan-list">
-      {!selectedPlan ? (
-        <>
-          <h1 className="plan-list__title">Danh sách hợp đồng</h1>
-          <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} counts={counts} />
+    const handleRejectAll = () => {
+        setPlans(plans.map(plan => ({
+            ...plan,
+            status: 'pending'
+        })));
+        setActiveTab('pending');
+    };
 
-          <div className="plan-list__cards">
-            {filteredPlans.map((plan, index) => (
-              <PlanCard 
-                key={`${plan.id}-${index}`}
-                plan={plan}
-                onApprove={handleApprove}
-                onReject={handleReject}
-                onViewDetails={() => handleViewDetails(plan.id)}
-              />
-            ))}
-          </div>
+    const filteredPlans = plans.filter(plan => {
+        if (activeTab === 'all') return true;
+        return plan.status === activeTab;
+    });
 
-          {filteredPlans.length > 0 && (
-            <div className="plan-list__batch-actions">
-              <button 
-                onClick={handleApproveAll}
-                className="plan-list__button plan-list__button--approve"
-              >
-                Duyệt tất cả
-              </button>
-              <button 
-                onClick={handleRejectAll}
-                className="plan-list__button plan-list__button--reject"
-              >
-                Từ chối
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="plan-list__detail">
-  <div className="header">
-    <h2>Kế hoạch 01</h2>
-  </div>
+    const counts = {
+        all: plans.length,
+        pending: plans.filter(plan => plan.status === 'pending').length,
+        approved: plans.filter(plan => plan.status === 'approved').length
+    };
 
-
-  <div className="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Sản phẩm</th>
-          <th>Đơn vị tính</th>
-          <th>Số lượng</th>
-          <th>Giá</th>
-          <th>Tổng tiền</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <img src="/printer-icon.png" className="product-icon" />
-            Máy in XP3
-          </td>
-          <td>cái</td>
-          <td>20</td>
-          <td>500.000 vnd</td>
-          <td>10.000.000 vnd</td>
-        </tr>
-        <tr>
-          <td>
-            <img src="/printer-icon.png" className="product-icon" />
-            Máy in SND1
-          </td>
-          <td>Cái</td>
-          <td>10</td>
-          <td>300.000 vnd</td>
-          <td>3.000.000 vnd</td>
-        </tr>
-        <tr>
-          <td>
-            <img src="/printer-icon.png" className="product-icon" />
-            Máy in DKC
-          </td>
-          <td>cái</td>
-          <td>20</td>
-          <td>200.000 vnd</td>
-          <td>4.000.000 vnd</td>
-        </tr>
-        <tr>
-          <td>
-            <img src="/printer-icon.png" className="product-icon" />
-            Máy in mực khô
-          </td>
-          <td>cái</td>
-          <td>10</td>
-          <td>100.000 vnd</td>
-          <td>1.000.000 vnd</td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <div className="total">
-      Tổng tiền: <span>18.000.000 vnd</span>
-    </div>
-  </div>
-
-  <div className="actions">
-    <button onClick={handleRejectAll} className="reject">
-      Từ chối
-    </button>
-    <button onClick={handleApproveAll} className="approve">
-      Duyệt
-    </button>
-  </div>
-</div>
-      )}
-    </div>
-  );
+    return (
+        <div className="plan-list">
+            {!selectedPlan ? (
+                <>
+                    <h1 className="plan-list__title">Danh sách kế hoạch</h1>
+                    <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} counts={counts} />
+                    <div className="plan-list__cards">
+                        {filteredPlans.map((plan, index) => (
+                            <PlanCard 
+                                key={`${plan.id}-${index}`}
+                                plan={plan}
+                                onApprove={handleApprove}
+                                onReject={handleReject}
+                                onViewDetails={() => handleViewDetails(plan.id)}
+                            />
+                        ))}
+                    </div>
+                    {filteredPlans.length > 0 && (
+                        <div className="plan-list__batch-actions">
+                            <button 
+                                onClick={handleApproveAll}
+                                className="plan-list__button plan-list__button--approve"
+                            >
+                                Duyệt tất cả
+                            </button>
+                            <button 
+                                onClick={handleRejectAll}
+                                className="plan-list__button plan-list__button--reject"
+                            >
+                                Từ chối tất cả
+                            </button>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="plan-list__detail">
+                    <div className="header">
+                        <h2>{selectedPlan.title}</h2>
+                        <div className="status">
+                            Trạng thái: 
+                            <span className={`status-badge ${selectedPlan.status}`}>
+                                {selectedPlan.status === 'approved' ? 'Đã duyệt' : 'Chưa duyệt'}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Đơn vị tính</th>
+                                    <th>Số lượng</th>
+                                    <th>Giá</th>
+                                    <th>Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {thietBiList.length > 0 ? (
+                                    thietBiList.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <img src="/printer-icon.png" className="product-icon" alt="" />
+                                                {item.tenThietBi}
+                                            </td>
+                                            <td>{item.donViTinh || 'cái'}</td>
+                                            <td>{item.soLuong}</td>
+                                            <td>{formatMoney(item.giaBan)}</td>
+                                            <td>{formatMoney(item.giaBan * item.soLuong)}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5">Không có thiết bị nào</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                        <div className="total">
+                            Tổng tiền: <span>
+                                {formatMoney(thietBiList.reduce((acc, item) => acc + item.giaBan * item.soLuong, 0))}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="actions">
+                        <button onClick={() => handleReject(selectedPlan.id)} className="reject">
+                            Từ chối
+                        </button>
+                        <button onClick={() => handleApprove(selectedPlan.id)} className="approve">
+                            Duyệt
+                        </button>
+                        <button onClick={handleBackToList} className="back">
+                            Quay lại
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default PlanList;

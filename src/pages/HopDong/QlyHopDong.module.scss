@@ -1,18 +1,53 @@
 .manage-contract {
     padding: 20px 0;
+    .heading-title{
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
 
-    & > h3 {
-        color: #254a93; // màu xanh dương đậm, thể hiện sự tin cậy
-        font-size: 24px; // to hơn chút để dễ nhìn
-        font-weight: 700;
-        margin-bottom: 16px;
-        border-left: 5px solid #254a93;
-        padding-left: 12px;
-        line-height: 1.4;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        letter-spacing: 0.5px;
+        & > h3 {
+            color: #254a93; // màu xanh dương đậm, thể hiện sự tin cậy
+            font-size: 24px; // to hơn chút để dễ nhìn
+            font-weight: 700;
+            margin-bottom: 16px;
+            border-left: 5px solid #254a93;
+            padding-left: 12px;
+            line-height: 1.4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0.5px;
+        }
     }
 }
+
+.form-group {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  margin: 0 1rem 1.5rem 0;
+
+  label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  select {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #3182ce;
+      box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+    }
+  }
+}
+
 
 select,
 button,

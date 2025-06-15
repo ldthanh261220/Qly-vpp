@@ -27,7 +27,9 @@ const routes = {
 
     nhathau: '/nhathau',
     chitietnhathau: '/nhathau/:id',
+    taonhathau: '/taonhathau',
     hopdong: '/hopdong',
+    taohopdong: '/taohopdong',
     chitiethopdong: 'hopdong/:id',
     dashboard: '/dashboard',
     yeucau: '/yeucau',

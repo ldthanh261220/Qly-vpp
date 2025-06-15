@@ -18,6 +18,8 @@ import { toast } from 'react-toastify';
 import yeucauService from '~/services/yeucauService';
 import { requestStatus } from '~/constants/requestStatus';
 import { requestType } from '~/constants/requestType';
+import { useSelector } from 'react-redux';
+import thongbaoService from '~/services/thongbaoService';
 
 const cx = classNames.bind(styles);
 
@@ -31,10 +33,13 @@ const QLyYeuCau = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showDelete, setShowDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   const navigate = useNavigate();
   const itemsPerPage = 5;
 
+  const user = useSelector((state) => state.user.currentUser);
+  
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -53,10 +58,42 @@ const QLyYeuCau = () => {
     fetchRequests();
   }, []);
 
-  const HandleDeleteRow = () => {
-    console.log('Đã xác nhận xóa:', showDelete);
-    setShowDelete(null);
-    // Gọi API xóa nếu cần
+  const HandleDeleteRow = async () => {
+    if (!showDelete || !showDelete.maYeuCau) {
+        toast.warn('Không có yeu cau để xóa!');
+        return;
+    }
+    try {
+        const res = await yeucauService.deleteYeuCauService(showDelete.maYeuCau);
+        const ngayDuyet = new Date().toISOString().split('T')[0];
+        if (res.errCode === 0) {
+          // Tạo mã thông báo mới
+          const randomId = `TB${Math.floor(Math.random() * 1000000).toString().padStart(8, '0')}`;
+          const thongBao = {
+            maThongBao: randomId,
+            maTaiKhoan: user?.id || null,  
+            ngayThongBao: ngayDuyet,
+            noiDungThongBao: `Yêu cầu ${showDelete.loaiYeuCau} ${showDelete.tenVatDung || showDelete.tenThietBi} đã bi xoa boi ${user.hoTen}.`,
+            trangThai: 'Chưa đọc',
+            maTaiKhoanNhan: showDelete?.maTaiKhoan || null,
+          };
+  
+          await thongbaoService.createThongBao(thongBao);
+          toast.success('Xóa yeu cau thành công!');
+          // Cập nhật lại danh sách
+          setRequests(prev =>
+            prev.filter(item => item.maYeuCau !== showDelete.maYeuCau)
+          );
+          // Đóng modal hoặc popup xác nhận
+          setShowDelete(null);
+        }
+        else {
+          toast.error('Xóa yeu cau thất bại!');
+        }
+    } catch (error) {
+        console.error('Lỗi khi xóa yeu cau:', error);
+        toast.error('Xóa yeu cau thất bại!');
+    }
   };
 
   const HandleViewDetails = (id) => {
@@ -161,9 +198,29 @@ const QLyYeuCau = () => {
     return matchesSearch && matchesStatus && matchesField && matchesDate;
   });
 
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+        if (!sortConfig.key) return 0;
+
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Nếu là ngày
+        if (sortConfig.key === 'ngayKy') {
+            aValue = new Date(aValue);
+            bValue = new Date(bValue);
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-  const paginatedRequests = filteredRequests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  console.log(filteredRequests);
+  const paginatedRequests = sortedRequests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  
+  const handleSortSelect = (key, direction) => {
+    setSortConfig({ key, direction });
+  };
   
   return (
     <div className={cx('manage-request')}>
@@ -171,9 +228,24 @@ const QLyYeuCau = () => {
         <h3>
           <FontAwesomeIcon icon={faFileContract} /> Danh sách yêu cầu
         </h3>
-        <button className={cx('btn-export')} onClick={handleExportExcel}>
+        <div>
+          <button className={cx('btn-export')} onClick={handleExportExcel}>
           Xuất Excel
         </button>
+        <div className={cx('form-group')}>
+            <label>Sắp xếp theo:</label>
+            <select value={sortConfig.key + '-' + sortConfig.direction} onChange={(e) => {
+                const [key, direction] = e.target.value.split('-');
+                handleSortSelect(key, direction);
+            }}>
+                <option value="">-- Chọn --</option>
+                <option value="tenVatDung-asc">Tên vật dụng (A-Z)</option>
+                <option value="tenVatDung-desc">Tên vật dụng (Z-A)</option>
+                <option value="createdAt-asc">Ngày tạo (Cũ → Mới)</option>
+                <option value="createdAt-desc">Ngày tạo (Mới → Cũ)</option>
+            </select>
+        </div>
+        </div>
       </div>
       {/* Bộ lọc */}
       <Filter

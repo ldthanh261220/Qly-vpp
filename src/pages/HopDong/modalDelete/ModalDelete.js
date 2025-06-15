@@ -19,7 +19,7 @@ const ModalDelete = ({showDelete, setShowDelete, HandleDeleteRow}) => {
                     <h4>Thông báo</h4>
                 </div>
                 <p>
-                    Bạn có chắc chắn muốn hủy hợp đồng <strong>{showDelete.ten}</strong> không?
+                    Bạn có chắc chắn muốn hủy hợp đồng <strong>{showDelete.tenHopDong}</strong> không?
                 </p>
                 <div className={cx('btn-handle')}>
                     <button className={cx('btn-del')} onClick={HandleDeleteRow}>Xác nhận</button>
