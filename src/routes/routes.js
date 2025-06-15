@@ -39,6 +39,7 @@ import CapNhatPhienThau from '~/pages/Moithau/Suaphiendauthau';
 
 import TaoHopDong from '~/pages/HopDong/TaoHopDong/TaoHopDong';
 import TaoNhaThau from '~/pages/NhaThau/TaoNhaThau/TaoNhaThau';
+import SuaChitietNghiemThu from '~/pages/Nghiemthu/Suachitietnghiemthu';
 // Public routes
 const publicRoutes = [
     { path: config.routes.home, component: Home },
@@ -79,6 +80,7 @@ const publicRoutes = [
     { path: config.routes.Duyetnhathau, component: Duyetnhathau },
     { path: config.routes.Duyetngansach, component: Duyetngansach },
     { path: config.routes.Thanhtoanhopdong, component: Thanhtoanhopdong },
+    { path: config.routes.Capnhanghiemthu, component: SuaChitietNghiemThu },
 
 ];
 

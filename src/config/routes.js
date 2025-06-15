@@ -9,6 +9,8 @@ const routes = {
     Themkehoach: '/themkehoach',
     Suakehoach: '/suakehoach/:id',
     Nghiemthu: '/nghiemthu',
+    Capnhanghiemthu: '/capnhatnghiemthu/:id',
+    
     Chitietnghiemthu: '/nghiemthu/:id',
     Moithau:'/moithau',
     Solandauthau:'/moithau/:idphieu',

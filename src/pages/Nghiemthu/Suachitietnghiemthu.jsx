@@ -1,25 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './chitietnghiemthu.scss';
+import './chitietnghiemthu.scss'; // Reusing the same styles
 
-const ChitietNghiemThu = () => {
+const SuaChitietNghiemThu = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [KeHoach, setKeHoach] = useState(null);
   const [ghiChuList, setGhiChuList] = useState({});
-  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('Đạt yêu cầu'); // Mặc định
+  const [trangThaiNghiemThu, setTrangThaiNghiemThu] = useState('');
 
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_BACKEND}detailnghiemthu?maNghiemthu=${id}`)
       .then((response) => {
         setKeHoach(response.data);
-        const initialGhiChu = response.data.sanpham.reduce((acc, sp) => {
-          acc[sp.mayc_ms] = '';
+        // Initialize ghiChuList with existing notes or empty strings
+        const initialGhiChu = response.data.yeucau.reduce((acc, sp, index) => {
+          acc[sp.mayc_ms] = (response.data.nghiemThu?.noiDung || '').split('|')[index] || '';
           return acc;
         }, {});
         setGhiChuList(initialGhiChu);
+        // Set initial status from existing data
+        setTrangThaiNghiemThu(response.data.nghiemThu?.trangThai || 'Đạt yêu cầu');
       })
       .catch((error) => {
         console.error('Axios error:', error);
@@ -37,36 +40,30 @@ const ChitietNghiemThu = () => {
     setTrangThaiNghiemThu(e.target.value);
   };
 
-  const handleXacNhan = async () => {
+  const handleCapNhat = async () => {
     try {
       const noiDung = Object.values(ghiChuList).join('|');
-       const last8 = KeHoach.maKeHoach.slice(-8); // Lấy 8 ký tự cuối
-    const maNghiemThu = `NT${last8}`;
       const payload = {
-        maNghiemThu: maNghiemThu,
-        maKeHoach: KeHoach.maKeHoach,
-        hinhAnhNghiemThu: '', // nếu có ảnh, sửa sau
+        maNghiemThu: KeHoach.nghiemThu.maNghiemthu,
         trangThai: trangThaiNghiemThu,
         noiDung: noiDung,
-        ngayTao: new Date().toISOString(),
+        
       };
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND}xacnhannghiemthu`,
+      console.log(payload)
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND}capnhatnghiemthu`,
         payload
       );
 
-      alert(response.data.message || 'Xác nhận nghiệm thu thành công!');
+      alert(response.data.message || 'Cập nhật nghiệm thu thành công!');
       navigate('/Nghiemthu');
     } catch (error) {
-      console.error('Lỗi xác nhận nghiệm thu:', error);
+      console.error('Lỗi cập nhật nghiệm thu:', error);
       alert(
-        error.response?.data?.message || 'Lỗi khi xác nhận nghiệm thu, vui lòng thử lại.'
+        error.response?.data?.message || 'Lỗi khi cập nhật nghiệm thu, vui lòng thử lại.'
       );
     }
   };
-
-
 
   if (!KeHoach) {
     return <div>Đang tải...</div>;
@@ -83,17 +80,16 @@ const ChitietNghiemThu = () => {
     trangThai,
     yeucau,
     nghiemThu,
-    daNghiemThu,
   } = KeHoach;
 
   return (
     <div className="chitiet-KeHoach-container">
-      <h2>Chi tiết nghiệm thu</h2>
+      <h2>Chỉnh sửa nghiệm thu</h2>
       <div className="KeHoach-info">
         <h3>{tenKeHoach}</h3>
         <div className="info-columns">
           <div className="info-column info-left">
-            <p><strong>Mã nghiệm thu:</strong> {nghiemThu?.maNghiemthu || 'Chưa có'}</p>
+            <p><strong>Mã nghiệm thu:</strong> {nghiemThu?.maNghiemthu}</p>
             <p><strong>Mã kế hoạch:</strong> {maKeHoach}</p>
             <p><strong>Chủ bút từ:</strong> {chuBuTu}</p>
             <p><strong>Đơn vị:</strong> {donVi}</p>
@@ -103,7 +99,6 @@ const ChitietNghiemThu = () => {
             <p><strong>Thời gian bắt đầu:</strong> {thoiGianBatDau ? new Date(thoiGianBatDau).toLocaleDateString('vi-VN') : ''}</p>
             <p><strong>Thời gian kết thúc:</strong> {thoiGianKetThuc ? new Date(thoiGianKetThuc).toLocaleDateString('vi-VN') : ''}</p>
             <p><strong>Trạng thái kế hoạch:</strong> {trangThai}</p>
-            <p><strong>Nội dung nghiệm thu:</strong> {nghiemThu?.noiDung || 'Chưa có'}</p>
             <p><strong>Ngày tạo:</strong> {nghiemThu?.ngayTao ? new Date(nghiemThu.ngayTao).toLocaleDateString('vi-VN') : ''}</p>
           </div>
         </div>
@@ -118,29 +113,24 @@ const ChitietNghiemThu = () => {
             <th>Ghi chú</th>
           </tr>
         </thead>
-       <tbody>
-  {yeucau.map((sp, index) => (
-    <tr key={sp.mayc_ms}>
-      <td>{sp.tenVatDung}</td>
-      <td>{sp.moTaChiTiet}</td>
-      <td>{sp.soLuong}</td>
-      <td>
-        {daNghiemThu ? (
-          // Hiển thị ghi chú từ nghiệm thu đã lưu
-          <span>{(nghiemThu?.noiDung || '').split('|')[index]}</span>
-        ) : (
-          <textarea
-            value={ghiChuList[sp.mayc_ms] || ''}
-            onChange={(e) => handleGhiChuChange(sp.mayc_ms, e.target.value)}
-            placeholder="Nhập ghi chú..."
-            rows={2}
-            className="ghi-chu-textarea"
-          />
-        )}
-      </td>
-    </tr>
-  ))}
-</tbody>
+        <tbody>
+          {yeucau.map((sp) => (
+            <tr key={sp.mayc_ms}>
+              <td>{sp.tenVatDung}</td>
+              <td>{sp.moTaChiTiet}</td>
+              <td>{sp.soLuong}</td>
+              <td>
+                <textarea
+                  value={ghiChuList[sp.mayc_ms] || ''}
+                  onChange={(e) => handleGhiChuChange(sp.mayc_ms, e.target.value)}
+                  placeholder="Nhập ghi chú..."
+                  rows={2}
+                  className="ghi-chu-textarea"
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
 
       <div className="trangthai-wrapper" style={{ marginBottom: '20px' }}>
@@ -152,21 +142,12 @@ const ChitietNghiemThu = () => {
       </div>
 
       <div className="button-wrapper">
-        {daNghiemThu ? (
-          <>
-            <p className='xacnhan'>Đã xác nhận nghiệm thu</p>
-          </>
-        ) : (
-          <>
-            
-            <button className="btn-xac-nhan" onClick={handleXacNhan}>
-              Xác nhận nghiệm thu
-            </button>
-          </>
-        )}
+        <button className="btn-xac-nhan" onClick={handleCapNhat}>
+          Cập nhật nghiệm thu
+        </button>
       </div>
     </div>
   );
 };
 
-export default ChitietNghiemThu;
+export default SuaChitietNghiemThu;
