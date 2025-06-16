@@ -7,25 +7,25 @@ const cx = classNames.bind(styles);
 
 const UNITS = [
     '-- Tất cả --',
-    'Phòng Tổ Chức - Hành Chính',
-    'Phòng Đào Tạo',
-    'Phòng Công Tác Sinh Viên',
-    'Phòng QLKH Và HTQT',
-    'Phòng Kế Hoạch - Tài Chính',
-    'Phòng Khảo Thí Và ĐBCLGD',
-    'Phòng Cơ Sở Vật Chất',
-    'Văn Phòng Khoa Cơ Khí',
-    'Văn Phòng Khoa Điện - Điện Tử',
-    'Văn Phòng Khoa Kỹ Thuật Xây Dựng',
-    'Văn Phòng Khoa CN Hóa - Môi Trường',
-    'Văn Phòng Khoa Sư Phạm CN',
-    'Văn Phòng Khoa Công Nghệ Số',
-    'Thư Viện',
-    'Phòng Hội Đồng',
-    'Phòng Giáo Vụ',
-    'Phòng Họp Lớn',
-    'Phòng Máy Số 1',
-    'Phòng Máy Số 2',
+    'Phòng tổ chức - hành chính',
+    'Phòng đào tạo',
+    'Phòng công tác sinh viên',
+    'Phòng qlkh và htqt',
+    'Phòng kế hoạch - tài chính',
+    'Phòng khảo thí và đbclgd',
+    'Phòng cơ sở vật chất',
+    'Văn phòng khoa cơ khí',
+    'Văn phòng khoa điện - điện tử',
+    'Văn phòng khoa kỹ thuật xây dựng',
+    'Văn phòng khoa cn hóa - môi trường',
+    'Văn phòng khoa sư phạm cn',
+    'Văn phòng khoa công nghệ số',
+    'Thư viện',
+    'Phòng hội đồng',
+    'Phòng giáo vụ',
+    'Phòng họp lớn',
+    'Phòng máy số 1',
+    'Phòng máy số 2',
     'A101',
     'A102',
     'A103',
@@ -91,7 +91,10 @@ function Suathietbi({ onClose, editDevice, deviceData }) {
     useEffect(() => {
         fetchDanhmuc();
     }, []);
-
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        return dateString.split(' ')[0]; // Tách "2025-06-16 00:00:00" thành "2025-06-16"
+    };
     // Load dữ liệu thiết bị cần sửa
     useEffect(() => {
         if (deviceData) {
@@ -102,12 +105,14 @@ function Suathietbi({ onClose, editDevice, deviceData }) {
             setMoTa(deviceData.moTa || '');
             setHang(deviceData.Hang || '');
             setXuatXu(deviceData.xuatXu || '');
-            setCreatedAt(deviceData.createdAt || '');
+
+            // Format createdAt để hiển thị đúng trong input date
+            setCreatedAt(formatDateForInput(deviceData.createdAt) || '');
+
             setTenPhong(deviceData.tenPhong || '');
             setTrangThai(deviceData.trangThai || '');
             setHuongDanSuDung(deviceData.huongDanSuDung || '');
             setSoLuong(deviceData.soLuong || 1);
-            // Nếu có hình ảnh từ server, có thể xử lý ở đây
             setHinhAnh(deviceData.hinhAnh || null);
         }
     }, [deviceData]);
